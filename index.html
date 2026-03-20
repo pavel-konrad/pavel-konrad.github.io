@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Pavel Konrad – Fullstack RoR Developer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+:root {
+  --bg:#0c0c10;
+  --card:#17171d;
+  --line:#2a2a33;
+  --text:#f2f2f6;
+  --muted:#9b9baa;
+  --accent:#cc0000;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0;
+  font-family:Inter,system-ui,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  overflow-x:hidden;
+  line-height:1.6;
+}
+
+/* ---------- HERO ---------- */
+.hero {
+  position:relative;
+  height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+.hero-bg {
+  position:absolute;
+  inset:-20%;
+  background:linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  background-image:url('https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop');
+  background-size:cover;
+  background-position:center;
+  will-change:transform;
+}
+.hero-content {
+  position:relative;
+  z-index:1;
+  padding:2.5rem 3rem;
+  background:rgba(12,12,16,0.7);
+  backdrop-filter:blur(12px);
+  border-radius:20px;
+  text-align:center;
+  max-width:620px;
+}
+.hero h1 {
+  font-size:clamp(2.2rem,5vw,3.2rem);
+  margin-bottom:.5rem;
+}
+.hero .subtitle {
+  color:var(--accent);
+  font-size:1.15rem;
+  font-weight:600;
+  margin-bottom:.6rem;
+}
+.hero p { color:var(--muted); font-size:1rem; margin:.3rem 0; }
+.hero-links {
+  display:flex;
+  gap:1.2rem;
+  justify-content:center;
+  margin-top:1.2rem;
+}
+.hero-links a {
+  color:var(--text);
+  font-size:1.4rem;
+  transition:color .2s;
+}
+.hero-links a:hover { color:var(--accent); }
+
+/* ---------- TECH STACK BAR ---------- */
+.tech-bar {
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:.6rem;
+  margin-top:1.2rem;
+}
+.tech-tag {
+  background:rgba(204,0,0,0.12);
+  color:var(--accent);
+  border:1px solid rgba(204,0,0,0.25);
+  padding:.25rem .7rem;
+  border-radius:8px;
+  font-size:.78rem;
+  font-weight:500;
+  letter-spacing:.02em;
+}
+
+/* ---------- TIMELINE ---------- */
+.timeline {
+  position:relative;
+  max-width:960px;
+  margin:0 auto;
+  padding:6rem 1.5rem;
+}
+.timeline::before {
+  content:"";
+  position:fixed;
+  top:0;
+  bottom:0;
+  left:50%;
+  width:2px;
+  background:var(--line);
+  transform:translateX(-50%);
+  z-index:0;
+}
+
+/* ---------- TIMELINE SECTION ---------- */
+.timeline-section {
+  position:relative;
+  margin-bottom:4rem;
+  padding-top:4rem;
+}
+
+.timeline-section:has(.timeline-items-container > .timeline-item:only-child) {
+  min-height:300px;
+}
+.timeline-section:has(.timeline-items-container > .timeline-item:nth-child(2)) {
+  min-height:550px;
+}
+.timeline-section:has(.timeline-items-container > .timeline-item:nth-child(3)) {
+  min-height:800px;
+}
+.timeline-section:has(.timeline-items-container > .timeline-item:nth-child(4)) {
+  min-height:1050px;
+}
+.timeline-year {
+  position:absolute;
+  top:4rem;
+  left:50%;
+  transform:translateX(-50%);
+  font-size:clamp(4rem,12vw,10rem);
+  font-weight:900;
+  letter-spacing:-0.04em;
+  line-height:0.9;
+  color:rgba(255,255,255,0.04);
+  pointer-events:none;
+  user-select:none;
+  z-index:0;
+  white-space:nowrap;
+}
+.timeline-year-bottom {
+  position:absolute;
+  bottom:0;
+  left:50%;
+  transform:translateX(-50%);
+  font-size:clamp(4rem,12vw,10rem);
+  font-weight:900;
+  letter-spacing:-0.04em;
+  line-height:0.9;
+  color:rgba(255,255,255,0.04);
+  pointer-events:none;
+  user-select:none;
+  z-index:0;
+  white-space:nowrap;
+}
+
+/* ---------- TIMELINE ITEMS ---------- */
+.timeline-items-container {
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  gap:3rem;
+  padding-top:3rem;
+}
+.timeline-item {
+  position:relative;
+  display:flex;
+  min-height:200px;
+  align-items:center;
+  opacity:0.5;
+  will-change:opacity;
+  transition:opacity 0.3s ease;
+  z-index:1;
+}
+.timeline-item.is-left .timeline-card {
+  margin-right:auto;
+  margin-left:0;
+}
+.timeline-item.is-right .timeline-card {
+  margin-left:auto;
+  margin-right:0;
+}
+.timeline-item.is-active { opacity:1; }
+
+a.timeline-card {
+  display:block;
+  text-decoration:none;
+  color:inherit;
+  cursor:pointer;
+}
+.timeline-card {
+  width:42%;
+  background:var(--card);
+  padding:1.8rem;
+  border-radius:18px;
+  box-shadow:0 30px 60px rgba(0,0,0,.45);
+  border:1px solid rgba(204,0,0,0.1);
+  transition:all 0.3s ease;
+}
+.timeline-card:hover {
+  box-shadow:0 40px 80px rgba(204,0,0,0.12);
+  border-color:rgba(204,0,0,0.3);
+  transform:translateY(-4px);
+}
+.timeline-card span { color:var(--accent); font-size:.9rem; letter-spacing:.05em; }
+.timeline-card h3 { margin:.4rem 0 .6rem; }
+.timeline-card p { color:var(--muted); margin:0; }
+.timeline-card .card-tags {
+  display:flex;
+  flex-wrap:wrap;
+  gap:.4rem;
+  margin-top:.8rem;
+}
+.timeline-card .card-tag {
+  background:rgba(204,0,0,0.08);
+  color:var(--muted);
+  padding:.15rem .5rem;
+  border-radius:6px;
+  font-size:.72rem;
+  font-weight:500;
+}
+.timeline-card .card-client {
+  color:var(--muted);
+  font-size:.82rem;
+  margin-top:.3rem;
+  font-style:italic;
+}
+
+.index-item-10 { z-index:10; }
+.index-item-9 { z-index:9; }
+.index-item-8 { z-index:8; }
+.index-item-7 { z-index:7; }
+
+/* ---------- DOT ---------- */
+.dot {
+  position:absolute;
+  left:50%;
+  width:16px;
+  height:16px;
+  background:var(--accent);
+  border:3px solid var(--bg);
+  border-radius:50%;
+  transform:translateX(-50%);
+  top:50%;
+  margin-top:-8px;
+  z-index:2;
+  box-shadow:0 0 20px rgba(204,0,0,0.5);
+  transition:all 0.3s ease;
+}
+.timeline-item.is-active .dot {
+  width:20px;
+  height:20px;
+  margin-top:-10px;
+  box-shadow:0 0 30px rgba(204,0,0,0.8);
+}
+
+/* ---------- PARALLAX IMAGE ---------- */
+.section-image {
+  position:relative;
+  height:50vh;
+  margin:8rem 0;
+  border-radius:28px;
+  background-size:cover;
+  background-position:center;
+  will-change:transform;
+  overflow:hidden;
+}
+.section-image::after {
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(135deg, rgba(204,0,0,0.08) 0%, rgba(204,0,0,0.03) 100%);
+  pointer-events:none;
+}
+
+.fa-icon {
+  color:var(--text);
+  font-size:1.5rem;
+  transition:color .2s;
+}
+.fa-icon:hover { color:var(--accent); }
+.fa-icons-container {
+  display:flex;
+  gap:1rem;
+  margin-top:.6rem;
+}
+
+/* ---------- CONTACT ---------- */
+.contact {
+  text-align:center;
+  padding:6rem 1.5rem 4rem;
+  max-width:600px;
+  margin:0 auto;
+}
+.contact h2 {
+  font-size:clamp(1.8rem,4vw,2.4rem);
+  margin-bottom:1rem;
+}
+.contact p {
+  color:var(--muted);
+  margin-bottom:1.5rem;
+}
+.contact-email {
+  display:inline-block;
+  color:var(--accent);
+  font-size:1.2rem;
+  font-weight:600;
+  text-decoration:none;
+  border:1px solid rgba(204,0,0,0.3);
+  padding:.8rem 2rem;
+  border-radius:12px;
+  transition:all .2s;
+}
+.contact-email:hover {
+  background:rgba(204,0,0,0.1);
+  border-color:var(--accent);
+}
+.contact-links {
+  display:flex;
+  gap:1.2rem;
+  justify-content:center;
+  margin-top:1.5rem;
+}
+.contact-links a {
+  color:var(--muted);
+  font-size:1.4rem;
+  transition:color .2s;
+}
+.contact-links a:hover { color:var(--accent); }
+
+/* ---------- MOBILE ---------- */
+@media (max-width:768px){
+  .timeline::before {
+    left:1rem;
+  }
+  .timeline-item .timeline-card {
+    width:100%;
+    margin-left:0 !important;
+    margin-right:0 !important;
+  }
+  .timeline-item {
+    padding-left:3rem;
+  }
+  .dot {
+    left:1rem;
+  }
+  .timeline-year {
+    font-size:3rem;
+    left:2rem;
+    transform:translateX(0);
+  }
+  .hero-content {
+    margin:1rem;
+    padding:2rem 1.5rem;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg" id="heroBg"></div>
+  <div class="hero-content">
+    <h1>Pavel Konrad</h1>
+    <p class="subtitle">Fullstack Ruby on Rails Developer</p>
+    <p>Building modern web applications from concept to deployment</p>
+    <div class="tech-bar">
+      <span class="tech-tag">Ruby on Rails</span>
+      <span class="tech-tag">Hotwire Turbo</span>
+      <span class="tech-tag">Stimulus</span>
+      <span class="tech-tag">PostgreSQL</span>
+      <span class="tech-tag">BOOTSTRAP / Tailwind CSS</span>
+      <span class="tech-tag">PWA - mobile app</span>
+    </div>
+    <div class="hero-links">
+      <a href="https://www.linkedin.com/in/pavelkonrad/" target="_blank" title="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+      <a href="https://github.com/pavel-konrad" target="_blank" title="GitHub"><i class="fa-brands fa-github"></i></a>
+      <a href="mailto:dev@pavelkonrad.cz" title="Email"><i class="fa-solid fa-envelope"></i></a>
+    </div>
+  </div>
+</section>
+
+<!-- TIMELINE -->
+<section class="timeline">
+
+  <!-- ===== MAR 2026 ===== -->
+  <section class="timeline-section">
+    <div class="timeline-year">2026</div>
+    <div class="timeline-items-container">
+      <div class="timeline-item is-left" data-speed="0.22">
+        <div class="dot"></div>
+        <a href="https://freshwatches.cz" target="_blank" class="timeline-card">
+          <span>MAR 2026 · CLIENT</span>
+          <h3>freshwatches.cz</h3>
+          <p>Frontend development for an e-commerce watch store.</p>
+          <p class="card-client">for studio poptavamweb.cz</p>
+          <div class="card-tags">
+            <span class="card-tag">Frontend</span>
+            <span class="card-tag">HAML / BOOTSTRAP</span>
+            <span class="card-tag">Hotwire Turbo</span>
+          </div>
+        </a>
+      </div>
+      <div class="timeline-item is-right" data-speed="0.35">
+        <div class="dot"></div>
+        <a href="https://demo.roboti.dev/admin" target="_blank" class="timeline-card">
+          <span>MAR 2026 · PRODUCT</span>
+          <h3>Admin Panel for Roboti.dev</h3>
+          <p>Custom-built admin panel — data management, users, and workflow automation.</p>
+          <div class="card-tags">
+            <span class="card-tag">Ruby on Rails</span>
+            <span class="card-tag">Admin Panel</span>
+            <span class="card-tag">PostgreSQL</span>
+            <span class="card-tag">Hotwire Turbo</span>
+            <span class="card-tag">Stimulus</span>
+            <span class="card-tag">PWA - mobile app</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== PARALLAX IMAGE ===== -->
+  <section class="section-image" data-speed="0.15"
+           style="background-image:url('https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=2070&auto=format&fit=crop')"></section>
+
+  <!-- ===== FEB 2026 – DEC 2025 ===== -->
+  <section class="timeline-section">
+    <div class="timeline-year">2026</div>
+    <div class="timeline-items-container">
+      <div class="timeline-item is-left" data-speed="0.25">
+        <div class="dot"></div>
+        <a href="https://gunsfans.com" target="_blank" class="timeline-card">
+          <span>FEB 2026 · CLIENT</span>
+          <h3>gunsfans.com</h3>
+          <p>Community web platform for shooting sports enthusiasts.</p>
+          <p class="card-client">for Panek Group</p>
+          <div class="card-tags">
+            <span class="card-tag">Ruby on Rails</span>
+            <span class="card-tag">Full-stack</span>
+            <span class="card-tag">PWA - mobile app</span>
+            <span class="card-tag">Hotwire Turbo</span>
+            <span class="card-tag">Stimulus</span>
+            <span class="card-tag">PostgreSQL</span>
+          </div>
+        </a>
+      </div>
+      <div class="timeline-item is-right" data-speed="0.35">
+        <div class="dot"></div>
+        <a href="https://tikknode.org" target="_blank" class="timeline-card">
+          <span>DEC 2025 · PRODUCT</span>
+          <h3>TiKKNode</h3>
+          <p>Full web app for screen-time gamification — tracking and motivating healthier habits.</p>
+          <div class="card-tags">
+            <span class="card-tag">Full Web App</span>
+            <span class="card-tag">Gamification</span>
+            <span class="card-tag">Ruby on Rails</span>
+            <span class="card-tag">Hotwire Turbo</span>
+            <span class="card-tag">Stimulus</span>
+            <span class="card-tag">PWA - mobile app</span>
+          </div>
+        </a>
+      </div>
+      <div class="timeline-year-bottom">2025</div>
+    </div>
+  </section>
+
+  <!-- ===== PARALLAX IMAGE ===== -->
+  <section class="section-image" data-speed="0.15"
+           style="background-image:url('https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=2069&auto=format&fit=crop')"></section>
+
+  <!-- ===== SEP 2025 – 2025 ===== -->
+  <section class="timeline-section">
+    <div class="timeline-year">2025</div>
+    <div class="timeline-items-container">
+      <div class="timeline-item is-left index-item-10" data-speed="0.2">
+        <div class="dot"></div>
+        <a href="https://miloapp.ai" target="_blank" class="timeline-card">
+          <span>SEP 2025 · CLIENT</span>
+          <h3>MiloAPP.ai</h3>
+          <p>Landing page for an AI platform connecting households with cleaning services.</p>
+          <div class="card-tags">
+            <span class="card-tag">Webflow</span>
+            <span class="card-tag">HTML / CSS</span>
+            <span class="card-tag">JavaScript</span>
+          </div>
+        </a>
+      </div>
+      <div class="timeline-item is-right index-item-9" data-speed="0.35">
+        <div class="dot"></div>
+        <a href="https://estatefans.com" target="_blank" class="timeline-card">
+          <span>2025 · CLIENT</span>
+          <h3>estatefans.com</h3>
+          <p>Full-stack development of a real estate platform — frontend and backend.</p>
+          <p class="card-client">for Panek Group s.r.o.</p>
+          <div class="card-tags">
+            <span class="card-tag">Full Stack</span>
+            <span class="card-tag">Ruby on Rails</span>
+            <span class="card-tag">PostgreSQL</span>
+            <span class="card-tag">Hotwire Turbo</span>
+            <span class="card-tag">Stimulus</span>
+            <span class="card-tag">PWA - mobile app</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== PARALLAX IMAGE ===== -->
+  <section class="section-image" data-speed="0.15"
+           style="background-image:url('https://images.unsplash.com/photo-1504639725590-34d0984388bd?q=80&w=2074&auto=format&fit=crop')"></section>
+
+  <!-- ===== MAR 2025 + CTA ===== -->
+  <section class="timeline-section">
+    <div class="timeline-year">2025</div>
+    <div class="timeline-items-container">
+      <div class="timeline-item is-left" data-speed="0.2">
+        <div class="dot"></div>
+        <a href="https://raisfy.com" target="_blank" class="timeline-card">
+          <span>MAR 2025 · CLIENT</span>
+          <h3>Raisfy</h3>
+          <p>Redesign and implementation of a new UI for an investment platform.</p>
+          <p class="card-client">for Panek Group</p>
+          <div class="card-tags">
+            <span class="card-tag">Redesign</span>
+            <span class="card-tag">UI Implementation</span>
+            <span class="card-tag">HAML / BOOTSTRAP</span>
+          </div>
+        </a>
+      </div>
+      <div class="timeline-item is-right" data-speed="0.35">
+        <div class="dot"></div>
+        <a href="https://ihriste.cz" target="_blank" class="timeline-card">
+          <span>MAR 2025 · CLIENT</span>
+          <h3>ihriste.cz</h3>
+          <p>UI/UX design for a platform mapping playgrounds and outdoor spaces.</p>
+          <p class="card-client">for SMWORKS</p>
+          <div class="card-tags">
+            <span class="card-tag">Design</span>
+            <span class="card-tag">UI / UX</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+</section>
+
+<!-- CONTACT -->
+<section class="timeline" style="padding-top:0;">
+  <section class="timeline-section" style="margin-bottom:0;">
+    <div class="timeline-items-container" style="padding-top:0;">
+      <div class="timeline-item" data-speed="0.2" style="justify-content:center;">
+        <a href="mailto:dev@pavelkonrad.cz" class="timeline-card" style="width:42%; text-align:center; margin:0 auto;">
+          <span>CONTACT</span>
+          <h3>Let's work together</h3>
+          <p>Open to new opportunities, freelance projects, and collaboration.</p>
+          <p style="color:var(--accent); font-size:1.1rem; font-weight:600; margin-top:.8rem;">dev@pavelkonrad.cz</p>
+          <div class="card-tags" style="justify-content:center; margin-top:1rem;">
+            <span class="card-tag" style="font-size:.85rem; padding:.3rem .8rem;"><i class="fa-brands fa-linkedin" style="margin-right:.4rem;"></i>LinkedIn</span>
+            <span class="card-tag" style="font-size:.85rem; padding:.3rem .8rem;"><i class="fa-brands fa-github" style="margin-right:.4rem;"></i>GitHub</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+</section>
+
+<script>
+const heroBg = document.getElementById("heroBg");
+const parallaxEls = document.querySelectorAll("[data-speed]");
+const items = document.querySelectorAll(".timeline-item");
+
+function onScroll(){
+  const scrollY = window.scrollY;
+  const viewportHeight = window.innerHeight;
+  const center = viewportHeight / 2;
+
+  heroBg.style.transform = `translateY(${scrollY * 0.3}px)`;
+
+  parallaxEls.forEach(el=>{
+    const speed = parseFloat(el.dataset.speed) || 0.2;
+    const rect = el.getBoundingClientRect();
+    const elementTop = scrollY + rect.top;
+    const offset = (scrollY - elementTop) * speed;
+    el.style.transform = `translateY(${offset}px)`;
+  });
+
+  items.forEach((item) => {
+    const rect = item.getBoundingClientRect();
+    const distance = Math.abs(rect.top - center);
+    const isActive = distance < 280;
+    item.classList.toggle("is-active", isActive);
+  });
+}
+
+let resizeTimeout;
+window.addEventListener("scroll", onScroll, { passive: true });
+window.addEventListener("resize", () => {
+  clearTimeout(resizeTimeout);
+  resizeTimeout = setTimeout(onScroll, 100);
+});
+
+onScroll();
+</script>
+
+</body>
+</html>
