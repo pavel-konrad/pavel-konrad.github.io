@@ -2,13 +2,15 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Pavel Konrad – Fullstack RoR Developer</title>
+<title>Pavel Konrad – Technical Sound Designer</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Pavel Konrad — Fullstack Ruby on Rails Developer. Building modern web applications from concept to deployment.">
-<meta name="robots" content="index, follow">
+<meta name="description" content="Pavel Konrad — Technical Sound Designer. Adaptive audio for interactive media: FMOD, Unity, Ableton Live. Sound creation, event design, and C# implementation.">
+<meta name="author" content="Pavel Konrád">
+<meta name="keywords" content="technical sound designer, game audio, sound design, FMOD Studio, Wwise, Unity, C#, Ableton Live, adaptive audio, audio implementation, Prague, remote, freelance, contract">
+<meta name="robots" content="index, follow, max-image-preview:large">
 <link rel="canonical" href="https://pavelkonrad.cz/">
-<meta property="og:title" content="Pavel Konrad — Fullstack RoR Developer">
-<meta property="og:description" content="Building modern web applications from concept to deployment.">
+<meta property="og:title" content="Pavel Konrad — Technical Sound Designer">
+<meta property="og:description" content="Adaptive audio for interactive media: FMOD, Unity, Ableton Live.">
 <meta property="og:url" content="https://pavelkonrad.cz/">
 <meta property="og:type" content="website">
 <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
@@ -17,6 +19,8 @@
 <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
 <link rel="manifest" href="assets/site.webmanifest">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<!-- Umami analytics (site: pavelkonrad.cz) -->
+<script defer src="https://cloud.umami.is/script.js" data-website-id="3eed9d4b-93e9-41f4-9878-134136bddf8e"></script>
 <style>
 :root {
   --bg:#0c0c10;
@@ -49,7 +53,7 @@ body {
   position:absolute;
   inset:-20%;
   background:linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  background-image:url('https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop');
+  background-image:url('https://images.unsplash.com/photo-1703117387553-5d406704d157?q=80&w=2070&auto=format&fit=crop');
   background-size:cover;
   background-position:center;
   will-change:transform;
@@ -62,7 +66,7 @@ body {
   backdrop-filter:blur(12px);
   border-radius:16px;
   text-align:center;
-  max-width:620px;
+  max-width:640px;
   margin:1rem;
 }
 .hero h1 {
@@ -74,8 +78,25 @@ body {
   font-size:1rem;
   font-weight:600;
   margin-bottom:.6rem;
+  letter-spacing:.02em;
 }
 .hero p { color:var(--muted); font-size:.95rem; margin:.3rem 0; }
+.reel-btn {
+  display:inline-flex;
+  align-items:center;
+  gap:.5rem;
+  margin-top:1rem;
+  color:var(--text);
+  text-decoration:none;
+  background:rgba(204,0,0,0.14);
+  border:1px solid rgba(204,0,0,0.4);
+  padding:.55rem 1.2rem;
+  border-radius:12px;
+  font-weight:600;
+  font-size:.9rem;
+  transition:all .2s;
+}
+.reel-btn:hover { background:rgba(204,0,0,0.25); border-color:var(--accent); }
 .hero-links {
   display:flex;
   gap:1.2rem;
@@ -117,7 +138,7 @@ body {
 }
 .timeline::before {
   content:"";
-  position:fixed;
+  position:absolute;   /* was fixed — confine the rail to the timeline, not the whole viewport */
   top:0;
   bottom:0;
   left:1rem;
@@ -125,6 +146,9 @@ body {
   background:var(--line);
   z-index:0;
 }
+/* contact block is a single centered card — no rail, no parallax */
+.timeline--contact { padding-top:2.5rem; }
+.timeline--contact::before { display:none; }
 
 /* ---------- TIMELINE SECTION ---------- */
 .timeline-section {
@@ -179,8 +203,16 @@ body {
   transition:opacity 0.3s ease;
   z-index:1;
   padding-left:3rem;
+  padding-right:0.75rem;   /* small right gutter so mobile cards aren't flush to the edge */
+  /* The row spans full width but the card only fills ~42%. Parallax can make the
+     empty (transparent) half of one row overlap a neighbouring card and swallow
+     clicks. Disable hit-testing on the row itself, re-enable it on the card +
+     dot below, so only the visible elements capture pointer events. */
+  pointer-events:none;
 }
 .timeline-item.is-active { opacity:1; }
+/* active card sits above neighbours so its links always win the overlap */
+.timeline-item.is-active { z-index:5; }
 
 a.timeline-card {
   display:block;
@@ -196,13 +228,16 @@ a.timeline-card {
   box-shadow:0 20px 40px rgba(0,0,0,.35);
   border:1px solid rgba(204,0,0,0.1);
   transition:all 0.3s ease;
+  pointer-events:auto;   /* re-enable hit-testing on the visible card (row is none) */
+  position:relative;
+  z-index:1;
 }
 .timeline-card:hover {
   box-shadow:0 40px 80px rgba(204,0,0,0.12);
   border-color:rgba(204,0,0,0.3);
   transform:translateY(-4px);
 }
-.timeline-card span { color:var(--accent); font-size:.85rem; letter-spacing:.05em; }
+.timeline-card span.eyebrow { color:var(--accent); font-size:.85rem; letter-spacing:.05em; }
 .timeline-card h3 { margin:.4rem 0 .6rem; font-size:1rem; }
 .timeline-card p { color:var(--muted); margin:0; font-size:.9rem; }
 .timeline-card .card-tags {
@@ -224,6 +259,32 @@ a.timeline-card {
   font-size:.82rem;
   margin-top:.3rem;
   font-style:italic;
+}
+.card-icons {
+  display:flex;
+  gap:1rem;
+  margin-top:.9rem;
+}
+.card-icons a {
+  color:var(--muted);
+  font-size:1.25rem;
+  transition:color .2s;
+}
+.card-icons a:hover { color:var(--accent); }
+
+/* Featured card (JINGI) */
+.timeline-card--featured {
+  border-color:rgba(204,0,0,0.4);
+  background:linear-gradient(160deg, #1d1216 0%, #17171d 60%);
+}
+.timeline-card--featured .case-link {
+  display:inline-flex;
+  align-items:center;
+  gap:.4rem;
+  margin-top:.9rem;
+  color:var(--accent);
+  font-size:.85rem;
+  font-weight:600;
 }
 
 /* Contact card – centered, no left rail offset */
@@ -268,7 +329,7 @@ a.timeline-card {
 .section-image {
   position:relative;
   height:35vh;
-  margin:4rem 0;
+  margin:3rem 0;
   border-radius:16px;
   background-size:cover;
   background-position:center;
@@ -283,17 +344,31 @@ a.timeline-card {
   pointer-events:none;
 }
 
-.fa-icon {
-  color:var(--text);
-  font-size:1.5rem;
-  transition:color .2s;
+/* ---------- ABOUT / SKILLS ---------- */
+.about {
+  max-width:760px;
+  margin:0 auto;
+  padding:3rem 1.5rem 1rem;
 }
-.fa-icon:hover { color:var(--accent); }
-.fa-icons-container {
-  display:flex;
+.about h2 {
+  font-size:clamp(1.4rem,5vw,2rem);
+  margin-bottom:1rem;
+}
+.about p { color:var(--muted); font-size:.95rem; }
+.skills-grid {
+  display:grid;
+  grid-template-columns:1fr;
   gap:1rem;
-  margin-top:.6rem;
+  margin-top:2rem;
 }
+.skill-card {
+  background:var(--card);
+  border:1px solid rgba(204,0,0,0.1);
+  border-radius:14px;
+  padding:1.1rem 1.3rem;
+}
+.skill-card h4 { margin:0 0 .4rem; font-size:.95rem; color:var(--accent); }
+.skill-card p { margin:0; font-size:.88rem; }
 
 /* ---------- CONTACT ---------- */
 .contact {
@@ -372,7 +447,7 @@ a.timeline-card {
   }
 
   .timeline-items-container { gap:3rem; padding-top:3rem; }
-  .timeline-item { min-height:200px; padding-left:0; }
+  .timeline-item { min-height:200px; padding-left:0; padding-right:0; }
   .timeline-item.is-left .timeline-card { margin-right:auto; margin-left:0; }
   .timeline-item.is-right .timeline-card { margin-left:auto; margin-right:0; }
 
@@ -382,7 +457,7 @@ a.timeline-card {
     border-radius:18px;
     box-shadow:0 30px 60px rgba(0,0,0,.45);
   }
-  .timeline-card span { font-size:.9rem; }
+  .timeline-card span.eyebrow { font-size:.9rem; }
   .timeline-card h3 { font-size:1.1rem; }
   .timeline-card p { font-size:1rem; }
   .timeline-card--contact { width:42%; }
@@ -401,8 +476,64 @@ a.timeline-card {
   }
 
   .section-image { height:50vh; margin:8rem 0; border-radius:28px; }
+  .about { padding:5rem 1.5rem 1rem; }
+  .skills-grid { grid-template-columns:1fr 1fr; gap:1.2rem; }
   .contact { padding:6rem 1.5rem 4rem; }
   .contact-email { font-size:1.2rem; padding:.8rem 2rem; }
+}
+
+/* ============================================================
+   MOBILE (max-width:767px) — rebuilt as a clean stacked card list.
+   No vertical rail, no dots, no parallax overlap. Year becomes a
+   readable section label instead of a faint ghost behind the cards.
+   ============================================================ */
+@media (max-width:767px) {
+  /* hero grows with content instead of clipping it */
+  .hero { height:auto; min-height:100svh; padding:4rem 0; }
+  .hero-content { margin:0 1rem; padding:1.6rem 1.3rem; }
+
+  .timeline { padding:2.25rem 1.1rem; }
+  .timeline::before { display:none; }      /* drop the rail */
+  .dot { display:none; }                   /* drop the dots */
+
+  .timeline-section { margin-bottom:1.25rem; padding-top:2.4rem; min-height:0; }
+
+  /* year: faint ghost -> small uppercase label with an accent tick */
+  .timeline-year {
+    position:static; top:auto; left:auto; transform:none;
+    font-size:.72rem; font-weight:700; line-height:1;
+    letter-spacing:.18em; text-transform:uppercase;
+    color:var(--accent); opacity:.9; white-space:nowrap;
+    margin:0 0 .85rem .1rem;
+  }
+  .timeline-year::before {
+    content:""; display:inline-block; width:1.4rem; height:2px;
+    background:var(--accent); vertical-align:middle;
+    margin-right:.5rem; opacity:.7;
+  }
+  .timeline-year-bottom { display:none; }
+
+  .timeline-items-container { gap:.9rem; padding-top:0; }
+
+  .timeline-item {
+    min-height:0; opacity:1;               /* full width, no dim */
+    padding:0; align-items:stretch;
+  }
+  .timeline-card {
+    width:100%; margin:0;
+    padding:1.25rem 1.3rem; border-radius:16px;
+    box-shadow:0 8px 24px rgba(0,0,0,.4);
+  }
+  .timeline-card:hover { transform:none; }  /* no lift on touch */
+  .timeline-card h3 { font-size:1.05rem; }
+  .timeline-card p { font-size:.92rem; }
+
+  /* photo breaks: smaller + tighter on phones */
+  .section-image { height:20vh; margin:1.6rem 0; border-radius:14px; }
+
+  .about { padding:2.5rem 1.3rem .5rem; }
+  .timeline--contact { padding-top:1rem; }
+  .contact { padding:2.5rem 1.3rem 2rem; }
 }
 </style>
 </head>
@@ -413,20 +544,25 @@ a.timeline-card {
   <div class="hero-bg" id="heroBg"></div>
   <div class="hero-content">
     <h1>Pavel Konrad</h1>
-    <p class="subtitle">Fullstack Ruby on Rails Developer</p>
-    <p>Building modern web applications from concept to deployment</p>
+    <p class="subtitle">Technical Sound Designer</p>
+    <p>Adaptive audio for interactive media — sound creation, event design, and implementation</p>
     <div class="tech-bar">
-      <span class="tech-tag">Ruby on Rails</span>
-      <span class="tech-tag">Hotwire Turbo</span>
-      <span class="tech-tag">Stimulus</span>
-      <span class="tech-tag">PostgreSQL</span>
-      <span class="tech-tag">BOOTSTRAP / Tailwind CSS</span>
-      <span class="tech-tag">PWA - mobile app</span>
+      <span class="tech-tag">FMOD Studio</span>
+      <span class="tech-tag">Unity 6 / C#</span>
+      <span class="tech-tag">Ableton Live</span>
+      <span class="tech-tag">Adaptive Audio</span>
+      <span class="tech-tag">Synthesis &amp; Field Recording</span>
+      <span class="tech-tag">Wwise</span>
+    </div>
+    <div>
+      <a href="https://youtu.be/o9qj8BAmp40" target="_blank" class="reel-btn"><i class="fa-solid fa-play"></i> Sound Design Reel</a>
     </div>
     <div class="hero-links">
       <a href="https://www.linkedin.com/in/pavelkonrad/" target="_blank" title="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
       <a href="https://github.com/pavel-konrad" target="_blank" title="GitHub"><i class="fa-brands fa-github"></i></a>
-      <a href="mailto:dev@pavelkonrad.cz" title="Email"><i class="fa-solid fa-envelope"></i></a>
+      <a href="https://www.instagram.com/pavelk0nrad/" target="_blank" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
+      <a href="https://pavelkonrad.itch.io" target="_blank" title="itch.io"><i class="fa-brands fa-itch-io"></i></a>
+      <a href="mailto:audio@pavelkonrad.cz" title="Email"><i class="fa-solid fa-envelope"></i></a>
     </div>
   </div>
 </section>
@@ -434,38 +570,24 @@ a.timeline-card {
 <!-- TIMELINE -->
 <section class="timeline">
 
-  <!-- ===== MAR 2026 ===== -->
+  <!-- ===== 2026 — JINGI (featured) ===== -->
   <section class="timeline-section">
     <div class="timeline-year">2026</div>
     <div class="timeline-items-container">
       <div class="timeline-item is-left" data-speed="0.22">
         <div class="dot"></div>
-        <a href="https://freshwatches.cz" target="_blank" class="timeline-card">
-          <span>MAR 2026 · CLIENT</span>
-          <h3>freshwatches.cz</h3>
-          <p>Frontend development for an e-commerce watch store.</p>
-          <p class="card-client">for studio poptavamweb.cz</p>
+        <a href="jingi/" class="timeline-card timeline-card--featured">
+          <span class="eyebrow">2026 · FEATURED · GAME AUDIO</span>
+          <h3>JINGI — digital dice game prototype</h3>
+          <p>Co-author of the prototype: full game logic in C# and the complete sound design. State-driven adaptive audio in FMOD, original sounds via synthesis and field recording.</p>
           <div class="card-tags">
-            <span class="card-tag">Frontend</span>
-            <span class="card-tag">HAML / BOOTSTRAP</span>
-            <span class="card-tag">Hotwire Turbo</span>
+            <span class="card-tag">Unity 6</span>
+            <span class="card-tag">FMOD</span>
+            <span class="card-tag">Ableton Live</span>
+            <span class="card-tag">Adaptive Audio</span>
+            <span class="card-tag">C#</span>
           </div>
-        </a>
-      </div>
-      <div class="timeline-item is-right" data-speed="0.35">
-        <div class="dot"></div>
-        <a href="https://demo.roboti.dev/admin" target="_blank" class="timeline-card">
-          <span>MAR 2026 · PRODUCT</span>
-          <h3>Admin Panel for Roboti.dev</h3>
-          <p>Custom-built admin panel — data management, users, and workflow automation.</p>
-          <div class="card-tags">
-            <span class="card-tag">Ruby on Rails</span>
-            <span class="card-tag">Admin Panel</span>
-            <span class="card-tag">PostgreSQL</span>
-            <span class="card-tag">Hotwire Turbo</span>
-            <span class="card-tag">Stimulus</span>
-            <span class="card-tag">PWA - mobile app</span>
-          </div>
+          <span class="case-link">Read the case study <i class="fa-solid fa-arrow-right"></i></span>
         </a>
       </div>
     </div>
@@ -473,139 +595,178 @@ a.timeline-card {
 
   <!-- ===== PARALLAX IMAGE ===== -->
   <section class="section-image" data-speed="0.15"
-           style="background-image:url('https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=2070&auto=format&fit=crop')"></section>
+           style="background-image:url('https://images.unsplash.com/photo-1703117746916-8f3431dc06f5?q=80&w=2070&auto=format&fit=crop')"></section>
 
-  <!-- ===== FEB 2026 – DEC 2025 ===== -->
-  <section class="timeline-section">
-    <div class="timeline-year">2026</div>
-    <div class="timeline-items-container">
-      <div class="timeline-item is-left" data-speed="0.25">
-        <div class="dot"></div>
-        <a href="https://gunsfans.com" target="_blank" class="timeline-card">
-          <span>FEB 2026 · CLIENT</span>
-          <h3>gunsfans.com</h3>
-          <p>Community web platform for shooting sports enthusiasts.</p>
-          <p class="card-client">for Panek Group</p>
-          <div class="card-tags">
-            <span class="card-tag">Ruby on Rails</span>
-            <span class="card-tag">Full-stack</span>
-            <span class="card-tag">PWA - mobile app</span>
-            <span class="card-tag">Hotwire Turbo</span>
-            <span class="card-tag">Stimulus</span>
-            <span class="card-tag">PostgreSQL</span>
-          </div>
-        </a>
-      </div>
-      <div class="timeline-item is-right" data-speed="0.35">
-        <div class="dot"></div>
-        <a href="https://tikknode.org" target="_blank" class="timeline-card">
-          <span>DEC 2025 · PRODUCT</span>
-          <h3>TiKKNode</h3>
-          <p>Full web app for screen-time gamification — tracking and motivating healthier habits.</p>
-          <div class="card-tags">
-            <span class="card-tag">Full Web App</span>
-            <span class="card-tag">Gamification</span>
-            <span class="card-tag">Ruby on Rails</span>
-            <span class="card-tag">Hotwire Turbo</span>
-            <span class="card-tag">Stimulus</span>
-            <span class="card-tag">PWA - mobile app</span>
-          </div>
-        </a>
-      </div>
-      <div class="timeline-year-bottom">2025</div>
-    </div>
-  </section>
-
-  <!-- ===== PARALLAX IMAGE ===== -->
-  <section class="section-image" data-speed="0.15"
-           style="background-image:url('https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=2069&auto=format&fit=crop')"></section>
-
-  <!-- ===== SEP 2025 – 2025 ===== -->
+  <!-- ===== 2025 ===== -->
   <section class="timeline-section">
     <div class="timeline-year">2025</div>
+    <div class="timeline-items-container">
+      <div class="timeline-item is-right" data-speed="0.25">
+        <div class="dot"></div>
+        <div class="timeline-card">
+          <span class="eyebrow">2025 · INTERACTIVE</span>
+          <h3>Boreal Flow — interactive installation</h3>
+          <p>An interactive virtual audio-photographic exhibition. Sound design and programming in Unity and C#.</p>
+          <div class="card-tags">
+            <span class="card-tag">Unity 6</span>
+            <span class="card-tag">FMOD</span>
+            <span class="card-tag">Ableton Live</span>
+          </div>
+          <div class="card-icons">
+            <a href="https://youtu.be/Qq6WqQtcyCg" target="_blank" title="YouTube"><i class="fa-brands fa-youtube"></i></a>
+            <a href="https://pavelkonrad.itch.io/artic-journey-boreal-flow" target="_blank" title="itch.io"><i class="fa-brands fa-itch-io"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== PARALLAX IMAGE ===== -->
+  <section class="section-image" data-speed="0.15"
+           style="background-image:url('https://images.unsplash.com/photo-1615576446679-caff47d28b48?q=80&w=2070&auto=format&fit=crop')"></section>
+
+  <!-- ===== 2024 ===== -->
+  <section class="timeline-section">
+    <div class="timeline-year">2024</div>
     <div class="timeline-items-container">
       <div class="timeline-item is-left index-item-10" data-speed="0.2">
         <div class="dot"></div>
-        <a href="https://miloapp.ai" target="_blank" class="timeline-card">
-          <span>SEP 2025 · CLIENT</span>
-          <h3>MiloAPP.ai</h3>
-          <p>Landing page for an AI platform connecting households with cleaning services.</p>
-          <div class="card-tags">
-            <span class="card-tag">Webflow</span>
-            <span class="card-tag">HTML / CSS</span>
-            <span class="card-tag">JavaScript</span>
+        <div class="timeline-card">
+          <span class="eyebrow">2024 · GAME AUDIO</span>
+          <h3>Demo for Core Punk</h3>
+          <p>Sound design demo produced for Core Punk's assignment for a sound designer position.</p>
+          <div class="card-icons">
+            <a href="https://youtu.be/jGeBN-I0Oiw" target="_blank" title="YouTube"><i class="fa-brands fa-youtube"></i></a>
           </div>
-        </a>
+        </div>
       </div>
       <div class="timeline-item is-right index-item-9" data-speed="0.35">
         <div class="dot"></div>
-        <a href="https://estatefans.com" target="_blank" class="timeline-card">
-          <span>2025 · CLIENT</span>
-          <h3>estatefans.com</h3>
-          <p>Full-stack development of a real estate platform — frontend and backend.</p>
-          <p class="card-client">for Panek Group s.r.o.</p>
-          <div class="card-tags">
-            <span class="card-tag">Full Stack</span>
-            <span class="card-tag">Ruby on Rails</span>
-            <span class="card-tag">PostgreSQL</span>
-            <span class="card-tag">Hotwire Turbo</span>
-            <span class="card-tag">Stimulus</span>
-            <span class="card-tag">PWA - mobile app</span>
-          </div>
-        </a>
+        <div class="timeline-card">
+          <span class="eyebrow">2024 · EDUCATION</span>
+          <h3>BA — Theory of Interactive Media</h3>
+          <p>Graduated with a Bachelor's degree in Interactive Media (Masaryk University). Thesis: Visual Programming in Education.</p>
+        </div>
       </div>
     </div>
   </section>
 
   <!-- ===== PARALLAX IMAGE ===== -->
   <section class="section-image" data-speed="0.15"
-           style="background-image:url('https://images.unsplash.com/photo-1504639725590-34d0984388bd?q=80&w=2074&auto=format&fit=crop')"></section>
+           style="background-image:url('https://images.unsplash.com/photo-1651517375734-ec389e57bb0e?q=80&w=2532&auto=format&fit=crop')"></section>
 
-  <!-- ===== MAR 2025 + CTA ===== -->
+  <!-- ===== 2023 ===== -->
   <section class="timeline-section">
-    <div class="timeline-year">2025</div>
+    <div class="timeline-year">2023</div>
     <div class="timeline-items-container">
       <div class="timeline-item is-left" data-speed="0.2">
         <div class="dot"></div>
-        <a href="https://raisfy.com" target="_blank" class="timeline-card">
-          <span>MAR 2025 · CLIENT</span>
-          <h3>Raisfy</h3>
-          <p>Redesign and implementation of a new UI for an investment platform.</p>
-          <p class="card-client">for Panek Group</p>
-          <div class="card-tags">
-            <span class="card-tag">Redesign</span>
-            <span class="card-tag">UI Implementation</span>
-            <span class="card-tag">HAML / BOOTSTRAP</span>
+        <div class="timeline-card">
+          <span class="eyebrow">2023 · MUSIC</span>
+          <h3>Collaboration with Robin Mood</h3>
+          <p>Sideman for Robin Mood — live performance and recording of the single "Hotel".</p>
+          <div class="card-icons">
+            <a href="https://youtu.be/_VywZK2KFOQ" target="_blank" title="YouTube"><i class="fa-brands fa-youtube"></i></a>
+            <a href="https://www.novinky.cz/clanek/kultura-robin-mood-vydava-pisnicku-hotel-sazi-na-emoce-a-pribeh-40421215" target="_blank" title="Press"><i class="fa-solid fa-newspaper"></i></a>
           </div>
-        </a>
+        </div>
       </div>
       <div class="timeline-item is-right" data-speed="0.35">
         <div class="dot"></div>
-        <a href="https://ihriste.cz" target="_blank" class="timeline-card">
-          <span>MAR 2025 · CLIENT</span>
-          <h3>ihriste.cz</h3>
-          <p>UI/UX design for a platform mapping playgrounds and outdoor spaces.</p>
-          <p class="card-client">for SMWORKS</p>
-          <div class="card-tags">
-            <span class="card-tag">Design</span>
-            <span class="card-tag">UI / UX</span>
+        <div class="timeline-card">
+          <span class="eyebrow">2023 · GAME AUDIO</span>
+          <h3>Unity game development</h3>
+          <p>Began developing in Unity with a focus on sound design and audio implementation.</p>
+          <div class="card-icons">
+            <a href="https://learn.unity.com/u/6505611fedbc2a2d1bdc856d?tab=profile" target="_blank" title="Unity profile"><i class="fa-brands fa-unity"></i></a>
           </div>
-        </a>
+        </div>
       </div>
+    </div>
+  </section>
+
+  <!-- ===== PARALLAX IMAGE ===== -->
+  <section class="section-image" data-speed="0.15"
+           style="background-image:url('https://images.unsplash.com/photo-1618902772952-837b2295f73c?q=80&w=1974&auto=format&fit=crop')"></section>
+
+  <!-- ===== 2019–2021 — MUSIC ROOTS ===== -->
+  <section class="timeline-section">
+    <div class="timeline-year">2021</div>
+    <div class="timeline-items-container">
+      <div class="timeline-item is-left" data-speed="0.2">
+        <div class="dot"></div>
+        <div class="timeline-card">
+          <span class="eyebrow">2021 · MUSIC</span>
+          <h3>Recording &amp; producing live performance</h3>
+          <p>Recording and production for the Art Academy drums department (Vít Blažek).</p>
+          <div class="card-icons">
+            <a href="https://youtu.be/QFlFuG0iaBY?t=36" target="_blank" title="YouTube"><i class="fa-brands fa-youtube"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="timeline-item is-right" data-speed="0.35">
+        <div class="dot"></div>
+        <div class="timeline-card">
+          <span class="eyebrow">2020 · MUSIC</span>
+          <h3>EP — In The Loop</h3>
+          <p>Debut instrumental solo EP — raw, live-recorded guitars and bass.</p>
+          <div class="card-icons">
+            <a href="https://on.soundcloud.com/VUOVDoyG5zRvmoPciU" target="_blank" title="SoundCloud"><i class="fa-brands fa-soundcloud"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="timeline-item is-left" data-speed="0.45">
+        <div class="dot"></div>
+        <div class="timeline-card">
+          <span class="eyebrow">2019 · MUSIC</span>
+          <h3>Soundtrack for the student film "Nevěr mi!"</h3>
+          <p>Produced the end-credits theme for the student film "Nevěr mi!".</p>
+          <div class="card-icons">
+            <a href="https://youtu.be/BmmNDAEwHhM" target="_blank" title="YouTube"><i class="fa-brands fa-youtube"></i></a>
+            <a href="https://soundcloud.com/pavel-konrad-617232716/never-mi" target="_blank" title="SoundCloud"><i class="fa-brands fa-soundcloud"></i></a>
+            <a href="https://www.nevermi.cz" target="_blank" title="Website"><i class="fa-solid fa-link"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="timeline-year-bottom">2019</div>
     </div>
   </section>
 </section>
 
+<!-- ABOUT / SKILLS -->
+<section class="about">
+  <h2>About</h2>
+  <p>I'm a technical sound designer based in Prague with ten years of experience in music (jazz conservatory) and a background in software development (C#, Ruby, Python). I specialise in adaptive audio for interactive media — designing the sound, building the systems that drive it, and implementing it in the engine. Alongside audio work I teach Unity and visual programming at a secondary technical school.</p>
+  <div class="skills-grid">
+    <div class="skill-card">
+      <h4>Audio middleware</h4>
+      <p>FMOD Studio — event design, state-based mixing, parameters, banks. Working knowledge of Wwise.</p>
+    </div>
+    <div class="skill-card">
+      <h4>DAW &amp; sound creation</h4>
+      <p>Ableton Live (Drift synthesis, sampling, mixing, mastering), Cubase, Reaper, Pro Tools. Field recording.</p>
+    </div>
+    <div class="skill-card">
+      <h4>Game engines</h4>
+      <p>Unity 6 — URP, C# scripting, design patterns (state machine), audio integration.</p>
+    </div>
+    <div class="skill-card">
+      <h4>Programming &amp; music</h4>
+      <p>C#, Ruby, Python. Jazz harmony, production, arrangement, and 10+ years of live performance.</p>
+    </div>
+  </div>
+</section>
+
 <!-- CONTACT -->
-<section class="timeline" style="padding-top:0;">
+<section class="timeline timeline--contact">
   <section class="timeline-section" style="margin-bottom:0;">
     <div class="timeline-items-container" style="padding-top:0;">
-      <div class="timeline-item timeline-item--center" data-speed="0.2">
-        <a href="mailto:dev@pavelkonrad.cz" class="timeline-card timeline-card--contact">
-          <span>CONTACT</span>
-          <h3>Let's work together</h3>
-          <p>Open to new opportunities, freelance projects, and collaboration.</p>
-          <p style="color:var(--accent); font-size:1.1rem; font-weight:600; margin-top:.8rem;">dev@pavelkonrad.cz</p>
+      <div class="timeline-item timeline-item--center">
+        <a href="mailto:audio@pavelkonrad.cz" class="timeline-card timeline-card--contact">
+          <span class="eyebrow">CONTACT</span>
+          <h3>Let's make some noise</h3>
+          <p>Open to freelance, contract, or full-time — remote or on-site. Happy to do a test task.</p>
+          <p style="color:var(--accent); font-size:1.1rem; font-weight:600; margin-top:.8rem;">audio@pavelkonrad.cz</p>
           <div class="card-tags" style="justify-content:center; margin-top:1rem;">
             <span class="card-tag" style="font-size:.85rem; padding:.3rem .8rem;"><i class="fa-brands fa-linkedin" style="margin-right:.4rem;"></i>LinkedIn</span>
             <span class="card-tag" style="font-size:.85rem; padding:.3rem .8rem;"><i class="fa-brands fa-github" style="margin-right:.4rem;"></i>GitHub</span>
@@ -664,6 +825,47 @@ window.addEventListener("resize", () => {
 });
 
 onScroll();
+</script>
+
+<!-- ============================================================
+     MACHINE-READABLE PROFILE for search engines & AI/agentic crawlers.
+     Recruiters' tools (ATS, sourcing bots, LLM agents) read this to extract
+     who Pavel is, what he does, and how to reach him. See also /llms.txt.
+     ============================================================ -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Pavel Konrád",
+  "alternateName": "Pavel Konrad",
+  "jobTitle": "Technical Sound Designer",
+  "description": "Technical sound designer based in Prague, specialising in adaptive audio for interactive media and games — sound creation in Ableton Live, event design in FMOD Studio, and implementation in Unity (C#). Ten years in music (jazz conservatory) plus a software-development background (C#, Ruby, Python). Open to freelance, contract, or full-time work, remote or on-site. Happy to do a test task.",
+  "url": "https://pavelkonrad.cz/",
+  "email": "mailto:audio@pavelkonrad.cz",
+  "address": { "@type": "PostalAddress", "addressLocality": "Prague", "addressCountry": "CZ" },
+  "knowsAbout": [
+    "Game audio", "Technical sound design", "Adaptive audio", "Sound design",
+    "FMOD Studio", "Audiokinetic Wwise", "Unity", "C#", "Ableton Live",
+    "Sound synthesis", "Field recording", "Audio implementation", "Audio middleware",
+    "Pro Tools", "Cubase", "Reaper", "Music production"
+  ],
+  "knowsLanguage": ["Czech", "English"],
+  "alumniOf": [
+    { "@type": "CollegeOrUniversity", "name": "Masaryk University, Faculty of Arts — Theory of Interactive Media (BA)" },
+    { "@type": "CollegeOrUniversity", "name": "Jaroslav Ježek Conservatory — Music / Jazz (DiS.)" }
+  ],
+  "seeks": {
+    "@type": "Demand",
+    "name": "Technical Sound Designer / Sound Designer / Audio Designer role (freelance, contract, or full-time; remote or on-site)"
+  },
+  "sameAs": [
+    "https://www.linkedin.com/in/pavelkonrad/",
+    "https://github.com/pavel-konrad",
+    "https://www.instagram.com/pavelk0nrad/",
+    "https://pavelkonrad.itch.io",
+    "https://youtu.be/o9qj8BAmp40"
+  ]
+}
 </script>
 
 </body>
