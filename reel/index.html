@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Reel — Pavel Konrad</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/x-icon" href="../assets/favicon.ico">
+<!-- Umami analytics (site: pavelkonrad.cz) -->
+<script src="https://cloud.umami.is/script.js" data-website-id="3eed9d4b-93e9-41f4-9878-134136bddf8e"></script>
+<style>
+  html, body { margin: 0; padding: 0; background: #0c0c10; color: #f2f2f6;
+               font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  .wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center;
+          text-align: center; padding: 24px; }
+  .card { max-width: 480px; }
+  h1 { font-weight: 500; font-size: 18px; margin: 0 0 12px; color: #f2f2f6; }
+  p  { font-size: 14px; color: #9b9baa; margin: 0 0 16px; }
+  a  { color: #cc0000; text-decoration: none; border-bottom: 1px solid rgba(204,0,0,0.4); }
+</style>
+</head>
+<body>
+<div class="wrap"><div class="card">
+  <h1>Redirecting to YouTube…</h1>
+  <p>If nothing happens in a second, <a id="fallback" href="#">click here</a>.</p>
+</div></div>
+
+<!-- ============================================================
+     /reel — outbound redirect to YouTube, trackable per studio.
+
+     Query params:
+       v   = YouTube video id (default: o9qj8BAmp40 — Sound Design Reel)
+       ref = studio slug or LinkedIn handle (e.g. theaudioguys, li-kubiak)
+
+     Fires Umami custom event "reel-ref" with {ref, v}, then redirects.
+     ============================================================ -->
+<script>
+(function () {
+  var qs   = new URLSearchParams(window.location.search);
+  var v    = qs.get('v')   || 'o9qj8BAmp40';
+  var ref  = qs.get('ref') || '(direct)';
+  var dest = 'https://youtu.be/' + encodeURIComponent(v);
+
+  document.getElementById('fallback').href = dest;
+
+  var done = false;
+  function go() {
+    if (done) return;
+    done = true;
+    window.location.replace(dest);
+  }
+
+  function fire(attempt) {
+    if (window.umami && typeof window.umami.track === 'function') {
+      window.umami.track('reel-ref', { ref: ref, v: v });
+      setTimeout(go, 150);  // give the beacon a moment to leave
+    } else if (attempt < 10) {
+      setTimeout(function () { fire(attempt + 1); }, 200);
+    } else {
+      go();  // umami didn't load — redirect anyway
+    }
+  }
+
+  fire(0);
+  setTimeout(go, 2500);  // hard safety net
+})();
+</script>
+</body></html>
