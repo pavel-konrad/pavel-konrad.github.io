@@ -179,6 +179,8 @@ const ART = {
   mail:     { label:'mail',     url:'mailto:dev@pavelkonrad.cz' },
   npi1:     { label:'python-in-music/tuning-fork',    url:'https://clanky.rvp.cz/clanek/c/G/24370/python-v-hudbe-ladicka.html' },
   npi2:     { label:'python-in-music/chromatic-gen',  url:'https://clanky.rvp.cz/clanek/c/G/24373/python-v-hudbe-generator-chromatiky.html' },
+  jingi:    { label:'jingi/case-study', url:'/jingi/' },
+  music:    { label:'robin-mood/hotel', url:'https://www.novinky.cz/clanek/kultura-robin-mood-vydava-pisnicku-hotel-sazi-na-emoce-a-pribeh-40421215' },
   thesis:   { label:'thesis',   url:'https://theses.cz/id/erk1vi/?lang=en' },
 };
 function artLine(k){
@@ -319,8 +321,9 @@ const N = {
   sound: {
     text: () => ['$ whoami --noise','',
       "you don't know me? what a shame.",
-      'fifteen years of it before the first deploy. now the dice sing —',
-      'JINGI: fmod, unity, physics rolls and the score answers back.','',
+      'fifteen years on stage before the first deploy. bass guitar, side-man —',
+      'the low end nobody claps for and every song leans on.','',
+      artLine('music'),
       artLine('linkedin')],
     next:'after',
   },
@@ -336,6 +339,10 @@ const N = {
     text: () => ['','either way — take the tools and go:',
       artLine('npi1'),
       artLine('npi2'),
+      '',
+      'and yes, i was a student once. here is what i shipped to graduate:',
+      artLine('jingi'),
+      '',
       artLine('mail')],
     next:'after',
   },
