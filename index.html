@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>pavel konrad [terminal]</title>
+<title>pavel konrad [tty]</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="Pavel Konrad — developer, teacher, sound designer. A terminal that decides how much of that you get to see.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://pavelkonrad.cz/">
-<meta property="og:title" content="pavel konrad [terminal]">
-<meta property="og:description" content="Every walkthrough is an original. The system has already chosen yours.">
+<meta property="og:title" content="pavel konrad [tty]">
+<meta property="og:description" content="every walkthrough is an original. the system has already chosen yours.">
 <meta property="og:url" content="https://pavelkonrad.cz/">
 <meta property="og:type" content="website">
 <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
@@ -18,94 +18,108 @@
 <link rel="manifest" href="assets/site.webmanifest">
 <style>
 :root {
-  --bg:#050607;
-  --ink:#39ff7e;
-  --ink-dim:#1d7c43;
+  --bg:#0b0b0c;
+  --fg:#d6d6d0;
+  --dim:#6f6f68;
   --amber:#ffb000;
-  --ghost:#8affb666;
-  --glass-line:rgba(120,255,170,.14);
+  --red:#ff5544;
   --ease:cubic-bezier(0.25,0.46,0.45,0.94);
 }
 * { box-sizing:border-box; }
-html { scroll-behavior:smooth; }
+html { scroll-behavior:auto; }
 body {
   margin:0;
   background:var(--bg);
-  color:var(--ink);
+  color:var(--fg);
   font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
-  font-size:clamp(13px,1.6vw,15px);
-  line-height:1.55;
+  font-size:clamp(13px,1.5vw,15px);
+  line-height:1.5;
   overflow-x:hidden;
   min-height:100vh;
 }
+::selection { background:var(--fg); color:var(--bg); }
 .sr { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
 
-/* ---------- glass layer (the simulacrum) ---------- */
-#glass { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;
-  transition:filter 4s var(--ease), opacity 4s var(--ease); }
-.blob { position:absolute; width:55vmax; height:55vmax; border-radius:50%;
-  filter:blur(70px); opacity:.5; mix-blend-mode:screen; will-change:transform;
-  animation:morph 26s var(--ease) infinite alternate; }
-.blob.b1 { background:radial-gradient(circle at 30% 30%, #12406a, transparent 60%); top:-20vmax; left:-12vmax; }
-.blob.b2 { background:radial-gradient(circle at 60% 40%, #3a1d5e, transparent 60%); bottom:-24vmax; right:-14vmax; animation-delay:-9s; }
-.blob.b3 { background:radial-gradient(circle at 50% 50%, #0a4d3a, transparent 65%); top:30%; left:35%; width:38vmax; height:38vmax; animation-delay:-17s; }
-@keyframes morph {
-  0%   { transform:translate3d(calc(var(--px,0)*30px), calc(var(--sy,0)*-40px),0) scale(1); }
-  50%  { transform:translate3d(calc(var(--px,0)*30px + 6vmax), calc(var(--sy,0)*-40px - 4vmax),0) scale(1.15); }
-  100% { transform:translate3d(calc(var(--px,0)*30px - 5vmax), calc(var(--sy,0)*-40px + 5vmax),0) scale(.9); }
+/* ---------- tty core: flat, no theatre ---------- */
+#screen {
+  position:relative; z-index:2;
+  max-width:900px; margin:0 auto;
+  padding:2.2rem 1.1rem 40vh;
 }
-#grain { position:fixed; inset:0; z-index:1; pointer-events:none; opacity:.05;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E"); }
-
-/* ---------- terminal feed (the apparatus) ---------- */
-#feed { position:relative; z-index:2; max-width:820px; margin:0 auto;
-  padding:6vh 1rem 22vh; perspective:1200px; }
-.panel { position:relative; margin:0 0 2.2rem;
-  background:rgba(8,12,10,.58);
-  border:1px solid var(--glass-line);
-  border-radius:14px;
-  padding:1.1rem 1.25rem 1.2rem;
-  backdrop-filter:blur(14px) saturate(1.25);
-  -webkit-backdrop-filter:blur(14px) saturate(1.25);
-  box-shadow:0 10px 40px rgba(0,0,0,.5), inset 0 1px 0 rgba(180,255,210,.07);
-  transform-style:preserve-3d;
-  will-change:transform,opacity;
-  white-space:pre-wrap;
-  word-break:break-word;
-}
-.panel::before { content:""; position:absolute; inset:0; border-radius:14px; pointer-events:none;
-  background:linear-gradient(120deg, rgba(160,255,200,.06) 0%, transparent 30%, transparent 70%, rgba(120,180,255,.05) 100%); }
-.panel.spawn { animation:spawn .7s var(--ease) both; }
-@keyframes spawn {
-  from { opacity:0; transform:translateY(26px) scale(.965); filter:blur(6px); }
-  to   { opacity:1; transform:translateY(0)    scale(1);    filter:blur(0); }
-}
-.panel.done { opacity:.5; }
-.panel.done:hover { opacity:.8; transition:opacity .3s var(--ease); }
-.panel .echo { color:var(--ghost); }
-.panel .warn { color:var(--amber); }
-.panel .art  { color:var(--ink-dim); line-height:1.15; font-size:.86em; overflow-x:auto; display:block; }
-.panel a { color:var(--amber); text-decoration:underline; text-underline-offset:3px; cursor:pointer; }
-.panel a:hover { background:var(--amber); color:var(--bg); }
-.panel a:focus-visible, #stdin:focus-visible { outline:2px solid var(--amber); outline-offset:2px; }
-.cursor { display:inline-block; width:.6em; height:1em; background:var(--ink);
-  vertical-align:text-bottom; animation:blink 1s steps(1) infinite; }
+.line { white-space:pre-wrap; word-break:break-word; min-height:1.5em; }
+.line .dim  { color:var(--dim); }
+.line .warn { color:var(--amber); }
+.line .err  { color:var(--red); }
+.line .art  { color:var(--dim); line-height:1.15; font-size:.88em; display:block; overflow-x:auto; }
+.line a { color:var(--amber); text-decoration:underline; text-underline-offset:3px; }
+.line a:hover { background:var(--amber); color:var(--bg); }
+.line a:focus-visible { outline:2px solid var(--amber); outline-offset:2px; }
+#promptrow { display:none; }
+#promptrow.on { display:block; }
+.ps1 { color:var(--dim); }
+#typed { color:var(--fg); }
+.cur { display:inline-block; width:.62em; height:1.15em; background:var(--fg);
+  vertical-align:text-bottom; animation:blink 1.06s steps(1) infinite; }
 @keyframes blink { 50% { opacity:0; } }
+#kbd { position:fixed; top:0; left:0; width:1px; height:1px; opacity:0.01; border:0; padding:0;
+  background:transparent; color:transparent; }
 
-/* ---------- prompt line ---------- */
-#promptline { position:fixed; left:0; right:0; bottom:0; z-index:3;
-  background:linear-gradient(transparent, rgba(5,6,7,.85) 30%);
-  padding:2.2rem 1rem 1.2rem; }
-#promptform { max-width:820px; margin:0 auto; display:flex; gap:.6em; align-items:baseline;
-  background:rgba(8,12,10,.72); border:1px solid var(--glass-line); border-radius:10px;
-  padding:.7rem 1rem; backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); }
-#promptform .ps1 { color:var(--ink-dim); user-select:none; }
-#stdin { flex:1; background:none; border:none; color:var(--ink);
-  font:inherit; caret-color:var(--amber); min-width:0; }
-#stdin:focus { outline:none; }
-#stdin:disabled { opacity:.3; }
-body.dead #glass { filter:grayscale(1) brightness(.55); opacity:.5; }
-body.dead .blob { animation-play-state:paused; }
+/* ---------- the corporate simulacrum: fancy on purpose ---------- */
+#corpglow { position:fixed; inset:0; z-index:0; pointer-events:none;
+  opacity:0; transition:opacity 2.5s var(--ease); }
+#corpglow.on { opacity:.55; }
+#corpglow::before, #corpglow::after { content:""; position:absolute; width:60vmax; height:60vmax;
+  border-radius:50%; filter:blur(90px); will-change:transform; }
+#corpglow::before { background:radial-gradient(circle, #6366f133, transparent 65%);
+  top:-25vmax; right:-20vmax; transform:translate3d(calc(var(--px,0)*-40px),0,0); }
+#corpglow::after  { background:radial-gradient(circle, #a855f72e, transparent 65%);
+  bottom:-28vmax; left:-18vmax; transform:translate3d(calc(var(--px,0)*40px),0,0); }
+
+.corp {
+  position:fixed; z-index:4;
+  font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  background:rgba(255,255,255,.92);
+  color:#1e1b2e;
+  border-radius:20px;
+  box-shadow:0 24px 70px rgba(99,102,241,.35), 0 2px 10px rgba(0,0,0,.25);
+  padding:1.1rem 1.3rem;
+  max-width:min(340px, 86vw);
+  will-change:transform,opacity;
+  transform:translate3d(calc(var(--px,0)*var(--depth,14px)), calc(var(--py,0)*var(--depth,14px)), 0);
+}
+.corp h3 { margin:0 0 .4rem; font-size:1.02rem; font-weight:700;
+  background:linear-gradient(90deg,#6366f1,#a855f7); -webkit-background-clip:text;
+  background-clip:text; -webkit-text-fill-color:transparent; }
+.corp p { margin:0 0 .8rem; font-size:.86rem; line-height:1.45; color:#44405c; }
+.corp .btn { display:inline-block; border:none; cursor:pointer; font:inherit;
+  font-size:.85rem; font-weight:600; padding:.55rem 1.05rem; border-radius:999px;
+  background:linear-gradient(90deg,#6366f1,#a855f7); color:#fff;
+  box-shadow:0 6px 18px rgba(124,90,240,.45);
+  transition:transform .25s var(--ease); }
+.corp .btn:hover { transform:translateY(-2px) scale(1.03); }
+.corp .btn.ghost { background:#eceafe; color:#5a54c8; box-shadow:none; }
+.corp.spawnC { animation:corpIn .8s var(--ease) both; }
+@keyframes corpIn {
+  from { opacity:0; transform:translateY(60px) scale(.9); }
+  to   { opacity:1; transform:translateY(0) scale(1); }
+}
+.corp.dying { animation:corpDie .55s var(--ease) both; }
+@keyframes corpDie {
+  30% { transform:scale(1.04) rotate(.5deg); filter:none; }
+  to  { transform:scale(.1) rotate(8deg); opacity:0; filter:blur(8px) saturate(3); }
+}
+#corp-cookie { left:50%; bottom:1.2rem; transform:translateX(-50%); max-width:min(520px,92vw); }
+#corp-cookie.spawnC { animation-name:corpInUp; }
+@keyframes corpInUp {
+  from { opacity:0; transform:translateX(-50%) translateY(80px); }
+  to   { opacity:1; transform:translateX(-50%) translateY(0); }
+}
+#corp-hero { right:2rem; top:16vh; }
+#corp-toast { right:1rem; top:1rem; padding:.8rem 1rem; border-radius:14px; }
+#corp-toast p { margin:0; font-size:.84rem; }
+@media (max-width:640px){ #corp-hero { right:.8rem; top:10vh; } }
+
+body.dead { transition:filter 3s var(--ease); filter:grayscale(1) brightness(.8); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -113,7 +127,6 @@ body.dead .blob { animation-play-state:paused; }
     animation-iteration-count:1 !important;
     transition-duration:.01ms !important;
   }
-  html { scroll-behavior:auto; }
 }
 </style>
 </head>
@@ -121,26 +134,17 @@ body.dead .blob { animation-play-state:paused; }
 
 <h1 class="sr">Pavel Konrad — Ruby on Rails developer, teacher, technical sound designer. Prague, Czech Republic.</h1>
 
-<div id="glass" aria-hidden="true">
-  <div class="blob b1"></div>
-  <div class="blob b2"></div>
-  <div class="blob b3"></div>
-</div>
-<div id="grain" aria-hidden="true"></div>
+<div id="corpglow" aria-hidden="true"></div>
 
-<main id="feed" role="log" aria-live="polite"></main>
+<main id="screen" role="log" aria-live="polite">
+  <div id="promptrow" class="line"><span class="ps1">visitor@pavelkonrad:~$ </span><span id="typed"></span><span class="cur"></span></div>
+</main>
 
-<div id="promptline">
-  <form id="promptform" autocomplete="off">
-    <label class="ps1" for="stdin">visitor@pavelkonrad:~$</label>
-    <input id="stdin" type="text" spellcheck="false" autocapitalize="off"
-           aria-label="terminal input" />
-  </form>
-</div>
+<input id="kbd" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="terminal input">
 
 <noscript>
-  <div style="position:relative;z-index:5;max-width:820px;margin:2rem auto;padding:1rem;border:1px solid #39ff7e;">
-    <p>This site is a machine and you switched the machine off. Fair. The essentials:</p>
+  <div style="position:relative;z-index:5;max-width:820px;margin:2rem auto;padding:1rem;border:1px solid #d6d6d0;">
+    <p>this site is a machine and you switched the machine off. fair. the essentials:</p>
     <p>Pavel Konrad — Ruby on Rails developer, teacher, technical sound designer.</p>
     <p><a href="https://github.com/pavel-konrad" style="color:#ffb000">github.com/pavel-konrad</a> ·
        <a href="https://www.linkedin.com/in/pavelkonrad/" style="color:#ffb000">linkedin</a> ·
@@ -148,7 +152,6 @@ body.dead .blob { animation-play-state:paused; }
   </div>
 </noscript>
 
-<script src="https://cdn.jsdelivr.net/npm/motion@11/dist/motion.js" defer></script>
 <script>
 (function () {
 'use strict';
@@ -160,32 +163,32 @@ const rng = mulberry32(seed);
 const stamp = seed.toString(16).padStart(8,'0');
 let runs = 1;
 try { runs = (parseInt(localStorage.getItem('pk_runs')||'0',10)||0)+1; localStorage.setItem('pk_runs', runs); } catch(e){}
-const hour = new Date().getHours();
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const S = { node:null, nodeId:null, fails:0, visited:[], locked:null, dead:false, sideDoor:false };
+const S = { node:null, nodeId:null, fails:0, visited:[], locked:null, dead:false,
+            corpQueue:[], corpKept:0, tabNoteShown:false, idleShown:false };
 
-/* ---------- links (artifacts) ---------- */
+/* ---------- artifacts ---------- */
 const ART = {
-  github:   { label:'./artifacts/github',    url:'https://github.com/pavel-konrad' },
-  linkedin: { label:'./artifacts/linkedin',  url:'https://www.linkedin.com/in/pavelkonrad/' },
-  mail:     { label:'./artifacts/mail',      url:'mailto:dev@pavelkonrad.cz' },
-  gitlab:   { label:'./artifacts/gitlab',    url:'#', corrupt:true },
-  insta:    { label:'./artifacts/spore',     url:'#', corrupt:true },
-  npi1:     { label:'./artifacts/npi-01',    url:'#', corrupt:true },
-  npi2:     { label:'./artifacts/npi-02',    url:'#', corrupt:true },
+  github:   { label:'github',   url:'https://github.com/pavel-konrad' },
+  linkedin: { label:'linkedin', url:'https://www.linkedin.com/in/pavelkonrad/' },
+  mail:     { label:'mail',     url:'mailto:dev@pavelkonrad.cz' },
+  gitlab:   { label:'gitlab',   corrupt:true },
+  insta:    { label:'spore',    corrupt:true },
+  npi1:     { label:'npi-01',   corrupt:true },
+  npi2:     { label:'npi-02',   corrupt:true },
 };
 function artLine(k){
   const a = ART[k];
-  if (a.corrupt) return `LOCKED    ${a.label}  <span class="warn">[CORRUPTED — author negligence, ships eventually]</span>`;
-  return `UNLOCKED  ${a.label}  → <a href="${a.url}" target="_blank" rel="noopener">${a.url.replace('mailto:','')}</a>`;
+  if (a.corrupt) return `-r-------- ./${a.label}   <span class="dim">[corrupted — author owes a url]</span>`;
+  return `-rwxr--r-- ./${a.label}   → <a href="${a.url}" target="_blank" rel="noopener">${a.url.replace('mailto:','')}</a>`;
 }
 
 /* ---------- ascii ---------- */
 const LOGO =
 `    ____  __ __
-   / __ \\/ //_/   P A V E L   K O N R A D
-  / /_/ / ,&lt;      terminal of controlled choices
- / ____/ /| |     v5.0.0-punk · every walkthrough an original
+   / __ \\/ //_/    pavel konrad
+  / /_/ / ,&lt;       tty of controlled choices
+ / ____/ /| |      v5.0.0-punk
 /_/   /_/ |_|`;
 
 const SHROOM =
@@ -198,81 +201,74 @@ const SHROOM =
    ~ ~ ~ ~ ~ ~ ~ ~
    (the network has no head)`;
 
-/* ---------- content graph ---------- */
-const greet = hour < 5 ? `It is deep night. The terminal respects that. Nothing else here will.`
-            : hour < 12 ? `Morning. You chose to spend it on a stranger's terminal. Bold.`
-            : hour < 19 ? `Good afternoon. Statistically your attention is already declining. Let's use that.`
-            : `Evening. The best hour for bad decisions. Proceed.`;
+const RUBBLE =
+`   ▒▒░░ ▒░ ░▒▒░ ░
+  ░ banner.tar.gz → /dev/null ░
+   ░▒ 214 honest bytes remain ▒░`;
 
+/* ---------- copy ---------- */
 const BOOT = [
-  'PK/OS 5.0.0-punk booting …',
-  '[ OK ] Reading /etc/identity … multiple entries found',
-  '[<span class="warn">WARN</span>] Single-title portfolio requested … denied',
-  '[ OK ] Mounting /dev/ego … read-only',
-  '[ OK ] Loading illusion-of-choice.ko',
-  '[<span class="warn">FAIL</span>] Loading free-will.ko … module not found (never was)',
-  '[ OK ] Starting mycelium daemon … growing where you are not looking',
-  '[ OK ] Accessibility: technical yes, emotional no',
-  '       dada.service started for no reason',
-  runs > 1 ? `[ OK ] Walkthrough #${runs} on this machine. Persistence noted. Hint: it grows in the dark.` : '[ OK ] First walkthrough on this machine. It will not resemble the next one.',
+  'PK/OS 5.0.0-punk (ttyS0)',
+  '[    0.000000] bio: multiple identities mounted read-only',
+  '[    0.000041] rails.ko: production systems attached. they run. that is the whole poem.',
+  '[    0.000097] fmod.ko: dice acoustics calibrated <span class="dim">(JINGI)</span>',
+  '[    0.000102] npi_articles: pending author urls <span class="dim">(author reminded 3x)</span>',
+  '[    0.000133] <span class="err">free_will.ko: not found.</span> continuing as designed.',
+  '[    0.000134] consent_theatre.js: quarantined. for now.',
+  '[    0.000198] mycelium: online. location withheld.',
+  runs > 1 ? `[    0.000241] walkthrough #${runs} on this machine. persistence noted. it grows in the dark.`
+           : '[    0.000241] first walkthrough on this machine. the next one will not resemble it.',
   '',
   `<span class="art">${LOGO}</span>`,
   '',
-  greet,
+  'last login: never. every session is the first one.',
 ];
 
 const TERR = ['code','sound','teaching'];
 
 const N = {
   gate: {
-    text: () => ['Do you want to know something about Pavel Konrad?  <span class="warn">[yes/no]</span>'],
-    input: 'yesno',
+    text: () => ['do you want to know something about pavel konrad?  <span class="warn">[yes/no]</span>'],
+    input:'yesno',
     on: v => v === 'yes' ? 'sure' : 'no1',
   },
   sure: {
-    text: () => ['Are you sure?  <span class="warn">[yes/no]</span>'],
-    input: 'yesno',
+    text: () => ['are you sure?  <span class="warn">[yes/no]</span>'],
+    input:'yesno',
     on: v => v === 'yes' ? 'terms' : 'fold',
   },
   fold: {
-    text: () => ['A yes that folds at the first follow-up question. Noted.',
-      'Most systems would now show you a cookie banner as punishment.',
-      'This one just lets you in. It is crueler that way.'],
-    next: 'menu',
+    text: () => ['a yes that folds at the first follow-up. noted.','entry granted anyway. this door was never load-bearing.'],
+    next:'menu',
   },
   terms: {
-    text: () => ['You confirmed without reading any terms.',
-      'There were no terms. There never are — only the ritual of agreeing.',
-      'That is how systems win. Welcome inside one.'],
-    next: 'menu',
+    text: () => ['you agreed. nothing was on the table.','somewhere a cookie banner just felt proud of you.'],
+    next:'menu',
   },
   no1: {
-    text: () => ['Good choice. You were not that interested in you either.',
-      '',
-      'Still here, though. Interesting. A "no" never closed anything.',
+    text: () => ['good choice. you were not that interested in you anyway.','',
+      'still here, though.',
       '  <span class="warn">[1]</span> leave for real',
       '  <span class="warn">[2]</span> admit curiosity'],
-    input: 'number', range: [1,2],
+    input:'number', range:[1,2],
     on: v => v === 1 ? 'end_leave' : 'sidedoor',
   },
   sidedoor: {
-    text: () => { S.sideDoor = true; return [
-      'Welcome through the service entrance. It is the same room.',
-      'The front door was a formality. All doors here are.'];},
-    next: 'menu',
+    text: () => ['service entrance unlocked. it is the same room.'],
+    next:'menu',
   },
   menu: {
     text: () => {
-      const lines = ['Choose what you get to see.',
-        '(The system has already chosen. This menu is a courtesy.)',''];
+      const lines = ['choose what you get to see.',
+        '<span class="dim">(the system has already chosen. this menu is a courtesy.)</span>',''];
       TERR.forEach((t,i) => {
-        const tag = S.visited.includes(t) ? '  — spent' : '';
+        const tag = S.visited.includes(t) ? '  <span class="dim">— spent</span>' : '';
         lines.push(`  <span class="warn">[${i+1}]</span> ${t}${tag}`);
       });
       lines.push('  <span class="warn">[4]</span> ????');
       return lines;
     },
-    input: 'number', range: [1,4],
+    input:'number', range:[1,4],
     on: v => {
       if (v === 4) return rng() < 0.5 ? 'tease' : 'scold';
       const t = TERR[v-1];
@@ -283,174 +279,207 @@ const N = {
     },
   },
   denied: {
-    text: () => [`<span class="warn">${S.locked}</span> is not part of YOUR walkthrough.`,
-      'Someone else gets it today. That is the price of originals:',
-      'nobody receives the whole person. Not even the person.',
-      'Pick again — differently.'],
-    next: 'menu',
+    text: () => [`<span class="warn">${S.locked}</span> is not in YOUR walkthrough.`,
+      'someone else gets it today. originals cost exactly this:',
+      'nobody receives the whole person. not even the person.'],
+    next:'menu',
   },
-  spent: {
-    text: () => ['You already spent that door. Repetition is for playlists.'],
-    next: 'menu',
-  },
+  spent: { text: () => ['that door is spent. repetition is for playlists.'], next:'menu' },
   tease: {
-    text: () => ['???? is not a category. It is a direction.',
-      'It grows in the dark, has no head, and feeds on what the rest throws away.',
-      'When you know its name, type it. Any time. Nobody will tell you when.'],
-    next: 'menu',
+    text: () => ['???? is not a category. it is a direction.',
+      'it grows in the dark, has no head, and eats what the rest throws away.',
+      'when you know its name, type it. nobody will tell you when.'],
+    next:'menu',
   },
   scold: {
-    text: () => ['You picked the mystery option first. Of course you did.',
-      'Mystery is the cheapest product on any menu. Earn it instead.'],
-    next: 'menu',
+    text: () => ['the mystery option first. of course.',
+      'mystery is the cheapest thing on any menu. earn it.'],
+    next:'menu',
   },
   code: {
-    text: () => ['CODE', '',
-      'Ruby on Rails. Years of production systems — shops, platforms,',
-      'admin machines nobody tweets about because they simply run.',
-      'I build systems that ask questions they have already answered.',
-      'You are inside a small one right now.',
-      '',
+    text: () => ['$ cat code','',
+      'ruby on rails, years deep. shops, platforms, admin machines.',
+      'they run. that is the whole poem.',
+      'i also built the thing you are inside of right now. sorry.','',
       artLine('github'),
-      artLine('gitlab'),
-      '',
-      'Yes, the links are clickable. Even ideology has UX limits.'],
-    next: 'after',
+      artLine('gitlab')],
+    next:'after',
   },
   sound: {
-    text: () => ['SOUND', '',
-      'Fifteen years of music before the first deploy.',
-      'Now: adaptive audio, FMOD, a dice game called JINGI where the',
-      'physics rolls and the soundtrack answers. Jazz rule applies:',
-      'fixed changes, different solo every night.',
-      'This site runs on the same rule. You are a solo.',
-      '',
+    text: () => ['$ cat sound','',
+      'fifteen years of gigs before the first deploy.',
+      'now the dice sing: JINGI — fmod, unity, physics rolls, the score answers.',
+      'jazz rule: fixed changes, different solo every night.',
+      'you are tonight\'s.','',
       artLine('linkedin')],
-    next: 'after',
+    next:'after',
   },
   teaching: {
-    text: () => ['TEACHING', '',
-      'I teach. Not to fill heads — to hand over tools.',
-      'Hoarded knowledge is power. Shared knowledge is a commons.',
-      'That is not a metaphor. It is a politics.',
-      '',
+    text: () => ['$ cat teaching','',
+      'i teach people to take the tools home.',
+      'hoarded knowledge is power. shared knowledge is compost. be compost.','',
       artLine('npi1'),
       artLine('npi2'),
       artLine('mail')],
-    next: 'after',
+    next:'after',
   },
   myc: {
     text: () => [`<span class="art">${SHROOM}</span>`,
-      'MYCELIUM',
-      '',
-      'Under this terminal a network grows without a center,',
-      'without a boss, without a KPI. It feeds on rot and makes forests.',
-      'Politics has a lot to learn from fungi.',
-      '',
-      'You found the only door that was never on a menu.',
-      'Remember what that felt like. It is the whole lesson.',
-      '',
+      'mycelium.','',
+      'under this tty a network grows without a center, without a boss,',
+      'without a kpi. it feeds on rot and makes forests.',
+      'you found the only door that was never on a menu.',
+      'remember what that felt like.','',
       artLine('insta')],
-    next: 'after',
+    next:'after',
+  },
+  corp_kill: {
+    text: () => ['<span class="err">intrusion detected:</span> consent_theatre.js respawned from quarantine.',
+      'this is the only thing this terminal will ever ask your consent for:',
+      'kill it?  <span class="warn">[yes/no]</span>'],
+    input:'yesno',
+    on: v => { if (v === 'yes'){ killCorp('cookie'); return 'corp_dead'; } S.corpKept++; return 'corp_kept'; },
+  },
+  corp_dead: {
+    text: () => [`<span class="art">${RUBBLE}</span>`, 'it will be back. it is always back. but this round was yours.'],
+    next:'after',
+  },
+  corp_kept: {
+    text: () => ['kept. interesting.','it will multiply. you chose this.'],
+    next:'after',
+  },
+  corp_hero_q: {
+    text: () => ['another one. it says pavel is a <span class="dim">"passionate, results-driven professional 🚀"</span>.',
+      'that sentence was written by nobody, for nobody, about nobody.',
+      '  <span class="warn">[1]</span> read more corporate poetry',
+      '  <span class="warn">[2]</span> kill it'],
+    input:'number', range:[1,2],
+    on: v => { if (v === 2){ killCorp('hero'); return 'hero_dead'; } return 'hero_poetry'; },
+  },
+  hero_poetry: {
+    text: () => ['<span class="dim">"pavel leverages synergies across the full stack to deliver',
+      'best-in-class experiences that delight stakeholders …"</span>','',
+      '<span class="err">segmentation fault (meaning not found)</span>',
+      'it killed itself. even simulacra have limits.'],
+    next:(function(){ killCorp('hero'); return 'after'; }),
+  },
+  hero_dead: {
+    text: () => ['gone. the glow stays a while — perfume of the deceased.'],
+    next:'after',
   },
   final: {
-    text: () => ['That is enough for this walkthrough.','',
-      'Last question. Who was choosing, this whole time?',
-      '  <span class="warn">[1]</span> I was',
+    text: () => ['that is enough for this walkthrough.','',
+      'last question. who was choosing, this whole time?',
+      '  <span class="warn">[1]</span> i was',
       '  <span class="warn">[2]</span> you were',
       '  <span class="warn">[3]</span> nobody was'],
-    input: 'number', range: [1,3],
+    input:'number', range:[1,3],
     on: v => v === 1 ? 'end_me' : v === 2 ? 'end_you' : 'end_nobody',
   },
   end_me: {
-    text: () => ['You picked from menus I wrote, in an order I allowed.',
-      'But you stayed. Staying was the only real choice on offer.',
-      'It was yours. Keep it.'],
-    next: 'end',
+    text: () => ['you picked from menus i wrote, in an order i allowed.',
+      'but you stayed. staying was the only real choice on offer.','it was yours. keep it.'],
+    next:'end',
   },
   end_you: {
-    text: () => ['Correct. And yet you kept answering.',
-      'Why? — do not answer. The input is about to die anyway.'],
-    next: 'end',
+    text: () => ['correct. and yet you kept answering.','why? — do not answer. the input is about to die anyway.'],
+    next:'end',
   },
   end_nobody: {
-    text: () => ['Spoken like someone who reads.',
-      'Determinism is comfortable. Here is the discomfort:',
-      'you could have closed the tab. You did not.'],
-    next: 'end',
+    text: () => ['spoken like someone who reads.','determinism is comfortable. here is the discomfort:',
+      'you could have closed the tab. you did not.'],
+    next:'end',
   },
   end_leave: {
-    text: () => ['Session terminated by user.','The user believes this.'],
-    next: 'end',
+    text: () => ['session terminated by user.','the user believes this.'],
+    next:'end',
   },
   end: {
     text: () => ['',
       '─────────────────────────────────────',
-      ' SESSION TERMINATED',
+      ' session terminated',
       ` walkthrough original <span class="warn">#${stamp}</span>`,
       ` runs on this machine: ${runs}`,
       ' no two walkthroughs are alike',
       '',
-      ' Be, while you have context.',
+      ' be, while you have context.',
       '─────────────────────────────────────',
-      ' [connection closed — reload for a different original]'],
-    end: true,
+      ' <span class="dim">[connection closed — reload for a different original]</span>'],
+    end:true,
   },
 };
 
-function afterNode(){ return S.visited.length >= 2 ? 'final' : 'menu'; }
+function afterNode(){
+  if (S.corpQueue.length) return S.corpQueue.shift();
+  return S.visited.length >= 2 ? 'final' : 'menu';
+}
 
-/* hidden commands — the inputs that were "not scripted" */
+/* ---------- commands: work any time ---------- */
 const CMD = {
-  'help':   ['There is no help. There never was.','But it is kind that you asked.'],
-  'sudo':   ['Root belongs to the author.','That is not a bug. That is the artwork.'],
-  'ls':     ['gate/  menus/  endings/  .mycelium (hidden, obviously)'],
-  'whoami': ['A visitor. Short-lived. Context-bound.','Like everything that runs in a window.'],
-  'rm -rf /': ['Cute.'],
-  'exit':   ['Exit is the tab. It was always the tab.'],
+  'help':   () => ['no help. the options are always printed. reading is punk too.'],
+  'sudo':   () => ['root belongs to the author. that is not a bug, that is the artwork.'],
+  'sudo su':() => CMD['sudo'](),
+  'ls':     () => ['gate/   menus/   endings/   readme.txt'],
+  'ls -la': () => ['drwx------  gate/','drwx------  menus/','drwx------  endings/',
+                   '-rw-r--r--  readme.txt','-r--------  <span class="dim">.mycelium</span>'],
+  'cat readme.txt': () => ['you are the content of this site. act accordingly.'],
+  'cat .mycelium':  () => ['permission denied. names are spoken, not read.'],
+  'cat manifesto.txt': () => ['1. time is the only currency. this site wastes yours honestly.',
+    '2. the corporate web asks consent it already took. kill on sight.',
+    '3. knowledge hoarded is power. knowledge shared is compost. be compost.',
+    '4. every walkthrough is an original. including you.'],
+  'man pavel': () => [
+    'PAVEL(1)                people manual                PAVEL(1)','',
+    'NAME','       pavel — builds systems, teaches escape routes, makes dice sing','',
+    'SYNOPSIS','       pavel [--rails] [--teach] [--fmod] [--no-linkedin-voice]','',
+    'DESCRIPTION','       prague. fifteen years of music, then production software.',
+    '       currently: rails machinery, NPI articles, JINGI audio.','',
+    'BUGS','       opinions. many. left-leaning. not sorry.','',
+    'SEE ALSO','       mycelium(8), jazz(1), dada(0)'],
+  'pwd':    () => ['/home/visitor/borrowed_time'],
+  'whoami': () => ['a visitor. short-lived. context-bound.','like everything that runs in a window.'],
+  'date':   () => ['context remaining: unknown. act accordingly.'],
+  'rm -rf /': () => ['cute.'],
+  'exit':   () => ['exit is the tab. it was always the tab.'],
+  'clear':  () => { clearScreen(); return []; },
 };
 
-/* ---------- renderer ---------- */
-const feed = document.getElementById('feed');
-const stdin = document.getElementById('stdin');
-const form = document.getElementById('promptform');
-let typing = false, skip = false, activePanel = null;
+/* ---------- renderer: one buffer, inline prompt ---------- */
+const screen = document.getElementById('screen');
+const promptrow = document.getElementById('promptrow');
+const typedEl = document.getElementById('typed');
+const kbd = document.getElementById('kbd');
+let typing = false, skip = false;
+let history = [], hIdx = -1;
 
-function makePanel(){
-  const p = document.createElement('div');
-  p.className = 'panel';
-  feed.appendChild(p);
-  if (window.Motion && !reduced) {
-    Motion.animate(p,
-      { opacity:[0,1], transform:['translateY(26px) scale(.965)','translateY(0) scale(1)'], filter:['blur(6px)','blur(0px)'] },
-      { duration:.7, easing:[.25,.46,.45,.94] });
-  } else {
-    p.classList.add('spawn');
-  }
-  attachTilt(p);
-  return p;
+function newLine(){
+  const el = document.createElement('div');
+  el.className = 'line';
+  screen.insertBefore(el, promptrow);
+  return el;
 }
-function scrollDown(){ window.scrollTo({ top: document.body.scrollHeight, behavior: reduced ? 'auto' : 'smooth' }); }
+function down(){ window.scrollTo(0, document.body.scrollHeight); }
+function showPrompt(on){ promptrow.classList.toggle('on', on); if (on){ down(); kbd.focus({preventScroll:true}); } }
+function clearScreen(){ screen.querySelectorAll('.line:not(#promptrow)').forEach(l => l.remove()); }
 
-function typeLines(panel, lines, done){
-  typing = true; skip = false;
-  const cur = document.createElement('span'); cur.className = 'cursor';
+function print(lines, done){
+  typing = true; skip = false; showPrompt(false);
   let li = 0;
   (function nextLine(){
-    if (li >= lines.length){ cur.remove(); typing = false; done && done(); return; }
+    if (li >= lines.length){ typing = false; done && done(); return; }
     const line = lines[li++];
-    const el = document.createElement('div');
-    panel.appendChild(el); panel.appendChild(cur);
+    const el = newLine();
     if (reduced || skip || /<span|<a /.test(line) || line.length > 160){
-      el.innerHTML = line || ' '; scrollDown(); setTimeout(nextLine, reduced || skip ? 0 : 90);
+      el.innerHTML = line || ' '; down(); setTimeout(nextLine, reduced || skip ? 0 : 60);
       return;
     }
     let i = 0;
     (function tick(){
-      if (skip){ el.textContent = line; scrollDown(); setTimeout(nextLine, 0); return; }
-      el.textContent = line.slice(0, ++i) || ' ';
-      if (i < line.length) setTimeout(tick, 10 + rng()*18);
-      else { scrollDown(); setTimeout(nextLine, 110); }
+      if (skip){ el.textContent = line; down(); setTimeout(nextLine, 0); return; }
+      el.textContent = line.slice(0, ++i);
+      down();
+      if (i < line.length) setTimeout(tick, 7 + rng()*14);
+      else setTimeout(nextLine, 70);
     })();
   })();
 }
@@ -461,109 +490,204 @@ function go(id){
   const node = N[id];
   if (!node) return;
   S.node = node; S.nodeId = id;
-  const panel = makePanel(); activePanel = panel;
-  typeLines(panel, node.text(), () => {
+  print(node.text(), () => {
     if (node.end) return die();
-    if (!node.input) setTimeout(() => go(node.next), reduced ? 0 : 500);
-    else stdin.focus();
+    if (!node.input){
+      const nx = typeof node.next === 'function' ? node.next() : node.next;
+      setTimeout(() => go(nx), reduced ? 0 : 420);
+    } else showPrompt(true);
   });
-  scrollDown();
 }
 
 function fail(){
   S.fails++;
   const msgs = [
-    'That is not one of the options.',
-    'Numbers. Or yes. Or no. This is not a conversation — it is a form pretending to be one.',
-    'Three failures. Finally an input I did not script. …I did, though. Even this line.',
+    'input not recognized. the options were printed. reading is punk too.',
+    'numbers. or yes. or no. the machine is not judging you. the author is.',
+    'three failures. nothing unlocked. failure only unlocks things in TED talks.',
   ];
-  say(msgs[Math.min(S.fails,3)-1]);
+  print([msgs[Math.min(S.fails,3)-1]], () => showPrompt(true));
 }
 
-function say(html){
-  const p = makePanel();
-  typeLines(p, [html], () => stdin.focus());
+function echo(raw){
+  const el = newLine();
+  el.innerHTML = `<span class="dim">visitor@pavelkonrad:~$ </span>${raw.replace(/&/g,'&amp;').replace(/</g,'&lt;')}`;
 }
 
 function handle(raw){
   const v = raw.trim().toLowerCase();
-  if (!v) return;
   echo(raw);
-  if ((v === 'mycelium' || v === 'huba' || v === 'houba') && S.nodeId !== 'myc'){
-    freeze(); return go('myc');
+  if (!v){ showPrompt(true); return; }
+  history.push(raw); hIdx = history.length;
+  if ((v === 'mycelium' || v === 'huba' || v === 'houba') && S.nodeId !== 'myc') return go('myc');
+  if (CMD[v]){
+    const out = CMD[v]();
+    return print(out, () => showPrompt(true));
   }
-  if (CMD[v]){ const p = makePanel(); typeLines(p, CMD[v], () => stdin.focus()); return; }
   const node = S.node;
-  if (!node || !node.input) return;
+  if (!node || !node.input){ showPrompt(true); return; }
   if (node.input === 'yesno'){
     const yn = v === 'y' ? 'yes' : v === 'n' ? 'no' : v;
     if (yn !== 'yes' && yn !== 'no') return fail();
-    freeze(); return go(node.on(yn));
+    return go(node.on(yn));
   }
   if (node.input === 'number'){
     const n = parseInt(v,10);
     if (isNaN(n) || n < node.range[0] || n > node.range[1]) return fail();
-    freeze(); return go(node.on(n));
+    return go(node.on(n));
   }
 }
 
-function echo(raw){
-  if (!activePanel) return;
-  const e = document.createElement('div');
-  e.className = 'echo';
-  e.textContent = 'visitor@pavelkonrad:~$ ' + raw;
-  activePanel.appendChild(e);
-}
-function freeze(){ document.querySelectorAll('.panel').forEach(p => p.classList.add('done')); }
-function die(){
-  S.dead = true;
-  stdin.disabled = true;
-  document.body.classList.add('dead');
-  freeze();
-}
-
-form.addEventListener('submit', e => {
-  e.preventDefault();
+/* ---------- keyboard: real tty feel ---------- */
+let buf = '';
+function renderBuf(){ typedEl.textContent = buf; down(); }
+document.addEventListener('keydown', e => {
   if (S.dead) return;
-  if (typing){ skip = true; return; }
-  const v = stdin.value; stdin.value = '';
-  handle(v);
+  if (e.ctrlKey && e.key.toLowerCase() === 'c'){
+    e.preventDefault();
+    if (typing){ skip = true; return; }
+    buf = ''; renderBuf();
+    const el = newLine(); el.innerHTML = '<span class="dim">^C</span>';
+    print(['interrupt received. ignored. you agreed to this by being here.'], () => showPrompt(true));
+    return;
+  }
+  if (e.ctrlKey && e.key.toLowerCase() === 'l'){ e.preventDefault(); clearScreen(); down(); return; }
+  if (typing){ if (e.key === 'Enter') skip = true; return; }
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.key === 'Enter'){
+    e.preventDefault();
+    const v = buf; buf = ''; renderBuf(); kbd.value = '';
+    showPrompt(false); handle(v);
+  } else if (e.key === 'Backspace'){
+    e.preventDefault(); buf = buf.slice(0,-1); renderBuf(); kbd.value = buf;
+  } else if (e.key === 'ArrowUp'){
+    e.preventDefault();
+    if (history.length){ hIdx = Math.max(0, hIdx-1); buf = history[hIdx]||''; renderBuf(); kbd.value = buf; }
+  } else if (e.key === 'ArrowDown'){
+    e.preventDefault();
+    if (history.length){ hIdx = Math.min(history.length, hIdx+1); buf = history[hIdx]||''; renderBuf(); kbd.value = buf; }
+  } else if (e.key === 'Tab'){
+    e.preventDefault();
+    tabComplete();
+  } else if (e.key.length === 1){
+    buf += e.key; renderBuf(); kbd.value = buf;
+  }
 });
-document.addEventListener('click', e => { if (!e.target.closest('a') && !S.dead) stdin.focus(); });
+/* mobile: hidden input feeds the buffer */
+kbd.addEventListener('input', () => {
+  if (typing || S.dead){ kbd.value = buf; return; }
+  buf = kbd.value; renderBuf();
+});
+kbd.addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); } });
+document.addEventListener('click', e => { if (!e.target.closest('a') && !e.target.closest('.corp') && !S.dead) kbd.focus({preventScroll:true}); });
 
-/* ---------- parallax & tilt (the simulacrum moves) ---------- */
+function tabComplete(){
+  const cmds = Object.keys(CMD).concat(['mycelium']);
+  if (S.node && S.node.input === 'yesno'){
+    buf = 'yes'; renderBuf(); kbd.value = buf;
+    if (!S.tabNoteShown){
+      S.tabNoteShown = true;
+      const el = newLine();
+      el.innerHTML = '<span class="dim">(tab autocompletes toward consent. convenience is never neutral.)</span>';
+      down();
+    }
+    return;
+  }
+  if (!buf) return;
+  const hit = cmds.find(c => c.startsWith(buf));
+  if (hit){ buf = hit; renderBuf(); kbd.value = buf; }
+}
+
+/* ---------- corporate intrusions ---------- */
+const CORP = {};
+function spawnCorp(kind){
+  if (CORP[kind] || S.dead) return;
+  const d = document.createElement('div');
+  d.className = 'corp spawnC';
+  d.id = 'corp-' + kind;
+  d.style.setProperty('--depth', (10 + rng()*18).toFixed(0) + 'px');
+  if (kind === 'cookie'){
+    d.innerHTML = `<h3>🍪 We value your privacy</h3>
+      <p>We use cookies to personalize your experience and to build a psychological profile we will describe as "essential".</p>
+      <button class="btn">Accept all</button> <button class="btn ghost">Accept all (grey)</button>`;
+  } else if (kind === 'hero'){
+    d.innerHTML = `<h3>Pavel Konrad 🚀</h3>
+      <p>Passionate, results-driven professional delivering delightful, best-in-class digital experiences.</p>
+      <button class="btn">Book a call</button>`;
+  } else if (kind === 'toast'){
+    d.innerHTML = `<p>🔥 <b>47 recruiters</b> viewed this profile today</p>`;
+  }
+  d.querySelectorAll('.btn').forEach(b => b.addEventListener('click', () => {
+    print(['that button is decorative. like most buttons.'], () => showPrompt(!typing));
+  }));
+  document.body.appendChild(d);
+  document.getElementById('corpglow').classList.add('on');
+  CORP[kind] = d;
+}
+function killCorp(kind){
+  const d = CORP[kind];
+  if (!d) return;
+  d.classList.remove('spawnC'); d.classList.add('dying');
+  setTimeout(() => d.remove(), 600);
+  delete CORP[kind];
+  if (!Object.keys(CORP).length && S.visited.length >= 2)
+    document.getElementById('corpglow').classList.remove('on');
+}
+function killAllCorp(){ Object.keys(CORP).forEach(killCorp); document.getElementById('corpglow').classList.remove('on'); }
+
+/* schedule: 1st territory → cookie; 2nd → hero; idle → toast */
+const _push = S.visited.push.bind(S.visited);
+S.visited.push = function(t){
+  const r = _push(t);
+  if (S.visited.length === 1){ spawnCorp('cookie'); S.corpQueue.push('corp_kill'); }
+  if (S.visited.length === 2){ spawnCorp('hero');  S.corpQueue.push('corp_hero_q'); }
+  return r;
+};
+setTimeout(() => {
+  if (S.dead) return;
+  spawnCorp('toast');
+  setTimeout(() => {
+    if (!CORP.toast) return;
+    killCorp('toast');
+    if (!typing) print(['autoimmune response: 1 notification neutralized.'], () => showPrompt(!typing));
+  }, 2600);
+}, 45000);
+
+/* idle nudge */
+let lastKey = Date.now();
+document.addEventListener('keydown', () => lastKey = Date.now());
+setInterval(() => {
+  if (S.dead || S.idleShown || typing) return;
+  if (Date.now() - lastKey > 60000){
+    S.idleShown = true;
+    print(['still there? the cursor blinks either way.'], () => showPrompt(true));
+  }
+}, 5000);
+
+/* ---------- pointer parallax (corporate layer only) ---------- */
 const root = document.documentElement;
-let px = 0, sy = 0, raf = null;
-function apply(){ root.style.setProperty('--px', px.toFixed(3)); root.style.setProperty('--sy', sy.toFixed(4)); raf = null; }
+let raf = null, px = 0, py = 0;
 addEventListener('pointermove', e => {
   px = (e.clientX / innerWidth - .5) * 2;
-  if (!raf && !reduced) raf = requestAnimationFrame(apply);
-}, { passive:true });
-addEventListener('scroll', () => {
-  sy = scrollY / Math.max(1, document.body.scrollHeight - innerHeight);
-  if (!raf && !reduced) raf = requestAnimationFrame(apply);
+  py = (e.clientY / innerHeight - .5) * 2;
+  if (!raf && !reduced) raf = requestAnimationFrame(() => {
+    root.style.setProperty('--px', px.toFixed(3));
+    root.style.setProperty('--py', py.toFixed(3));
+    raf = null;
+  });
 }, { passive:true });
 
-function attachTilt(p){
-  if (reduced || !matchMedia('(pointer:fine)').matches) return;
-  p.addEventListener('pointermove', e => {
-    const r = p.getBoundingClientRect();
-    const rx = ((e.clientY - r.top) / r.height - .5) * -3.5;
-    const ry = ((e.clientX - r.left) / r.width - .5) * 3.5;
-    p.style.transform = `rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg)`;
-  });
-  p.addEventListener('pointerleave', () => {
-    p.style.transition = 'transform .5s cubic-bezier(0.23,1,0.32,1)';
-    p.style.transform = 'rotateX(0deg) rotateY(0deg)';
-    setTimeout(() => p.style.transition = '', 500);
-  });
+/* ---------- death ---------- */
+function die(){
+  S.dead = true;
+  killAllCorp();
+  document.body.classList.add('dead');
+  showPrompt(false);
 }
 
 /* ---------- boot ---------- */
 S.locked = TERR[Math.floor(rng()*TERR.length)];
-const bootPanel = makePanel();
-typeLines(bootPanel, BOOT, () => setTimeout(() => { freeze(); go('gate'); }, reduced ? 0 : 700));
-stdin.focus();
+print(BOOT, () => setTimeout(() => go('gate'), reduced ? 0 : 500));
 
 })();
 </script>
