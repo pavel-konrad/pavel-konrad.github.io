@@ -173,12 +173,12 @@ const pending = [];
 /* ---------- artifacts ---------- */
 const ART = {
   github:   { label:'github',   url:'https://github.com/pavel-konrad' },
+  gitlab:   { label:'gitlab',   url:'https://gitlab.com/pavel-konrad' },
   linkedin: { label:'linkedin', url:'https://www.linkedin.com/in/pavelkonrad/' },
   mail:     { label:'mail',     url:'mailto:dev@pavelkonrad.cz' },
-  gitlab:   { label:'gitlab',   corrupt:true },
-  insta:    { label:'spore',    corrupt:true },
-  npi1:     { label:'npi-01',   corrupt:true },
-  npi2:     { label:'npi-02',   corrupt:true },
+  npi1:     { label:'python-in-music/tuning-fork',    url:'https://clanky.rvp.cz/clanek/c/G/24370/python-v-hudbe-ladicka.html' },
+  npi2:     { label:'python-in-music/chromatic-gen',  url:'https://clanky.rvp.cz/clanek/c/G/24373/python-v-hudbe-generator-chromatiky.html' },
+  thesis:   { label:'thesis',   url:'https://theses.cz/id/erk1vi/?lang=en' },
 };
 function artLine(k){
   const a = ART[k];
@@ -215,7 +215,7 @@ const BOOT = [
   '[    0.000000] bio: multiple identities mounted read-only',
   '[    0.000041] rails.ko: production systems attached. they run. that is the whole poem.',
   '[    0.000097] fmod.ko: dice acoustics calibrated <span class="dim">(JINGI)</span>',
-  '[    0.000102] npi_articles: pending author urls <span class="dim">(author reminded 3x)</span>',
+  '[    0.000102] npi_articles: linked <span class="dim">(the author finally paid his debt)</span>',
   '[    0.000133] <span class="err">free_will.ko: not found.</span> continuing as designed.',
   '[    0.000134] consent_theatre.js: quarantined. for now.',
   '[    0.000198] mycelium: online. location withheld.',
@@ -333,7 +333,8 @@ const N = {
       'without a kpi. it feeds on rot and makes forests.',
       'you found the only door that was never on a menu.',
       'remember what that felt like.','',
-      artLine('insta')],
+      '<span class="dim">the deepest node keeps the deepest artifact:</span>',
+      artLine('thesis')],
     next:'after',
   },
   corp_hero_q: {
