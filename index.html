@@ -166,6 +166,8 @@ try { runs = (parseInt(localStorage.getItem('pk_runs')||'0',10)||0)+1; localStor
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const S = { node:null, nodeId:null, fails:0, visited:[], locked:null, dead:false,
             corpQueue:[], corpKept:0, tabNoteShown:false, idleShown:false };
+let user = 'visitor';
+const pending = [];
 
 /* ---------- artifacts ---------- */
 const ART = {
@@ -437,7 +439,9 @@ const CMD = {
     'BUGS','       opinions. many. left-leaning. not sorry.','',
     'SEE ALSO','       mycelium(8), jazz(1), dada(0)'],
   'pwd':    () => ['/home/visitor/borrowed_time'],
-  'whoami': () => ['a visitor. short-lived. context-bound.','like everything that runs in a window.'],
+  'whoami': () => user === 'visitor'
+      ? ['a visitor. short-lived. context-bound.','like everything that runs in a window.']
+      : [`${user}. that is all the introduction the network needed.`,'short-lived. context-bound. like everything that runs in a window.'],
   'date':   () => ['context remaining: unknown. act accordingly.'],
   'rm -rf /': () => ['cute.'],
   'exit':   () => ['exit is the tab. it was always the tab.'],
@@ -459,7 +463,14 @@ function newLine(){
   return el;
 }
 function down(){ window.scrollTo(0, document.body.scrollHeight); }
-function showPrompt(on){ promptrow.classList.toggle('on', on); if (on){ down(); kbd.focus({preventScroll:true}); } }
+function showPrompt(on){
+  if (on && pending.length && !typing){
+    const p = pending.splice(0);
+    return print(p, () => showPrompt(true));
+  }
+  promptrow.classList.toggle('on', on);
+  if (on){ down(); kbd.focus({preventScroll:true}); }
+}
 function clearScreen(){ screen.querySelectorAll('.line:not(#promptrow)').forEach(l => l.remove()); }
 
 function print(lines, done){
@@ -511,7 +522,7 @@ function fail(){
 
 function echo(raw){
   const el = newLine();
-  el.innerHTML = `<span class="dim">visitor@pavelkonrad:~$ </span>${raw.replace(/&/g,'&amp;').replace(/</g,'&lt;')}`;
+  el.innerHTML = `<span class="dim">${user}@pavelkonrad:~$ </span>${raw.replace(/&/g,'&amp;').replace(/</g,'&lt;')}`;
 }
 
 function handle(raw){
@@ -684,6 +695,18 @@ function die(){
   document.body.classList.add('dead');
   showPrompt(false);
 }
+
+/* ---------- identification: you never introduced yourself ---------- */
+fetch('https://api.ipify.org?format=json', { signal: AbortSignal.timeout(4000) })
+  .then(r => r.json())
+  .then(d => {
+    if (!d.ip || S.dead) return;
+    user = d.ip;
+    promptrow.querySelector('.ps1').textContent = `${user}@pavelkonrad:~$ `;
+    pending.push(`<span class="dim">[net] visitor identified: ${user}. you never introduced yourself. no need.</span>`);
+    if (!typing) showPrompt(promptrow.classList.contains('on'));
+  })
+  .catch(() => {});
 
 /* ---------- boot ---------- */
 S.locked = TERR[Math.floor(rng()*TERR.length)];
