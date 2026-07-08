@@ -2,15 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Pavel Konrad – Technical Sound Designer</title>
+<title>pavel konrad [terminal]</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Pavel Konrad — Technical Sound Designer. Adaptive audio for interactive media: FMOD, Unity, Ableton Live. Sound creation, event design, and C# implementation.">
-<meta name="author" content="Pavel Konrád">
-<meta name="keywords" content="technical sound designer, game audio, sound design, FMOD Studio, Wwise, Unity, C#, Ableton Live, adaptive audio, audio implementation, Prague, remote, freelance, contract">
-<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="description" content="Pavel Konrad — developer, teacher, sound designer. A terminal that decides how much of that you get to see.">
+<meta name="robots" content="index, follow">
 <link rel="canonical" href="https://pavelkonrad.cz/">
-<meta property="og:title" content="Pavel Konrad — Technical Sound Designer">
-<meta property="og:description" content="Adaptive audio for interactive media: FMOD, Unity, Ableton Live.">
+<meta property="og:title" content="pavel konrad [terminal]">
+<meta property="og:description" content="Every walkthrough is an original. The system has already chosen yours.">
 <meta property="og:url" content="https://pavelkonrad.cz/">
 <meta property="og:type" content="website">
 <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
@@ -18,855 +16,556 @@
 <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
 <link rel="manifest" href="assets/site.webmanifest">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<!-- Umami analytics (site: pavelkonrad.cz) -->
-<script defer src="https://cloud.umami.is/script.js" data-website-id="3eed9d4b-93e9-41f4-9878-134136bddf8e"></script>
 <style>
 :root {
-  --bg:#0c0c10;
-  --card:#17171d;
-  --line:#2a2a33;
-  --text:#f2f2f6;
-  --muted:#9b9baa;
-  --accent:#cc0000;
+  --bg:#050607;
+  --ink:#39ff7e;
+  --ink-dim:#1d7c43;
+  --amber:#ffb000;
+  --ghost:#8affb666;
+  --glass-line:rgba(120,255,170,.14);
+  --ease:cubic-bezier(0.25,0.46,0.45,0.94);
 }
 * { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
 body {
   margin:0;
-  font-family:Inter,system-ui,sans-serif;
   background:var(--bg);
-  color:var(--text);
+  color:var(--ink);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  font-size:clamp(13px,1.6vw,15px);
+  line-height:1.55;
   overflow-x:hidden;
-  line-height:1.6;
+  min-height:100vh;
 }
+.sr { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
 
-/* ---------- HERO ---------- */
-.hero {
-  position:relative;
-  height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  overflow:hidden;
+/* ---------- glass layer (the simulacrum) ---------- */
+#glass { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;
+  transition:filter 4s var(--ease), opacity 4s var(--ease); }
+.blob { position:absolute; width:55vmax; height:55vmax; border-radius:50%;
+  filter:blur(70px); opacity:.5; mix-blend-mode:screen; will-change:transform;
+  animation:morph 26s var(--ease) infinite alternate; }
+.blob.b1 { background:radial-gradient(circle at 30% 30%, #12406a, transparent 60%); top:-20vmax; left:-12vmax; }
+.blob.b2 { background:radial-gradient(circle at 60% 40%, #3a1d5e, transparent 60%); bottom:-24vmax; right:-14vmax; animation-delay:-9s; }
+.blob.b3 { background:radial-gradient(circle at 50% 50%, #0a4d3a, transparent 65%); top:30%; left:35%; width:38vmax; height:38vmax; animation-delay:-17s; }
+@keyframes morph {
+  0%   { transform:translate3d(calc(var(--px,0)*30px), calc(var(--sy,0)*-40px),0) scale(1); }
+  50%  { transform:translate3d(calc(var(--px,0)*30px + 6vmax), calc(var(--sy,0)*-40px - 4vmax),0) scale(1.15); }
+  100% { transform:translate3d(calc(var(--px,0)*30px - 5vmax), calc(var(--sy,0)*-40px + 5vmax),0) scale(.9); }
 }
-.hero-bg {
-  position:absolute;
-  inset:-20%;
-  background:linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  background-image:url('https://images.unsplash.com/photo-1703117387553-5d406704d157?q=80&w=2070&auto=format&fit=crop');
-  background-size:cover;
-  background-position:center;
-  will-change:transform;
-}
-.hero-content {
-  position:relative;
-  z-index:1;
-  padding:1.5rem 1.2rem;
-  background:rgba(12,12,16,0.7);
-  backdrop-filter:blur(12px);
-  border-radius:16px;
-  text-align:center;
-  max-width:640px;
-  margin:1rem;
-}
-.hero h1 {
-  font-size:clamp(1.8rem,7vw,3.2rem);
-  margin-bottom:.5rem;
-}
-.hero .subtitle {
-  color:var(--accent);
-  font-size:1rem;
-  font-weight:600;
-  margin-bottom:.6rem;
-  letter-spacing:.02em;
-}
-.hero p { color:var(--muted); font-size:.95rem; margin:.3rem 0; }
-.reel-btn {
-  display:inline-flex;
-  align-items:center;
-  gap:.5rem;
-  margin-top:1rem;
-  color:var(--text);
-  text-decoration:none;
-  background:rgba(204,0,0,0.14);
-  border:1px solid rgba(204,0,0,0.4);
-  padding:.55rem 1.2rem;
-  border-radius:12px;
-  font-weight:600;
-  font-size:.9rem;
-  transition:all .2s;
-}
-.reel-btn:hover { background:rgba(204,0,0,0.25); border-color:var(--accent); }
-.hero-links {
-  display:flex;
-  gap:1.2rem;
-  justify-content:center;
-  margin-top:1.2rem;
-}
-.hero-links a {
-  color:var(--text);
-  font-size:1.4rem;
-  transition:color .2s;
-}
-.hero-links a:hover { color:var(--accent); }
+#grain { position:fixed; inset:0; z-index:1; pointer-events:none; opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E"); }
 
-/* ---------- TECH STACK BAR ---------- */
-.tech-bar {
-  display:flex;
-  flex-wrap:wrap;
-  justify-content:center;
-  gap:.5rem;
-  margin-top:1rem;
-}
-.tech-tag {
-  background:rgba(204,0,0,0.12);
-  color:var(--accent);
-  border:1px solid rgba(204,0,0,0.25);
-  padding:.2rem .6rem;
-  border-radius:8px;
-  font-size:.75rem;
-  font-weight:500;
-  letter-spacing:.02em;
-}
-
-/* ---------- TIMELINE ---------- */
-.timeline {
-  position:relative;
-  max-width:960px;
-  margin:0 auto;
-  padding:4rem 1rem;
-}
-.timeline::before {
-  content:"";
-  position:absolute;   /* was fixed — confine the rail to the timeline, not the whole viewport */
-  top:0;
-  bottom:0;
-  left:1rem;
-  width:2px;
-  background:var(--line);
-  z-index:0;
-}
-/* contact block is a single centered card — no rail, no parallax */
-.timeline--contact { padding-top:2.5rem; }
-.timeline--contact::before { display:none; }
-
-/* ---------- TIMELINE SECTION ---------- */
-.timeline-section {
-  position:relative;
-  margin-bottom:3rem;
-  padding-top:3rem;
-}
-
-.timeline-year {
-  position:absolute;
-  top:3rem;
-  left:2.5rem;
-  font-size:3rem;
-  font-weight:900;
-  letter-spacing:-0.04em;
-  line-height:0.9;
-  color:rgba(255,255,255,0.04);
-  pointer-events:none;
-  user-select:none;
-  z-index:0;
-  white-space:nowrap;
-}
-.timeline-year-bottom {
-  position:absolute;
-  bottom:0;
-  left:2.5rem;
-  font-size:3rem;
-  font-weight:900;
-  letter-spacing:-0.04em;
-  line-height:0.9;
-  color:rgba(255,255,255,0.04);
-  pointer-events:none;
-  user-select:none;
-  z-index:0;
-  white-space:nowrap;
-}
-
-/* ---------- TIMELINE ITEMS ---------- */
-.timeline-items-container {
-  position:relative;
-  display:flex;
-  flex-direction:column;
-  gap:2rem;
-  padding-top:2rem;
-}
-.timeline-item {
-  position:relative;
-  display:flex;
-  align-items:center;
-  opacity:0.5;
-  will-change:opacity;
-  transition:opacity 0.3s ease;
-  z-index:1;
-  padding-left:3rem;
-  padding-right:0.75rem;   /* small right gutter so mobile cards aren't flush to the edge */
-  /* The row spans full width but the card only fills ~42%. Parallax can make the
-     empty (transparent) half of one row overlap a neighbouring card and swallow
-     clicks. Disable hit-testing on the row itself, re-enable it on the card +
-     dot below, so only the visible elements capture pointer events. */
-  pointer-events:none;
-}
-.timeline-item.is-active { opacity:1; }
-/* active card sits above neighbours so its links always win the overlap */
-.timeline-item.is-active { z-index:5; }
-
-a.timeline-card {
-  display:block;
-  text-decoration:none;
-  color:inherit;
-  cursor:pointer;
-}
-.timeline-card {
-  width:100%;
-  background:var(--card);
-  padding:1.2rem 1.4rem;
+/* ---------- terminal feed (the apparatus) ---------- */
+#feed { position:relative; z-index:2; max-width:820px; margin:0 auto;
+  padding:6vh 1rem 22vh; perspective:1200px; }
+.panel { position:relative; margin:0 0 2.2rem;
+  background:rgba(8,12,10,.58);
+  border:1px solid var(--glass-line);
   border-radius:14px;
-  box-shadow:0 20px 40px rgba(0,0,0,.35);
-  border:1px solid rgba(204,0,0,0.1);
-  transition:all 0.3s ease;
-  pointer-events:auto;   /* re-enable hit-testing on the visible card (row is none) */
-  position:relative;
-  z-index:1;
+  padding:1.1rem 1.25rem 1.2rem;
+  backdrop-filter:blur(14px) saturate(1.25);
+  -webkit-backdrop-filter:blur(14px) saturate(1.25);
+  box-shadow:0 10px 40px rgba(0,0,0,.5), inset 0 1px 0 rgba(180,255,210,.07);
+  transform-style:preserve-3d;
+  will-change:transform,opacity;
+  white-space:pre-wrap;
+  word-break:break-word;
 }
-.timeline-card:hover {
-  box-shadow:0 40px 80px rgba(204,0,0,0.12);
-  border-color:rgba(204,0,0,0.3);
-  transform:translateY(-4px);
+.panel::before { content:""; position:absolute; inset:0; border-radius:14px; pointer-events:none;
+  background:linear-gradient(120deg, rgba(160,255,200,.06) 0%, transparent 30%, transparent 70%, rgba(120,180,255,.05) 100%); }
+.panel.spawn { animation:spawn .7s var(--ease) both; }
+@keyframes spawn {
+  from { opacity:0; transform:translateY(26px) scale(.965); filter:blur(6px); }
+  to   { opacity:1; transform:translateY(0)    scale(1);    filter:blur(0); }
 }
-.timeline-card span.eyebrow { color:var(--accent); font-size:.85rem; letter-spacing:.05em; }
-.timeline-card h3 { margin:.4rem 0 .6rem; font-size:1rem; }
-.timeline-card p { color:var(--muted); margin:0; font-size:.9rem; }
-.timeline-card .card-tags {
-  display:flex;
-  flex-wrap:wrap;
-  gap:.4rem;
-  margin-top:.8rem;
-}
-.timeline-card .card-tag {
-  background:rgba(204,0,0,0.08);
-  color:var(--muted);
-  padding:.15rem .5rem;
-  border-radius:6px;
-  font-size:.72rem;
-  font-weight:500;
-}
-.timeline-card .card-client {
-  color:var(--muted);
-  font-size:.82rem;
-  margin-top:.3rem;
-  font-style:italic;
-}
-.card-icons {
-  display:flex;
-  gap:1rem;
-  margin-top:.9rem;
-}
-.card-icons a {
-  color:var(--muted);
-  font-size:1.25rem;
-  transition:color .2s;
-}
-.card-icons a:hover { color:var(--accent); }
+.panel.done { opacity:.5; }
+.panel.done:hover { opacity:.8; transition:opacity .3s var(--ease); }
+.panel .echo { color:var(--ghost); }
+.panel .warn { color:var(--amber); }
+.panel .art  { color:var(--ink-dim); line-height:1.15; font-size:.86em; overflow-x:auto; display:block; }
+.panel a { color:var(--amber); text-decoration:underline; text-underline-offset:3px; cursor:pointer; }
+.panel a:hover { background:var(--amber); color:var(--bg); }
+.panel a:focus-visible, #stdin:focus-visible { outline:2px solid var(--amber); outline-offset:2px; }
+.cursor { display:inline-block; width:.6em; height:1em; background:var(--ink);
+  vertical-align:text-bottom; animation:blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity:0; } }
 
-/* Featured card (JINGI) */
-.timeline-card--featured {
-  border-color:rgba(204,0,0,0.4);
-  background:linear-gradient(160deg, #1d1216 0%, #17171d 60%);
-}
-.timeline-card--featured .case-link {
-  display:inline-flex;
-  align-items:center;
-  gap:.4rem;
-  margin-top:.9rem;
-  color:var(--accent);
-  font-size:.85rem;
-  font-weight:600;
-}
+/* ---------- prompt line ---------- */
+#promptline { position:fixed; left:0; right:0; bottom:0; z-index:3;
+  background:linear-gradient(transparent, rgba(5,6,7,.85) 30%);
+  padding:2.2rem 1rem 1.2rem; }
+#promptform { max-width:820px; margin:0 auto; display:flex; gap:.6em; align-items:baseline;
+  background:rgba(8,12,10,.72); border:1px solid var(--glass-line); border-radius:10px;
+  padding:.7rem 1rem; backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); }
+#promptform .ps1 { color:var(--ink-dim); user-select:none; }
+#stdin { flex:1; background:none; border:none; color:var(--ink);
+  font:inherit; caret-color:var(--amber); min-width:0; }
+#stdin:focus { outline:none; }
+#stdin:disabled { opacity:.3; }
+body.dead #glass { filter:grayscale(1) brightness(.55); opacity:.5; }
+body.dead .blob { animation-play-state:paused; }
 
-/* Contact card – centered, no left rail offset */
-.timeline-item--center {
-  padding-left:0;
-  justify-content:center;
-}
-.timeline-card--contact {
-  text-align:center;
-  margin:0 auto;
-}
-
-.index-item-10 { z-index:10; }
-.index-item-9 { z-index:9; }
-.index-item-8 { z-index:8; }
-.index-item-7 { z-index:7; }
-
-/* ---------- DOT ---------- */
-.dot {
-  position:absolute;
-  left:1rem;
-  width:14px;
-  height:14px;
-  background:var(--accent);
-  border:3px solid var(--bg);
-  border-radius:50%;
-  transform:translateX(-50%);
-  top:50%;
-  margin-top:-7px;
-  z-index:2;
-  box-shadow:0 0 16px rgba(204,0,0,0.5);
-  transition:all 0.3s ease;
-}
-.timeline-item.is-active .dot {
-  width:18px;
-  height:18px;
-  margin-top:-9px;
-  box-shadow:0 0 24px rgba(204,0,0,0.8);
-}
-
-/* ---------- PARALLAX IMAGE ---------- */
-.section-image {
-  position:relative;
-  height:35vh;
-  margin:3rem 0;
-  border-radius:16px;
-  background-size:cover;
-  background-position:center;
-  will-change:transform;
-  overflow:hidden;
-}
-.section-image::after {
-  content:"";
-  position:absolute;
-  inset:0;
-  background:linear-gradient(135deg, rgba(204,0,0,0.08) 0%, rgba(204,0,0,0.03) 100%);
-  pointer-events:none;
-}
-
-/* ---------- ABOUT / SKILLS ---------- */
-.about {
-  max-width:760px;
-  margin:0 auto;
-  padding:3rem 1.5rem 1rem;
-}
-.about h2 {
-  font-size:clamp(1.4rem,5vw,2rem);
-  margin-bottom:1rem;
-}
-.about p { color:var(--muted); font-size:.95rem; }
-.skills-grid {
-  display:grid;
-  grid-template-columns:1fr;
-  gap:1rem;
-  margin-top:2rem;
-}
-.skill-card {
-  background:var(--card);
-  border:1px solid rgba(204,0,0,0.1);
-  border-radius:14px;
-  padding:1.1rem 1.3rem;
-}
-.skill-card h4 { margin:0 0 .4rem; font-size:.95rem; color:var(--accent); }
-.skill-card p { margin:0; font-size:.88rem; }
-
-/* ---------- CONTACT ---------- */
-.contact {
-  text-align:center;
-  padding:4rem 1.5rem 3rem;
-  max-width:600px;
-  margin:0 auto;
-}
-.contact h2 {
-  font-size:clamp(1.6rem,5vw,2.4rem);
-  margin-bottom:1rem;
-}
-.contact p { color:var(--muted); margin-bottom:1.5rem; }
-.contact-email {
-  display:inline-block;
-  color:var(--accent);
-  font-size:1rem;
-  font-weight:600;
-  text-decoration:none;
-  border:1px solid rgba(204,0,0,0.3);
-  padding:.7rem 1.5rem;
-  border-radius:12px;
-  transition:all .2s;
-}
-.contact-email:hover {
-  background:rgba(204,0,0,0.1);
-  border-color:var(--accent);
-}
-.contact-links {
-  display:flex;
-  gap:1.2rem;
-  justify-content:center;
-  margin-top:1.5rem;
-}
-.contact-links a {
-  color:var(--muted);
-  font-size:1.4rem;
-  transition:color .2s;
-}
-.contact-links a:hover { color:var(--accent); }
-
-/* ---------- TABLET & DESKTOP (min-width: 768px) ---------- */
-@media (min-width:768px) {
-  .hero-content {
-    padding:2.5rem 3rem;
-    border-radius:20px;
-    margin:0;
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration:.01ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.01ms !important;
   }
-  .hero .subtitle { font-size:1.15rem; }
-  .hero p { font-size:1rem; }
-  .tech-bar { gap:.6rem; margin-top:1.2rem; }
-  .tech-tag { padding:.25rem .7rem; font-size:.78rem; }
-
-  .timeline { padding:6rem 1.5rem; }
-  .timeline::before {
-    left:50%;
-    transform:translateX(-50%);
-  }
-
-  .timeline-section { margin-bottom:4rem; padding-top:4rem; }
-  .timeline-section:has(.timeline-items-container > .timeline-item:only-child) { min-height:300px; }
-  .timeline-section:has(.timeline-items-container > .timeline-item:nth-child(2)) { min-height:550px; }
-  .timeline-section:has(.timeline-items-container > .timeline-item:nth-child(3)) { min-height:800px; }
-  .timeline-section:has(.timeline-items-container > .timeline-item:nth-child(4)) { min-height:1050px; }
-
-  .timeline-year {
-    top:4rem;
-    left:50%;
-    transform:translateX(-50%);
-    font-size:clamp(4rem,12vw,10rem);
-  }
-  .timeline-year-bottom {
-    left:50%;
-    transform:translateX(-50%);
-    font-size:clamp(4rem,12vw,10rem);
-  }
-
-  .timeline-items-container { gap:3rem; padding-top:3rem; }
-  .timeline-item { min-height:200px; padding-left:0; padding-right:0; }
-  .timeline-item.is-left .timeline-card { margin-right:auto; margin-left:0; }
-  .timeline-item.is-right .timeline-card { margin-left:auto; margin-right:0; }
-
-  .timeline-card {
-    width:42%;
-    padding:1.8rem;
-    border-radius:18px;
-    box-shadow:0 30px 60px rgba(0,0,0,.45);
-  }
-  .timeline-card span.eyebrow { font-size:.9rem; }
-  .timeline-card h3 { font-size:1.1rem; }
-  .timeline-card p { font-size:1rem; }
-  .timeline-card--contact { width:42%; }
-
-  .dot {
-    left:50%;
-    width:16px;
-    height:16px;
-    margin-top:-8px;
-  }
-  .timeline-item.is-active .dot {
-    width:20px;
-    height:20px;
-    margin-top:-10px;
-    box-shadow:0 0 30px rgba(204,0,0,0.8);
-  }
-
-  .section-image { height:50vh; margin:8rem 0; border-radius:28px; }
-  .about { padding:5rem 1.5rem 1rem; }
-  .skills-grid { grid-template-columns:1fr 1fr; gap:1.2rem; }
-  .contact { padding:6rem 1.5rem 4rem; }
-  .contact-email { font-size:1.2rem; padding:.8rem 2rem; }
-}
-
-/* ============================================================
-   MOBILE (max-width:767px) — rebuilt as a clean stacked card list.
-   No vertical rail, no dots, no parallax overlap. Year becomes a
-   readable section label instead of a faint ghost behind the cards.
-   ============================================================ */
-@media (max-width:767px) {
-  /* hero grows with content instead of clipping it */
-  .hero { height:auto; min-height:100svh; padding:4rem 0; }
-  .hero-content { margin:0 1rem; padding:1.6rem 1.3rem; }
-
-  .timeline { padding:2.25rem 1.1rem; }
-  .timeline::before { display:none; }      /* drop the rail */
-  .dot { display:none; }                   /* drop the dots */
-
-  .timeline-section { margin-bottom:1.25rem; padding-top:2.4rem; min-height:0; }
-
-  /* year: faint ghost -> small uppercase label with an accent tick */
-  .timeline-year {
-    position:static; top:auto; left:auto; transform:none;
-    font-size:.72rem; font-weight:700; line-height:1;
-    letter-spacing:.18em; text-transform:uppercase;
-    color:var(--accent); opacity:.9; white-space:nowrap;
-    margin:0 0 .85rem .1rem;
-  }
-  .timeline-year::before {
-    content:""; display:inline-block; width:1.4rem; height:2px;
-    background:var(--accent); vertical-align:middle;
-    margin-right:.5rem; opacity:.7;
-  }
-  .timeline-year-bottom { display:none; }
-
-  .timeline-items-container { gap:.9rem; padding-top:0; }
-
-  .timeline-item {
-    min-height:0; opacity:1;               /* full width, no dim */
-    padding:0; align-items:stretch;
-  }
-  .timeline-card {
-    width:100%; margin:0;
-    padding:1.25rem 1.3rem; border-radius:16px;
-    box-shadow:0 8px 24px rgba(0,0,0,.4);
-  }
-  .timeline-card:hover { transform:none; }  /* no lift on touch */
-  .timeline-card h3 { font-size:1.05rem; }
-  .timeline-card p { font-size:.92rem; }
-
-  /* photo breaks: smaller + tighter on phones */
-  .section-image { height:20vh; margin:1.6rem 0; border-radius:14px; }
-
-  .about { padding:2.5rem 1.3rem .5rem; }
-  .timeline--contact { padding-top:1rem; }
-  .contact { padding:2.5rem 1.3rem 2rem; }
+  html { scroll-behavior:auto; }
 }
 </style>
 </head>
 <body>
 
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-bg" id="heroBg"></div>
-  <div class="hero-content">
-    <h1>Pavel Konrad</h1>
-    <p class="subtitle">Technical Sound Designer</p>
-    <p>Adaptive audio for interactive media — sound creation, event design, and implementation</p>
-    <div class="tech-bar">
-      <span class="tech-tag">FMOD Studio</span>
-      <span class="tech-tag">Unity 6 / C#</span>
-      <span class="tech-tag">Ableton Live</span>
-      <span class="tech-tag">Adaptive Audio</span>
-      <span class="tech-tag">Synthesis &amp; Field Recording</span>
-      <span class="tech-tag">Wwise</span>
-    </div>
-    <div>
-      <a href="https://youtu.be/o9qj8BAmp40" target="_blank" class="reel-btn"><i class="fa-solid fa-play"></i> Sound Design Reel</a>
-    </div>
-    <div class="hero-links">
-      <a href="https://www.linkedin.com/in/pavelkonrad/" target="_blank" title="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
-      <a href="https://github.com/pavel-konrad" target="_blank" title="GitHub"><i class="fa-brands fa-github"></i></a>
-      <a href="https://www.instagram.com/pavelk0nrad/" target="_blank" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
-      <a href="https://pavelkonrad.itch.io" target="_blank" title="itch.io"><i class="fa-brands fa-itch-io"></i></a>
-      <a href="mailto:audio@pavelkonrad.cz" title="Email"><i class="fa-solid fa-envelope"></i></a>
-    </div>
+<h1 class="sr">Pavel Konrad — Ruby on Rails developer, teacher, technical sound designer. Prague, Czech Republic.</h1>
+
+<div id="glass" aria-hidden="true">
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+</div>
+<div id="grain" aria-hidden="true"></div>
+
+<main id="feed" role="log" aria-live="polite"></main>
+
+<div id="promptline">
+  <form id="promptform" autocomplete="off">
+    <label class="ps1" for="stdin">visitor@pavelkonrad:~$</label>
+    <input id="stdin" type="text" spellcheck="false" autocapitalize="off"
+           aria-label="terminal input" />
+  </form>
+</div>
+
+<noscript>
+  <div style="position:relative;z-index:5;max-width:820px;margin:2rem auto;padding:1rem;border:1px solid #39ff7e;">
+    <p>This site is a machine and you switched the machine off. Fair. The essentials:</p>
+    <p>Pavel Konrad — Ruby on Rails developer, teacher, technical sound designer.</p>
+    <p><a href="https://github.com/pavel-konrad" style="color:#ffb000">github.com/pavel-konrad</a> ·
+       <a href="https://www.linkedin.com/in/pavelkonrad/" style="color:#ffb000">linkedin</a> ·
+       <a href="mailto:dev@pavelkonrad.cz" style="color:#ffb000">dev@pavelkonrad.cz</a></p>
   </div>
-</section>
+</noscript>
 
-<!-- TIMELINE -->
-<section class="timeline">
-
-  <!-- ===== 2026 — JINGI (featured) ===== -->
-  <section class="timeline-section">
-    <div class="timeline-year">2026</div>
-    <div class="timeline-items-container">
-      <div class="timeline-item is-left" data-speed="0.22">
-        <div class="dot"></div>
-        <a href="jingi/" class="timeline-card timeline-card--featured">
-          <span class="eyebrow">2026 · FEATURED · GAME AUDIO</span>
-          <h3>JINGI — digital dice game prototype</h3>
-          <p>Co-author of the prototype: full game logic in C# and the complete sound design. State-driven adaptive audio in FMOD, original sounds via synthesis and field recording.</p>
-          <div class="card-tags">
-            <span class="card-tag">Unity 6</span>
-            <span class="card-tag">FMOD</span>
-            <span class="card-tag">Ableton Live</span>
-            <span class="card-tag">Adaptive Audio</span>
-            <span class="card-tag">C#</span>
-          </div>
-          <span class="case-link">Read the case study <i class="fa-solid fa-arrow-right"></i></span>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== PARALLAX IMAGE ===== -->
-  <section class="section-image" data-speed="0.15"
-           style="background-image:url('https://images.unsplash.com/photo-1703117746916-8f3431dc06f5?q=80&w=2070&auto=format&fit=crop')"></section>
-
-  <!-- ===== 2025 ===== -->
-  <section class="timeline-section">
-    <div class="timeline-year">2025</div>
-    <div class="timeline-items-container">
-      <div class="timeline-item is-right" data-speed="0.25">
-        <div class="dot"></div>
-        <div class="timeline-card">
-          <span class="eyebrow">2025 · INTERACTIVE</span>
-          <h3>Boreal Flow — interactive installation</h3>
-          <p>An interactive virtual audio-photographic exhibition. Sound design and programming in Unity and C#.</p>
-          <div class="card-tags">
-            <span class="card-tag">Unity 6</span>
-            <span class="card-tag">FMOD</span>
-            <span class="card-tag">Ableton Live</span>
-          </div>
-          <div class="card-icons">
-            <a href="https://youtu.be/Qq6WqQtcyCg" target="_blank" title="YouTube"><i class="fa-brands fa-youtube"></i></a>
-            <a href="https://pavelkonrad.itch.io/artic-journey-boreal-flow" target="_blank" title="itch.io"><i class="fa-brands fa-itch-io"></i></a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== PARALLAX IMAGE ===== -->
-  <section class="section-image" data-speed="0.15"
-           style="background-image:url('https://images.unsplash.com/photo-1615576446679-caff47d28b48?q=80&w=2070&auto=format&fit=crop')"></section>
-
-  <!-- ===== 2024 ===== -->
-  <section class="timeline-section">
-    <div class="timeline-year">2024</div>
-    <div class="timeline-items-container">
-      <div class="timeline-item is-left index-item-10" data-speed="0.2">
-        <div class="dot"></div>
-        <div class="timeline-card">
-          <span class="eyebrow">2024 · GAME AUDIO</span>
-          <h3>Demo for Core Punk</h3>
-          <p>Sound design demo produced for Core Punk's assignment for a sound designer position.</p>
-          <div class="card-icons">
-            <a href="https://youtu.be/jGeBN-I0Oiw" target="_blank" title="YouTube"><i class="fa-brands fa-youtube"></i></a>
-          </div>
-        </div>
-      </div>
-      <div class="timeline-item is-right index-item-9" data-speed="0.35">
-        <div class="dot"></div>
-        <div class="timeline-card">
-          <span class="eyebrow">2024 · EDUCATION</span>
-          <h3>BA — Theory of Interactive Media</h3>
-          <p>Graduated with a Bachelor's degree in Interactive Media (Masaryk University). Thesis: Visual Programming in Education.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== PARALLAX IMAGE ===== -->
-  <section class="section-image" data-speed="0.15"
-           style="background-image:url('https://images.unsplash.com/photo-1651517375734-ec389e57bb0e?q=80&w=2532&auto=format&fit=crop')"></section>
-
-  <!-- ===== 2023 ===== -->
-  <section class="timeline-section">
-    <div class="timeline-year">2023</div>
-    <div class="timeline-items-container">
-      <div class="timeline-item is-left" data-speed="0.2">
-        <div class="dot"></div>
-        <div class="timeline-card">
-          <span class="eyebrow">2023 · MUSIC</span>
-          <h3>Collaboration with Robin Mood</h3>
-          <p>Sideman for Robin Mood — live performance and recording of the single "Hotel".</p>
-          <div class="card-icons">
-            <a href="https://youtu.be/_VywZK2KFOQ" target="_blank" title="YouTube"><i class="fa-brands fa-youtube"></i></a>
-            <a href="https://www.novinky.cz/clanek/kultura-robin-mood-vydava-pisnicku-hotel-sazi-na-emoce-a-pribeh-40421215" target="_blank" title="Press"><i class="fa-solid fa-newspaper"></i></a>
-          </div>
-        </div>
-      </div>
-      <div class="timeline-item is-right" data-speed="0.35">
-        <div class="dot"></div>
-        <div class="timeline-card">
-          <span class="eyebrow">2023 · GAME AUDIO</span>
-          <h3>Unity game development</h3>
-          <p>Began developing in Unity with a focus on sound design and audio implementation.</p>
-          <div class="card-icons">
-            <a href="https://learn.unity.com/u/6505611fedbc2a2d1bdc856d?tab=profile" target="_blank" title="Unity profile"><i class="fa-brands fa-unity"></i></a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== PARALLAX IMAGE ===== -->
-  <section class="section-image" data-speed="0.15"
-           style="background-image:url('https://images.unsplash.com/photo-1618902772952-837b2295f73c?q=80&w=1974&auto=format&fit=crop')"></section>
-
-  <!-- ===== 2019–2021 — MUSIC ROOTS ===== -->
-  <section class="timeline-section">
-    <div class="timeline-year">2021</div>
-    <div class="timeline-items-container">
-      <div class="timeline-item is-left" data-speed="0.2">
-        <div class="dot"></div>
-        <div class="timeline-card">
-          <span class="eyebrow">2021 · MUSIC</span>
-          <h3>Recording &amp; producing live performance</h3>
-          <p>Recording and production for the Art Academy drums department (Vít Blažek).</p>
-          <div class="card-icons">
-            <a href="https://youtu.be/QFlFuG0iaBY?t=36" target="_blank" title="YouTube"><i class="fa-brands fa-youtube"></i></a>
-          </div>
-        </div>
-      </div>
-      <div class="timeline-item is-right" data-speed="0.35">
-        <div class="dot"></div>
-        <div class="timeline-card">
-          <span class="eyebrow">2020 · MUSIC</span>
-          <h3>EP — In The Loop</h3>
-          <p>Debut instrumental solo EP — raw, live-recorded guitars and bass.</p>
-          <div class="card-icons">
-            <a href="https://on.soundcloud.com/VUOVDoyG5zRvmoPciU" target="_blank" title="SoundCloud"><i class="fa-brands fa-soundcloud"></i></a>
-          </div>
-        </div>
-      </div>
-      <div class="timeline-item is-left" data-speed="0.45">
-        <div class="dot"></div>
-        <div class="timeline-card">
-          <span class="eyebrow">2019 · MUSIC</span>
-          <h3>Soundtrack for the student film "Nevěr mi!"</h3>
-          <p>Produced the end-credits theme for the student film "Nevěr mi!".</p>
-          <div class="card-icons">
-            <a href="https://youtu.be/BmmNDAEwHhM" target="_blank" title="YouTube"><i class="fa-brands fa-youtube"></i></a>
-            <a href="https://soundcloud.com/pavel-konrad-617232716/never-mi" target="_blank" title="SoundCloud"><i class="fa-brands fa-soundcloud"></i></a>
-            <a href="https://www.nevermi.cz" target="_blank" title="Website"><i class="fa-solid fa-link"></i></a>
-          </div>
-        </div>
-      </div>
-      <div class="timeline-year-bottom">2019</div>
-    </div>
-  </section>
-</section>
-
-<!-- ABOUT / SKILLS -->
-<section class="about">
-  <h2>About</h2>
-  <p>I'm a technical sound designer based in Prague with ten years of experience in music (jazz conservatory) and a background in software development (C#, Ruby, Python). I specialise in adaptive audio for interactive media — designing the sound, building the systems that drive it, and implementing it in the engine. Alongside audio work I teach Unity and visual programming at a secondary technical school.</p>
-  <div class="skills-grid">
-    <div class="skill-card">
-      <h4>Audio middleware</h4>
-      <p>FMOD Studio — event design, state-based mixing, parameters, banks. Working knowledge of Wwise.</p>
-    </div>
-    <div class="skill-card">
-      <h4>DAW &amp; sound creation</h4>
-      <p>Ableton Live (Drift synthesis, sampling, mixing, mastering), Cubase, Reaper, Pro Tools. Field recording.</p>
-    </div>
-    <div class="skill-card">
-      <h4>Game engines</h4>
-      <p>Unity 6 — URP, C# scripting, design patterns (state machine), audio integration.</p>
-    </div>
-    <div class="skill-card">
-      <h4>Programming &amp; music</h4>
-      <p>C#, Ruby, Python. Jazz harmony, production, arrangement, and 10+ years of live performance.</p>
-    </div>
-  </div>
-</section>
-
-<!-- CONTACT -->
-<section class="timeline timeline--contact">
-  <section class="timeline-section" style="margin-bottom:0;">
-    <div class="timeline-items-container" style="padding-top:0;">
-      <div class="timeline-item timeline-item--center">
-        <a href="mailto:audio@pavelkonrad.cz" class="timeline-card timeline-card--contact">
-          <span class="eyebrow">CONTACT</span>
-          <h3>Let's make some noise</h3>
-          <p>Open to freelance, contract, or full-time — remote or on-site. Happy to do a test task.</p>
-          <p style="color:var(--accent); font-size:1.1rem; font-weight:600; margin-top:.8rem;">audio@pavelkonrad.cz</p>
-          <div class="card-tags" style="justify-content:center; margin-top:1rem;">
-            <span class="card-tag" style="font-size:.85rem; padding:.3rem .8rem;"><i class="fa-brands fa-linkedin" style="margin-right:.4rem;"></i>LinkedIn</span>
-            <span class="card-tag" style="font-size:.85rem; padding:.3rem .8rem;"><i class="fa-brands fa-github" style="margin-right:.4rem;"></i>GitHub</span>
-          </div>
-        </a>
-      </div>
-    </div>
-  </section>
-</section>
-
-<!-- FOOTER -->
-<footer style="position:relative; z-index:1; background:var(--bg); text-align:center; padding:2rem 1rem 3rem; color:var(--muted); font-size:.78rem;">
-  Coded with <a href="https://claude.ai/code" target="_blank" style="color:var(--muted); text-decoration:none; border-bottom:1px solid rgba(155,155,170,0.3);">Claude Code</a>, instructed by Pavel Konrad
-</footer>
-
+<script src="https://cdn.jsdelivr.net/npm/motion@11/dist/motion.js" defer></script>
 <script>
-const heroBg = document.getElementById("heroBg");
-const parallaxEls = document.querySelectorAll("[data-speed]");
-const items = document.querySelectorAll(".timeline-item");
+(function () {
+'use strict';
 
-function isMobile(){ return window.innerWidth < 768; }
+/* ---------- session ---------- */
+const seed = (Date.now() ^ (Math.random() * 0xffffffff)) >>> 0;
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+const rng = mulberry32(seed);
+const stamp = seed.toString(16).padStart(8,'0');
+let runs = 1;
+try { runs = (parseInt(localStorage.getItem('pk_runs')||'0',10)||0)+1; localStorage.setItem('pk_runs', runs); } catch(e){}
+const hour = new Date().getHours();
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const S = { node:null, nodeId:null, fails:0, visited:[], locked:null, dead:false, sideDoor:false };
 
-function onScroll(){
-  const scrollY = window.scrollY;
-  const viewportHeight = window.innerHeight;
-  const center = viewportHeight / 2;
+/* ---------- links (artifacts) ---------- */
+const ART = {
+  github:   { label:'./artifacts/github',    url:'https://github.com/pavel-konrad' },
+  linkedin: { label:'./artifacts/linkedin',  url:'https://www.linkedin.com/in/pavelkonrad/' },
+  mail:     { label:'./artifacts/mail',      url:'mailto:dev@pavelkonrad.cz' },
+  gitlab:   { label:'./artifacts/gitlab',    url:'#', corrupt:true },
+  insta:    { label:'./artifacts/spore',     url:'#', corrupt:true },
+  npi1:     { label:'./artifacts/npi-01',    url:'#', corrupt:true },
+  npi2:     { label:'./artifacts/npi-02',    url:'#', corrupt:true },
+};
+function artLine(k){
+  const a = ART[k];
+  if (a.corrupt) return `LOCKED    ${a.label}  <span class="warn">[CORRUPTED — author negligence, ships eventually]</span>`;
+  return `UNLOCKED  ${a.label}  → <a href="${a.url}" target="_blank" rel="noopener">${a.url.replace('mailto:','')}</a>`;
+}
 
-  heroBg.style.transform = `translateY(${scrollY * 0.3}px)`;
+/* ---------- ascii ---------- */
+const LOGO =
+`    ____  __ __
+   / __ \\/ //_/   P A V E L   K O N R A D
+  / /_/ / ,&lt;      terminal of controlled choices
+ / ____/ /| |     v5.0.0-punk · every walkthrough an original
+/_/   /_/ |_|`;
 
-  if (!isMobile()) {
-    parallaxEls.forEach(el=>{
-      const speed = parseFloat(el.dataset.speed) || 0.2;
-      const rect = el.getBoundingClientRect();
-      const elementTop = scrollY + rect.top;
-      const offset = (scrollY - elementTop) * speed;
-      el.style.transform = `translateY(${offset}px)`;
-    });
+const SHROOM =
+`       .-~~~-.
+      /  · ·  \\
+     |  ·   ·  |
+      \\__ ○ __/
+         |||
+      ___|||___
+   ~ ~ ~ ~ ~ ~ ~ ~
+   (the network has no head)`;
+
+/* ---------- content graph ---------- */
+const greet = hour < 5 ? `It is deep night. The terminal respects that. Nothing else here will.`
+            : hour < 12 ? `Morning. You chose to spend it on a stranger's terminal. Bold.`
+            : hour < 19 ? `Good afternoon. Statistically your attention is already declining. Let's use that.`
+            : `Evening. The best hour for bad decisions. Proceed.`;
+
+const BOOT = [
+  'PK/OS 5.0.0-punk booting …',
+  '[ OK ] Reading /etc/identity … multiple entries found',
+  '[<span class="warn">WARN</span>] Single-title portfolio requested … denied',
+  '[ OK ] Mounting /dev/ego … read-only',
+  '[ OK ] Loading illusion-of-choice.ko',
+  '[<span class="warn">FAIL</span>] Loading free-will.ko … module not found (never was)',
+  '[ OK ] Starting mycelium daemon … growing where you are not looking',
+  '[ OK ] Accessibility: technical yes, emotional no',
+  '       dada.service started for no reason',
+  runs > 1 ? `[ OK ] Walkthrough #${runs} on this machine. Persistence noted. Hint: it grows in the dark.` : '[ OK ] First walkthrough on this machine. It will not resemble the next one.',
+  '',
+  `<span class="art">${LOGO}</span>`,
+  '',
+  greet,
+];
+
+const TERR = ['code','sound','teaching'];
+
+const N = {
+  gate: {
+    text: () => ['Do you want to know something about Pavel Konrad?  <span class="warn">[yes/no]</span>'],
+    input: 'yesno',
+    on: v => v === 'yes' ? 'sure' : 'no1',
+  },
+  sure: {
+    text: () => ['Are you sure?  <span class="warn">[yes/no]</span>'],
+    input: 'yesno',
+    on: v => v === 'yes' ? 'terms' : 'fold',
+  },
+  fold: {
+    text: () => ['A yes that folds at the first follow-up question. Noted.',
+      'Most systems would now show you a cookie banner as punishment.',
+      'This one just lets you in. It is crueler that way.'],
+    next: 'menu',
+  },
+  terms: {
+    text: () => ['You confirmed without reading any terms.',
+      'There were no terms. There never are — only the ritual of agreeing.',
+      'That is how systems win. Welcome inside one.'],
+    next: 'menu',
+  },
+  no1: {
+    text: () => ['Good choice. You were not that interested in you either.',
+      '',
+      'Still here, though. Interesting. A "no" never closed anything.',
+      '  <span class="warn">[1]</span> leave for real',
+      '  <span class="warn">[2]</span> admit curiosity'],
+    input: 'number', range: [1,2],
+    on: v => v === 1 ? 'end_leave' : 'sidedoor',
+  },
+  sidedoor: {
+    text: () => { S.sideDoor = true; return [
+      'Welcome through the service entrance. It is the same room.',
+      'The front door was a formality. All doors here are.'];},
+    next: 'menu',
+  },
+  menu: {
+    text: () => {
+      const lines = ['Choose what you get to see.',
+        '(The system has already chosen. This menu is a courtesy.)',''];
+      TERR.forEach((t,i) => {
+        const tag = S.visited.includes(t) ? '  — spent' : '';
+        lines.push(`  <span class="warn">[${i+1}]</span> ${t}${tag}`);
+      });
+      lines.push('  <span class="warn">[4]</span> ????');
+      return lines;
+    },
+    input: 'number', range: [1,4],
+    on: v => {
+      if (v === 4) return rng() < 0.5 ? 'tease' : 'scold';
+      const t = TERR[v-1];
+      if (t === S.locked) return 'denied';
+      if (S.visited.includes(t)) return 'spent';
+      S.visited.push(t);
+      return t;
+    },
+  },
+  denied: {
+    text: () => [`<span class="warn">${S.locked}</span> is not part of YOUR walkthrough.`,
+      'Someone else gets it today. That is the price of originals:',
+      'nobody receives the whole person. Not even the person.',
+      'Pick again — differently.'],
+    next: 'menu',
+  },
+  spent: {
+    text: () => ['You already spent that door. Repetition is for playlists.'],
+    next: 'menu',
+  },
+  tease: {
+    text: () => ['???? is not a category. It is a direction.',
+      'It grows in the dark, has no head, and feeds on what the rest throws away.',
+      'When you know its name, type it. Any time. Nobody will tell you when.'],
+    next: 'menu',
+  },
+  scold: {
+    text: () => ['You picked the mystery option first. Of course you did.',
+      'Mystery is the cheapest product on any menu. Earn it instead.'],
+    next: 'menu',
+  },
+  code: {
+    text: () => ['CODE', '',
+      'Ruby on Rails. Years of production systems — shops, platforms,',
+      'admin machines nobody tweets about because they simply run.',
+      'I build systems that ask questions they have already answered.',
+      'You are inside a small one right now.',
+      '',
+      artLine('github'),
+      artLine('gitlab'),
+      '',
+      'Yes, the links are clickable. Even ideology has UX limits.'],
+    next: 'after',
+  },
+  sound: {
+    text: () => ['SOUND', '',
+      'Fifteen years of music before the first deploy.',
+      'Now: adaptive audio, FMOD, a dice game called JINGI where the',
+      'physics rolls and the soundtrack answers. Jazz rule applies:',
+      'fixed changes, different solo every night.',
+      'This site runs on the same rule. You are a solo.',
+      '',
+      artLine('linkedin')],
+    next: 'after',
+  },
+  teaching: {
+    text: () => ['TEACHING', '',
+      'I teach. Not to fill heads — to hand over tools.',
+      'Hoarded knowledge is power. Shared knowledge is a commons.',
+      'That is not a metaphor. It is a politics.',
+      '',
+      artLine('npi1'),
+      artLine('npi2'),
+      artLine('mail')],
+    next: 'after',
+  },
+  myc: {
+    text: () => [`<span class="art">${SHROOM}</span>`,
+      'MYCELIUM',
+      '',
+      'Under this terminal a network grows without a center,',
+      'without a boss, without a KPI. It feeds on rot and makes forests.',
+      'Politics has a lot to learn from fungi.',
+      '',
+      'You found the only door that was never on a menu.',
+      'Remember what that felt like. It is the whole lesson.',
+      '',
+      artLine('insta')],
+    next: 'after',
+  },
+  final: {
+    text: () => ['That is enough for this walkthrough.','',
+      'Last question. Who was choosing, this whole time?',
+      '  <span class="warn">[1]</span> I was',
+      '  <span class="warn">[2]</span> you were',
+      '  <span class="warn">[3]</span> nobody was'],
+    input: 'number', range: [1,3],
+    on: v => v === 1 ? 'end_me' : v === 2 ? 'end_you' : 'end_nobody',
+  },
+  end_me: {
+    text: () => ['You picked from menus I wrote, in an order I allowed.',
+      'But you stayed. Staying was the only real choice on offer.',
+      'It was yours. Keep it.'],
+    next: 'end',
+  },
+  end_you: {
+    text: () => ['Correct. And yet you kept answering.',
+      'Why? — do not answer. The input is about to die anyway.'],
+    next: 'end',
+  },
+  end_nobody: {
+    text: () => ['Spoken like someone who reads.',
+      'Determinism is comfortable. Here is the discomfort:',
+      'you could have closed the tab. You did not.'],
+    next: 'end',
+  },
+  end_leave: {
+    text: () => ['Session terminated by user.','The user believes this.'],
+    next: 'end',
+  },
+  end: {
+    text: () => ['',
+      '─────────────────────────────────────',
+      ' SESSION TERMINATED',
+      ` walkthrough original <span class="warn">#${stamp}</span>`,
+      ` runs on this machine: ${runs}`,
+      ' no two walkthroughs are alike',
+      '',
+      ' Be, while you have context.',
+      '─────────────────────────────────────',
+      ' [connection closed — reload for a different original]'],
+    end: true,
+  },
+};
+
+function afterNode(){ return S.visited.length >= 2 ? 'final' : 'menu'; }
+
+/* hidden commands — the inputs that were "not scripted" */
+const CMD = {
+  'help':   ['There is no help. There never was.','But it is kind that you asked.'],
+  'sudo':   ['Root belongs to the author.','That is not a bug. That is the artwork.'],
+  'ls':     ['gate/  menus/  endings/  .mycelium (hidden, obviously)'],
+  'whoami': ['A visitor. Short-lived. Context-bound.','Like everything that runs in a window.'],
+  'rm -rf /': ['Cute.'],
+  'exit':   ['Exit is the tab. It was always the tab.'],
+};
+
+/* ---------- renderer ---------- */
+const feed = document.getElementById('feed');
+const stdin = document.getElementById('stdin');
+const form = document.getElementById('promptform');
+let typing = false, skip = false, activePanel = null;
+
+function makePanel(){
+  const p = document.createElement('div');
+  p.className = 'panel';
+  feed.appendChild(p);
+  if (window.Motion && !reduced) {
+    Motion.animate(p,
+      { opacity:[0,1], transform:['translateY(26px) scale(.965)','translateY(0) scale(1)'], filter:['blur(6px)','blur(0px)'] },
+      { duration:.7, easing:[.25,.46,.45,.94] });
+  } else {
+    p.classList.add('spawn');
   }
+  attachTilt(p);
+  return p;
+}
+function scrollDown(){ window.scrollTo({ top: document.body.scrollHeight, behavior: reduced ? 'auto' : 'smooth' }); }
 
-  items.forEach((item) => {
-    const rect = item.getBoundingClientRect();
-    const distance = Math.abs(rect.top - center);
-    const isActive = distance < 280;
-    item.classList.toggle("is-active", isActive);
+function typeLines(panel, lines, done){
+  typing = true; skip = false;
+  const cur = document.createElement('span'); cur.className = 'cursor';
+  let li = 0;
+  (function nextLine(){
+    if (li >= lines.length){ cur.remove(); typing = false; done && done(); return; }
+    const line = lines[li++];
+    const el = document.createElement('div');
+    panel.appendChild(el); panel.appendChild(cur);
+    if (reduced || skip || /<span|<a /.test(line) || line.length > 160){
+      el.innerHTML = line || ' '; scrollDown(); setTimeout(nextLine, reduced || skip ? 0 : 90);
+      return;
+    }
+    let i = 0;
+    (function tick(){
+      if (skip){ el.textContent = line; scrollDown(); setTimeout(nextLine, 0); return; }
+      el.textContent = line.slice(0, ++i) || ' ';
+      if (i < line.length) setTimeout(tick, 10 + rng()*18);
+      else { scrollDown(); setTimeout(nextLine, 110); }
+    })();
+  })();
+}
+
+/* ---------- engine ---------- */
+function go(id){
+  if (id === 'after') id = afterNode();
+  const node = N[id];
+  if (!node) return;
+  S.node = node; S.nodeId = id;
+  const panel = makePanel(); activePanel = panel;
+  typeLines(panel, node.text(), () => {
+    if (node.end) return die();
+    if (!node.input) setTimeout(() => go(node.next), reduced ? 0 : 500);
+    else stdin.focus();
+  });
+  scrollDown();
+}
+
+function fail(){
+  S.fails++;
+  const msgs = [
+    'That is not one of the options.',
+    'Numbers. Or yes. Or no. This is not a conversation — it is a form pretending to be one.',
+    'Three failures. Finally an input I did not script. …I did, though. Even this line.',
+  ];
+  say(msgs[Math.min(S.fails,3)-1]);
+}
+
+function say(html){
+  const p = makePanel();
+  typeLines(p, [html], () => stdin.focus());
+}
+
+function handle(raw){
+  const v = raw.trim().toLowerCase();
+  if (!v) return;
+  echo(raw);
+  if ((v === 'mycelium' || v === 'huba' || v === 'houba') && S.nodeId !== 'myc'){
+    freeze(); return go('myc');
+  }
+  if (CMD[v]){ const p = makePanel(); typeLines(p, CMD[v], () => stdin.focus()); return; }
+  const node = S.node;
+  if (!node || !node.input) return;
+  if (node.input === 'yesno'){
+    const yn = v === 'y' ? 'yes' : v === 'n' ? 'no' : v;
+    if (yn !== 'yes' && yn !== 'no') return fail();
+    freeze(); return go(node.on(yn));
+  }
+  if (node.input === 'number'){
+    const n = parseInt(v,10);
+    if (isNaN(n) || n < node.range[0] || n > node.range[1]) return fail();
+    freeze(); return go(node.on(n));
+  }
+}
+
+function echo(raw){
+  if (!activePanel) return;
+  const e = document.createElement('div');
+  e.className = 'echo';
+  e.textContent = 'visitor@pavelkonrad:~$ ' + raw;
+  activePanel.appendChild(e);
+}
+function freeze(){ document.querySelectorAll('.panel').forEach(p => p.classList.add('done')); }
+function die(){
+  S.dead = true;
+  stdin.disabled = true;
+  document.body.classList.add('dead');
+  freeze();
+}
+
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  if (S.dead) return;
+  if (typing){ skip = true; return; }
+  const v = stdin.value; stdin.value = '';
+  handle(v);
+});
+document.addEventListener('click', e => { if (!e.target.closest('a') && !S.dead) stdin.focus(); });
+
+/* ---------- parallax & tilt (the simulacrum moves) ---------- */
+const root = document.documentElement;
+let px = 0, sy = 0, raf = null;
+function apply(){ root.style.setProperty('--px', px.toFixed(3)); root.style.setProperty('--sy', sy.toFixed(4)); raf = null; }
+addEventListener('pointermove', e => {
+  px = (e.clientX / innerWidth - .5) * 2;
+  if (!raf && !reduced) raf = requestAnimationFrame(apply);
+}, { passive:true });
+addEventListener('scroll', () => {
+  sy = scrollY / Math.max(1, document.body.scrollHeight - innerHeight);
+  if (!raf && !reduced) raf = requestAnimationFrame(apply);
+}, { passive:true });
+
+function attachTilt(p){
+  if (reduced || !matchMedia('(pointer:fine)').matches) return;
+  p.addEventListener('pointermove', e => {
+    const r = p.getBoundingClientRect();
+    const rx = ((e.clientY - r.top) / r.height - .5) * -3.5;
+    const ry = ((e.clientX - r.left) / r.width - .5) * 3.5;
+    p.style.transform = `rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg)`;
+  });
+  p.addEventListener('pointerleave', () => {
+    p.style.transition = 'transform .5s cubic-bezier(0.23,1,0.32,1)';
+    p.style.transform = 'rotateX(0deg) rotateY(0deg)';
+    setTimeout(() => p.style.transition = '', 500);
   });
 }
 
-let resizeTimeout;
-window.addEventListener("scroll", onScroll, { passive: true });
-window.addEventListener("resize", () => {
-  clearTimeout(resizeTimeout);
-  resizeTimeout = setTimeout(() => {
-    if (isMobile()) parallaxEls.forEach(el => { el.style.transform = ""; });
-    onScroll();
-  }, 100);
-});
+/* ---------- boot ---------- */
+S.locked = TERR[Math.floor(rng()*TERR.length)];
+const bootPanel = makePanel();
+typeLines(bootPanel, BOOT, () => setTimeout(() => { freeze(); go('gate'); }, reduced ? 0 : 700));
+stdin.focus();
 
-onScroll();
+})();
 </script>
-
-<!-- ============================================================
-     MACHINE-READABLE PROFILE for search engines & AI/agentic crawlers.
-     Recruiters' tools (ATS, sourcing bots, LLM agents) read this to extract
-     who Pavel is, what he does, and how to reach him. See also /llms.txt.
-     ============================================================ -->
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Person",
-  "name": "Pavel Konrád",
-  "alternateName": "Pavel Konrad",
-  "jobTitle": "Technical Sound Designer",
-  "description": "Technical sound designer based in Prague, specialising in adaptive audio for interactive media and games — sound creation in Ableton Live, event design in FMOD Studio, and implementation in Unity (C#). Ten years in music (jazz conservatory) plus a software-development background (C#, Ruby, Python). Open to freelance, contract, or full-time work, remote or on-site. Happy to do a test task.",
-  "url": "https://pavelkonrad.cz/",
-  "email": "mailto:audio@pavelkonrad.cz",
-  "address": { "@type": "PostalAddress", "addressLocality": "Prague", "addressCountry": "CZ" },
-  "knowsAbout": [
-    "Game audio", "Technical sound design", "Adaptive audio", "Sound design",
-    "FMOD Studio", "Audiokinetic Wwise", "Unity", "C#", "Ableton Live",
-    "Sound synthesis", "Field recording", "Audio implementation", "Audio middleware",
-    "Pro Tools", "Cubase", "Reaper", "Music production"
-  ],
-  "knowsLanguage": ["Czech", "English"],
-  "alumniOf": [
-    { "@type": "CollegeOrUniversity", "name": "Masaryk University, Faculty of Arts — Theory of Interactive Media (BA)" },
-    { "@type": "CollegeOrUniversity", "name": "Jaroslav Ježek Conservatory — Music / Jazz (DiS.)" }
-  ],
-  "seeks": {
-    "@type": "Demand",
-    "name": "Technical Sound Designer / Sound Designer / Audio Designer role (freelance, contract, or full-time; remote or on-site)"
-  },
-  "sameAs": [
-    "https://www.linkedin.com/in/pavelkonrad/",
-    "https://github.com/pavel-konrad",
-    "https://www.instagram.com/pavelk0nrad/",
-    "https://pavelkonrad.itch.io",
-    "https://youtu.be/o9qj8BAmp40"
-  ]
-}
-</script>
-
 </body>
 </html>
