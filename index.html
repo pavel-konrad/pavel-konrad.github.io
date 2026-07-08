@@ -680,9 +680,7 @@ async function declineCascade(){
     : 'you did not even reach for cancel. the machine noted your compliance.');
   await sleep(700);
   await consentLoop();
-  await sleep(1300);
-  addLine('are you sure?');
-  await sleep(3000);
+  await sleep(1600);
   await confirmGauntlet();
   addLine(`<span class="art">${RUBBLE}</span>`);
   addLine('that was the modern web. you clicked through the whole thing. everyone does.');
@@ -706,13 +704,20 @@ async function uploadLine(host, what){
 }
 
 async function consentLoop(){
-  const end = Date.now() + (reduced ? 0 : 10000);
-  let n = 0;
-  do {
-    addLine('<span class="err">user_rejected_consent</span> => are you sure?');
-    n++;
-    await sleep(500);
-  } while (Date.now() < end && n < 30);
+  addLine('<span class="err">user_rejected_consent.</span>');
+  await sleep(900);
+  /* the barrel-organ: steady beat, then the rhythm bends, then it shouts */
+  const beats = [
+    ['are you sure?',                                    1100],
+    ['are you sure?',                                    1100],
+    ['are you sure?',                                    1700],
+    ['  are you sure?',                                  2300],
+    ['     are you sure??',                              3000],
+    ['<span class="err">ARE YOU SURE?</span>',           3600],
+    ['<span class="dim">. . .</span>',                   2400],
+    ['<span class="err">ARE YOU ABSOLUTELY SURE??</span>', 3800],
+  ];
+  for (const [txt, pause] of beats){ addLine(txt); await sleep(pause); }
 }
 
 async function confirmGauntlet(){
