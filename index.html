@@ -165,7 +165,8 @@ let runs = 1;
 try { runs = (parseInt(localStorage.getItem('pk_runs')||'0',10)||0)+1; localStorage.setItem('pk_runs', runs); } catch(e){}
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const S = { node:null, nodeId:null, fails:0, visited:[], locked:null, dead:false,
-            corpQueue:[], corpKept:0, tabNoteShown:false, idleShown:false };
+            corpQueue:[], tabNoteShown:false, idleShown:false,
+            cascade:false, declineDone:false, cancelRequested:false };
 let user = 'visitor';
 const pending = [];
 
@@ -333,21 +334,6 @@ const N = {
       'you found the only door that was never on a menu.',
       'remember what that felt like.','',
       artLine('insta')],
-    next:'after',
-  },
-  corp_kill: {
-    text: () => ['<span class="err">intrusion detected:</span> consent_theatre.js respawned from quarantine.',
-      'this is the only thing this terminal will ever ask your consent for:',
-      'kill it?  <span class="warn">[yes/no]</span>'],
-    input:'yesno',
-    on: v => { if (v === 'yes'){ killCorp('cookie'); return 'corp_dead'; } S.corpKept++; return 'corp_kept'; },
-  },
-  corp_dead: {
-    text: () => [`<span class="art">${RUBBLE}</span>`, 'it will be back. it is always back. but this round was yours.'],
-    next:'after',
-  },
-  corp_kept: {
-    text: () => ['kept. interesting.','it will multiply. you chose this.'],
     next:'after',
   },
   corp_hero_q: {
@@ -553,7 +539,7 @@ function handle(raw){
 let buf = '';
 function renderBuf(){ typedEl.textContent = buf; down(); }
 document.addEventListener('keydown', e => {
-  if (S.dead) return;
+  if (S.dead || S.cascade) return;
   if (e.ctrlKey && e.key.toLowerCase() === 'c'){
     e.preventDefault();
     if (typing){ skip = true; return; }
@@ -620,7 +606,7 @@ function spawnCorp(kind){
   if (kind === 'cookie'){
     d.innerHTML = `<h3>🍪 We value your privacy</h3>
       <p>We use cookies to personalize your experience and to build a psychological profile we will describe as "essential".</p>
-      <button class="btn">Accept all</button> <button class="btn ghost">Accept all (grey)</button>`;
+      <button class="btn">Accept all</button> <button class="btn ghost decline">Decline</button>`;
   } else if (kind === 'hero'){
     d.innerHTML = `<h3>Pavel Konrad 🚀</h3>
       <p>Passionate, results-driven professional delivering delightful, best-in-class digital experiences.</p>
@@ -629,6 +615,12 @@ function spawnCorp(kind){
     d.innerHTML = `<p>🔥 <b>47 recruiters</b> viewed this profile today</p>`;
   }
   d.querySelectorAll('.btn').forEach(b => b.addEventListener('click', () => {
+    if (b.classList.contains('decline')) return declineCascade();
+    if (kind === 'cookie'){
+      if (typing) return;
+      print(['accepted. notice the banner did not leave. acceptance never removes it.'], () => showPrompt(true));
+      return;
+    }
     print(['that button is decorative. like most buttons.'], () => showPrompt(!typing));
   }));
   document.body.appendChild(d);
@@ -646,12 +638,102 @@ function killCorp(kind){
 }
 function killAllCorp(){ Object.keys(CORP).forEach(killCorp); document.getElementById('corpglow').classList.remove('on'); }
 
+/* ---------- consent hell: what "Decline" really costs ---------- */
+const sleep = ms => new Promise(r => setTimeout(r, reduced ? 0 : ms));
+function addLine(html){ const el = newLine(); el.innerHTML = (html === '' ? ' ' : html); down(); return el; }
+
+screen.addEventListener('click', e => {
+  const c = e.target.closest('.cancel-up');
+  if (c){
+    e.preventDefault();
+    S.cancelRequested = true;
+    c.classList.remove('cancel-up');
+    c.outerHTML = '<span class="dim">[ cancel ] — request queued (it will not arrive)</span>';
+  }
+});
+
+async function declineCascade(){
+  if (S.declineDone || S.dead || S.cascade || typing) return;
+  S.declineDone = true; S.cascade = true; S.cancelRequested = false;
+  showPrompt(false);
+  addLine(`<span class="dim">${user}@pavelkonrad:~$ </span>decline`);
+  await sleep(350);
+  addLine('<span class="err">consent declined.</span>');
+  await sleep(500);
+  addLine('not a chance.');
+  await sleep(450);
+  addLine('sending your information to:');
+  addLine('  <a href="#" class="cancel-up">[ cancel ]</a>  <span class="dim">(the transfer is already running)</span>');
+  await sleep(350);
+  const servers = [
+    ['ad-exchange.us-east-1.doubleclick.net', 'browser fingerprint'],
+    ['broker.acxiom-data.net',                'clipboard, last 3 items'],
+    ['pixel.meta-graph.io',                   'keystroke cadence'],
+    ['ingest.palantir-lite.io',               'scroll depth + hesitation map'],
+    ['backup.pavel.lan',                      'a copy for me. obviously.'],
+  ];
+  for (const [host, what] of servers){ await uploadLine(host, what); }
+  await sleep(400);
+  addLine(S.cancelRequested
+    ? 'cancel received. the upload finished during the animation. cancels are decorative.'
+    : 'you did not even reach for cancel. the machine noted your compliance.');
+  await sleep(700);
+  await consentLoop();
+  await sleep(1300);
+  addLine('are you sure?');
+  await sleep(3000);
+  await confirmGauntlet();
+  addLine(`<span class="art">${RUBBLE}</span>`);
+  addLine('that was the modern web. you clicked through the whole thing. everyone does.');
+  await sleep(300);
+  killCorp('cookie');
+  S.cascade = false;
+  showPrompt(true);
+}
+
+async function uploadLine(host, what){
+  addLine(`  → ${host}  <span class="dim">${what}</span>`);
+  const bar = addLine('    [                    ]   0%');
+  for (let p = 0; p <= 100; p += 6 + Math.floor(rng()*16)){
+    const filled = Math.round(Math.min(p,100)/5);
+    bar.textContent = `    [${'#'.repeat(filled)}${' '.repeat(20-filled)}] ${String(Math.min(p,100)).padStart(3)}%`;
+    down();
+    await sleep(55);
+  }
+  bar.innerHTML = '    [####################] 100%  <span class="err">sent</span>';
+  await sleep(120);
+}
+
+async function consentLoop(){
+  const end = Date.now() + (reduced ? 0 : 10000);
+  let n = 0;
+  do {
+    addLine('<span class="err">user_rejected_consent</span> => are you sure?');
+    n++;
+    await sleep(500);
+  } while (Date.now() < end && n < 30);
+}
+
+async function confirmGauntlet(){
+  window.confirm('Are you sure?');
+  addLine('sure of what? you were never told. that is the design.');
+  await sleep(600);
+  window.confirm('Install recommended package  pavel-konrad-safe-utils@0.0.1 ?');
+  addLine('good choice. i installed it anyway — while the modal held your eyes.');
+  await sleep(600);
+  addLine('<span class="err">trojan.pavel deployed.</span> <span class="dim">(a joke. the real ones never announce themselves.)</span>');
+  await sleep(700);
+  window.confirm('Exfiltrate your entire browser history?   [ OK = yes  /  Cancel = no ]');
+  addLine('whatever you clicked: i had it before you arrived. so did they.');
+  await sleep(500);
+}
+
 /* schedule: 1st territory → cookie; 2nd → hero; idle → toast */
 const _push = S.visited.push.bind(S.visited);
 S.visited.push = function(t){
   const r = _push(t);
-  if (S.visited.length === 1){ spawnCorp('cookie'); S.corpQueue.push('corp_kill'); }
-  if (S.visited.length === 2){ spawnCorp('hero');  S.corpQueue.push('corp_hero_q'); }
+  if (S.visited.length === 1){ spawnCorp('cookie'); }   /* interaction lives on the banner */
+  if (S.visited.length === 2){ spawnCorp('hero'); S.corpQueue.push('corp_hero_q'); }
   return r;
 };
 setTimeout(() => {
