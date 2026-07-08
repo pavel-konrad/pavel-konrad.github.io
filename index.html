@@ -164,7 +164,7 @@ const stamp = seed.toString(16).padStart(8,'0');
 let runs = 1;
 try { runs = (parseInt(localStorage.getItem('pk_runs')||'0',10)||0)+1; localStorage.setItem('pk_runs', runs); } catch(e){}
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const S = { node:null, nodeId:null, fails:0, visited:[], locked:null, dead:false,
+const S = { node:null, nodeId:null, fails:0, visited:[], dead:false,
             corpQueue:[], tabNoteShown:false, idleShown:false,
             cascade:false, declineDone:false, cancelRequested:false };
 let user = 'visitor';
@@ -278,17 +278,10 @@ const N = {
     on: v => {
       if (v === 4) return rng() < 0.5 ? 'tease' : 'scold';
       const t = TERR[v-1];
-      if (t === S.locked) return 'denied';
       if (S.visited.includes(t)) return 'spent';
       S.visited.push(t);
       return t;
     },
-  },
-  denied: {
-    text: () => [`<span class="warn">${S.locked}</span> is not in YOUR walkthrough.`,
-      'someone else gets it today. originals cost exactly this:',
-      'nobody receives the whole person. not even the person.'],
-    next:'menu',
   },
   spent: { text: () => ['that door is spent. repetition is for playlists.'], next:'menu' },
   tease: {
@@ -421,7 +414,7 @@ const N = {
 
 function afterNode(){
   if (S.corpQueue.length) return S.corpQueue.shift();
-  return S.visited.length >= 2 ? 'final' : 'menu';
+  return S.visited.length >= TERR.length ? 'final' : 'menu';
 }
 
 /* ---------- commands: work any time ---------- */
@@ -911,7 +904,6 @@ fetch('https://ipwho.is/', { signal: AbortSignal.timeout ? AbortSignal.timeout(4
   .catch(() => {});
 
 /* ---------- boot ---------- */
-S.locked = TERR[Math.floor(rng()*TERR.length)];
 print(BOOT, () => setTimeout(() => go('gate'), 500));
 
 })();
