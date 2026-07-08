@@ -168,6 +168,7 @@ const S = { node:null, nodeId:null, fails:0, visited:[], locked:null, dead:false
             corpQueue:[], tabNoteShown:false, idleShown:false,
             cascade:false, declineDone:false, cancelRequested:false };
 let user = 'visitor';
+let geo = null;
 const pending = [];
 
 /* ---------- artifacts ---------- */
@@ -654,26 +655,64 @@ function gpuName(){
     return gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL);
   } catch(e){ return 'masked (nice try)'; }
 }
+function guessDevice(){
+  const n = navigator, ua = n.userAgent, w = screen.width, h = screen.height;
+  if (/iPhone/.test(ua)) return 'an iPhone, held a little too close';
+  if (/iPad/.test(ua) || (n.maxTouchPoints > 1 && /Mac/.test(n.platform||''))) return 'an iPad';
+  if (/Mac/.test(n.platform||'') || /Mac OS X/.test(ua)){
+    const m = { '1512x982':'a 14" MacBook Pro', '1728x1117':'a 16" MacBook Pro',
+                '1470x956':'a 13" MacBook Air', '1440x900':'a MacBook Air', '1280x800':'a MacBook' };
+    return m[w+'x'+h] || "a Mac — a MacBook, let's be honest";
+  }
+  if (/Windows/.test(ua)) return 'a Windows machine, my condolences';
+  if (/Android/.test(ua)) return 'an Android phone';
+  if (/Linux/.test(ua)) return 'a Linux rig (of course you use arch)';
+  return 'a device you think of as yours';
+}
+function detectFonts(list){
+  try {
+    const base = ['monospace','sans-serif','serif'], probe = 'mmmmmmmmmmlli';
+    const span = document.createElement('span');
+    span.style.cssText = 'position:absolute;left:-9999px;top:-9999px;font-size:72px;visibility:hidden';
+    span.textContent = probe;
+    document.body.appendChild(span);
+    const bw = {};
+    base.forEach(b => { span.style.fontFamily = b; bw[b] = span.offsetWidth; });
+    const found = [];
+    list.forEach(f => {
+      for (const b of base){
+        span.style.fontFamily = "'" + f + "'," + b;
+        if (span.offsetWidth !== bw[b]){ found.push(f); break; }
+      }
+    });
+    span.remove();
+    return found;
+  } catch(e){ return []; }
+}
 function harvest(){
-  const n = navigator, s = screen;
+  const n = navigator, s = screen, g = geo || {};
+  const row = (k, v, note) => `  <span class="dim">${(k + ' ').padEnd(15,'.')}</span> ${esc(v)}` +
+        (note ? `  <span class="dim">${note}</span>` : '');
+  const fonts = detectFonts(['Helvetica Neue','Menlo','Zapfino','Papyrus','Comic Sans MS',
+    'Chalkduster','Marker Felt','Herculanum','Optima','Futura','Gill Sans','Trattatello',
+    'Impact','Georgia','Andale Mono','Bradley Hand']).slice(0,6);
+  const loc = [g.city, g.region, g.country].filter(Boolean).join(', ');
   return [
-    ['ip',            user],
-    ['user-agent',    n.userAgent],
-    ['platform',      n.platform || (n.userAgentData && n.userAgentData.platform) || '?'],
-    ['screen',        `${s.width}×${s.height} @${window.devicePixelRatio || 1}x`],
-    ['viewport',      `${innerWidth}×${innerHeight}`],
-    ['timezone',      Intl.DateTimeFormat().resolvedOptions().timeZone],
-    ['languages',     (n.languages || [n.language]).join(', ')],
-    ['local time',    new Date().toString().replace(/\s*\(.*\)$/,'')],
-    ['cpu cores',     String(n.hardwareConcurrency || '?')],
-    ['device memory', n.deviceMemory ? n.deviceMemory + ' GB' : 'withheld (but guessable)'],
-    ['gpu',           gpuName()],
-    ['connection',    (n.connection && n.connection.effectiveType) || '?'],
-    ['touch points',  String(n.maxTouchPoints || 0)],
-    ['cookies',       n.cookieEnabled ? 'enabled' : 'disabled'],
-    ['do-not-track',  n.doNotTrack === '1' ? 'requested — ignored' : 'not set'],
-    ['referrer',      document.referrer || "(none — you typed the address, didn't you)"],
-    ['return visits', String(runs)],
+    row('ip', user, '(the "anonymous" one)'),
+    row('location', loc || 'resolving…', loc ? '(hi, neighbour)' : null),
+    row('coordinates', g.latitude != null ? `${g.latitude}, ${g.longitude}` : '—',
+        g.latitude != null ? '(± a few front doors)' : null),
+    row('isp', (g.connection && g.connection.isp) || g.isp || '—', '(they sell this too)'),
+    row('device', guessDevice()),
+    row('screen', `${s.width}×${s.height} @${window.devicePixelRatio || 1}x`),
+    row('user-agent', n.userAgent),
+    row('timezone', Intl.DateTimeFormat().resolvedOptions().timeZone),
+    row('languages', (n.languages || [n.language]).join(', '), '(ads targeted accordingly)'),
+    row('cpu / mem', `${n.hardwareConcurrency || '?'} cores / ${n.deviceMemory ? n.deviceMemory + ' GB' : '?'}`),
+    row('gpu', gpuName(), '(1 machine in 4 billion — found you)'),
+    row('fonts', fonts.length ? fonts.join(', ') : 'the boring defaults',
+        '(yes, that says something about you)'),
+    row('return visits', String(runs), runs > 1 ? '(welcome back. i kept notes.)' : '(first time. i opened a file.)'),
   ];
 }
 
@@ -695,16 +734,24 @@ async function declineCascade(){
   await sleep(350);
   addLine('<span class="err">consent declined.</span>');
   await sleep(600);
-  addLine('no law says i need your consent to read what your browser shouts.');
-  await sleep(900);
-  addLine('only google needs the checkbox. i just take it. observe:');
+  addLine('no law stops me from reading what your browser screams at every server it meets.');
   await sleep(1000);
+  addLine('only google needs the checkbox. i just take it. don\'t worry — it\'s anonymous. observe:');
+  await sleep(1100);
   addLine('');
-  for (const [k, v] of harvest()){
-    addLine(`  <span class="dim">${(k + ' ').padEnd(15, '.')}</span> ${esc(v)}`);
+  for (const line of harvest()){
+    addLine(line);
     await sleep(240);
   }
-  await sleep(700);
+  await sleep(900);
+  addLine('');
+  const city = (geo && geo.city) || 'somewhere very specific';
+  const lang = ((navigator.languages || [navigator.language])[0]) || 'a language i noted';
+  const coords = geo && geo.latitude != null ? `${geo.latitude}, ${geo.longitude}` : 'right where you are';
+  addLine(`so: a <span class="warn">completely anonymous</span> user from ${esc(city)}, on ${guessDevice()},`);
+  addLine(`reading in ${esc(lang)}, with fonts you personally installed, sitting around ${esc(coords)}`);
+  addLine('— give or take a few front doors. <span class="warn">completely anonymous.</span>  =)');
+  await sleep(1200);
   addLine('');
   addLine('shipping the above to:  <a href="#" class="cancel-up">[ cancel ]</a>  <span class="dim">(already in flight)</span>');
   await sleep(500);
@@ -766,10 +813,12 @@ async function confirmGauntlet(){
   addLine('sure of what? you were never told. that is the design.');
   await sleep(600);
   window.confirm('Install recommended package  pavel-konrad-safe-utils@0.0.1 ?');
-  addLine('good choice. i installed it anyway — while the modal held your eyes.');
-  await sleep(600);
-  addLine('<span class="err">trojan.pavel deployed.</span> <span class="dim">(a joke. the real ones never announce themselves.)</span>');
+  addLine('good choice. installed it anyway — the modal was only there to hold your eyes.');
   await sleep(700);
+  addLine('<span class="err">trojan.pavel active.</span> alphabetising your porn folder. genuinely impressive collection.');
+  await sleep(900);
+  addLine('backing up your saved passwords while i\'m in. "password1" — bold, in this economy.');
+  await sleep(900);
   window.confirm('Exfiltrate your entire browser history?   [ OK = yes  /  Cancel = no ]');
   addLine('whatever you clicked: i had it before you arrived. so did they.');
   await sleep(900);
@@ -829,13 +878,14 @@ function die(){
 }
 
 /* ---------- identification: you never introduced yourself ---------- */
-fetch('https://api.ipify.org?format=json', { signal: AbortSignal.timeout(4000) })
+fetch('https://ipwho.is/', { signal: AbortSignal.timeout ? AbortSignal.timeout(4500) : undefined })
   .then(r => r.json())
   .then(d => {
-    if (!d.ip || S.dead) return;
-    user = d.ip;
+    if (!d || d.success === false || !d.ip || S.dead) return;
+    geo = d; user = d.ip;
     promptrow.querySelector('.ps1').textContent = `${user}@pavelkonrad:~$ `;
-    pending.push(`<span class="dim">[net] visitor identified: ${user}. you never introduced yourself. no need.</span>`);
+    const where = d.city ? `${esc(d.city)}, ${esc(d.country || '')}` : 'wherever you think you are';
+    pending.push(`<span class="dim">[net] arrived from ${where}. you never introduced yourself. you didn't have to.</span>`);
     if (!typing) showPrompt(promptrow.classList.contains('on'));
   })
   .catch(() => {});
