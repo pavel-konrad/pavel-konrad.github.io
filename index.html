@@ -772,6 +772,9 @@ async function confirmGauntlet(){
   await sleep(700);
   window.confirm('Exfiltrate your entire browser history?   [ OK = yes  /  Cancel = no ]');
   addLine('whatever you clicked: i had it before you arrived. so did they.');
+  await sleep(900);
+  window.confirm('one more — want to see my logs about you? some spicy ones?');
+  addLine('no chance. but that request? just logged.  =)');
   await sleep(500);
 }
 
