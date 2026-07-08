@@ -467,8 +467,8 @@ function print(lines, done){
     if (li >= lines.length){ typing = false; done && done(); return; }
     const line = lines[li++];
     const el = newLine();
-    if (reduced || skip || /<span|<a /.test(line) || line.length > 160){
-      el.innerHTML = line || ' '; down(); setTimeout(nextLine, reduced || skip ? 0 : 60);
+    if (skip || /<span|<a /.test(line) || line.length > 160){
+      el.innerHTML = line || ' '; down(); setTimeout(nextLine, skip ? 0 : 60);
       return;
     }
     let i = 0;
@@ -492,7 +492,7 @@ function go(id){
     if (node.end) return die();
     if (!node.input){
       const nx = typeof node.next === 'function' ? node.next() : node.next;
-      setTimeout(() => go(nx), reduced ? 0 : 420);
+      setTimeout(() => go(nx), 420);
     } else showPrompt(true);
   });
 }
@@ -640,8 +640,42 @@ function killCorp(kind){
 function killAllCorp(){ Object.keys(CORP).forEach(killCorp); document.getElementById('corpglow').classList.remove('on'); }
 
 /* ---------- consent hell: what "Decline" really costs ---------- */
-const sleep = ms => new Promise(r => setTimeout(r, reduced ? 0 : ms));
+/* timing is narrative, not motion — it ignores prefers-reduced-motion on purpose */
+const sleep = ms => new Promise(r => setTimeout(r, ms));
 function addLine(html){ const el = newLine(); el.innerHTML = (html === '' ? ' ' : html); down(); return el; }
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+/* what the browser hands out for free — read live, shown only to you */
+function gpuName(){
+  try {
+    const c = document.createElement('canvas');
+    const gl = c.getContext('webgl') || c.getContext('experimental-webgl');
+    const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+    return gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL);
+  } catch(e){ return 'masked (nice try)'; }
+}
+function harvest(){
+  const n = navigator, s = screen;
+  return [
+    ['ip',            user],
+    ['user-agent',    n.userAgent],
+    ['platform',      n.platform || (n.userAgentData && n.userAgentData.platform) || '?'],
+    ['screen',        `${s.width}×${s.height} @${window.devicePixelRatio || 1}x`],
+    ['viewport',      `${innerWidth}×${innerHeight}`],
+    ['timezone',      Intl.DateTimeFormat().resolvedOptions().timeZone],
+    ['languages',     (n.languages || [n.language]).join(', ')],
+    ['local time',    new Date().toString().replace(/\s*\(.*\)$/,'')],
+    ['cpu cores',     String(n.hardwareConcurrency || '?')],
+    ['device memory', n.deviceMemory ? n.deviceMemory + ' GB' : 'withheld (but guessable)'],
+    ['gpu',           gpuName()],
+    ['connection',    (n.connection && n.connection.effectiveType) || '?'],
+    ['touch points',  String(n.maxTouchPoints || 0)],
+    ['cookies',       n.cookieEnabled ? 'enabled' : 'disabled'],
+    ['do-not-track',  n.doNotTrack === '1' ? 'requested — ignored' : 'not set'],
+    ['referrer',      document.referrer || "(none — you typed the address, didn't you)"],
+    ['return visits', String(runs)],
+  ];
+}
 
 screen.addEventListener('click', e => {
   const c = e.target.closest('.cancel-up');
@@ -660,20 +694,28 @@ async function declineCascade(){
   addLine(`<span class="dim">${user}@pavelkonrad:~$ </span>decline`);
   await sleep(350);
   addLine('<span class="err">consent declined.</span>');
+  await sleep(600);
+  addLine('no law says i need your consent to read what your browser shouts.');
+  await sleep(900);
+  addLine('only google needs the checkbox. i just take it. observe:');
+  await sleep(1000);
+  addLine('');
+  for (const [k, v] of harvest()){
+    addLine(`  <span class="dim">${(k + ' ').padEnd(15, '.')}</span> ${esc(v)}`);
+    await sleep(240);
+  }
+  await sleep(700);
+  addLine('');
+  addLine('shipping the above to:  <a href="#" class="cancel-up">[ cancel ]</a>  <span class="dim">(already in flight)</span>');
   await sleep(500);
-  addLine('not a chance.');
-  await sleep(450);
-  addLine('sending your information to:');
-  addLine('  <a href="#" class="cancel-up">[ cancel ]</a>  <span class="dim">(the transfer is already running)</span>');
-  await sleep(350);
   const servers = [
-    ['ad-exchange.us-east-1.doubleclick.net', 'browser fingerprint'],
-    ['broker.acxiom-data.net',                'clipboard, last 3 items'],
-    ['pixel.meta-graph.io',                   'keystroke cadence'],
-    ['ingest.palantir-lite.io',               'scroll depth + hesitation map'],
-    ['backup.pavel.lan',                      'a copy for me. obviously.'],
+    'ad-exchange.us-east-1.doubleclick.net',
+    'broker.acxiom-data.net',
+    'pixel.meta-graph.io',
+    'ingest.palantir-lite.io',
+    'backup.pavel.lan',
   ];
-  for (const [host, what] of servers){ await uploadLine(host, what); }
+  for (const host of servers){ await uploadLine(host); }
   await sleep(400);
   addLine(S.cancelRequested
     ? 'cancel received. the upload finished during the animation. cancels are decorative.'
@@ -690,16 +732,15 @@ async function declineCascade(){
   showPrompt(true);
 }
 
-async function uploadLine(host, what){
-  addLine(`  → ${host}  <span class="dim">${what}</span>`);
-  const bar = addLine('    [                    ]   0%');
+async function uploadLine(host){
+  const bar = addLine(`  → ${esc(host)}  [                    ]   0%`);
   for (let p = 0; p <= 100; p += 6 + Math.floor(rng()*16)){
     const filled = Math.round(Math.min(p,100)/5);
-    bar.textContent = `    [${'#'.repeat(filled)}${' '.repeat(20-filled)}] ${String(Math.min(p,100)).padStart(3)}%`;
+    bar.textContent = `  → ${host}  [${'#'.repeat(filled)}${' '.repeat(20-filled)}] ${String(Math.min(p,100)).padStart(3)}%`;
     down();
     await sleep(55);
   }
-  bar.innerHTML = '    [####################] 100%  <span class="err">sent</span>';
+  bar.innerHTML = `  → ${esc(host)}  [####################] 100%  <span class="err">sent</span>`;
   await sleep(120);
 }
 
@@ -798,7 +839,7 @@ fetch('https://api.ipify.org?format=json', { signal: AbortSignal.timeout(4000) }
 
 /* ---------- boot ---------- */
 S.locked = TERR[Math.floor(rng()*TERR.length)];
-print(BOOT, () => setTimeout(() => go('gate'), reduced ? 0 : 500));
+print(BOOT, () => setTimeout(() => go('gate'), 500));
 
 })();
 </script>
