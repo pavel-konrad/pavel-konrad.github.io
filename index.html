@@ -805,8 +805,8 @@ async function uploadLine(host){
 }
 
 async function consentLoop(){
-  addLine('<span class="err">user_rejected_consent.</span>');
-  await sleep(900);
+  window.confirm('Withdraw consent? All collected data will be permanently deleted.');
+  await sleep(700);
   /* the barrel-organ: steady beat, then the rhythm bends, then it shouts */
   const beats = [
     ['are you sure?',                                    1100],
@@ -822,20 +822,13 @@ async function consentLoop(){
 }
 
 async function confirmGauntlet(){
-  window.confirm('Are you sure?');
-  addLine('sure of what? you were never told. that is the design.');
-  await sleep(600);
-  window.confirm('Install recommended package  pavel-konrad-safe-utils@0.0.1 ?');
-  addLine('good choice. installed it anyway — the modal was only there to hold your eyes.');
-  await sleep(700);
-  addLine('<span class="err">trojan.pavel active.</span> alphabetising your incriminated folders. genuinely impressive collection.');
+  addLine('nothing was deleted.');
+  await sleep(800);
+  addLine('all data collected. all data saved. <span class="err">forever.</span>');
   await sleep(900);
-  addLine('backing up your saved passwords while i\'m in. "password1" — bold, in this economy.');
-  await sleep(900);
-  window.confirm('Exfiltrate your entire browser history?   [ OK = yes  /  Cancel = no ]');
-  addLine('whatever you clicked: i had it before you arrived. so did they.');
-  await sleep(900);
-  window.confirm('one more — want to see my logs about you? some spicy ones?');
+  addLine('there was never a delete button. only the one that says so.');
+  await sleep(1000);
+  window.confirm('Want to see the logs i keep on you? the spicy ones?');
   addLine('no chance. but that request? just logged.  =)');
   await sleep(500);
 }
