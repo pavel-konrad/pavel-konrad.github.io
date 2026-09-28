@@ -2,898 +2,1193 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>pavel konrad [tty]</title>
+<title>Pavel Konrad — sound design</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Pavel Konrad — developer, teacher, sound designer. A terminal that decides how much of that you get to see.">
+<meta name="description" content="Pavel Konrad — rooted in music, built in software, settled in sound.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://pavelkonrad.cz/">
-<meta property="og:title" content="pavel konrad [tty]">
-<meta property="og:description" content="every walkthrough is an original. the system has already chosen yours.">
+<meta property="og:title" content="Pavel Konrad — sound design">
+<meta property="og:description" content="Rooted in music. Built in software. Settled in sound.">
 <meta property="og:url" content="https://pavelkonrad.cz/">
 <meta property="og:type" content="website">
-<link rel="icon" type="image/x-icon" href="assets/favicon.ico">
-<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
+<meta property="og:image" content="https://pavelkonrad.cz/img/portrait.jpg">
 <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
 <link rel="manifest" href="assets/site.webmanifest">
+<link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
 <style>
 :root {
-  --bg:#0b0b0c;
-  --fg:#d6d6d0;
-  --dim:#6f6f68;
-  --amber:#ffb000;
-  --red:#ff5544;
-  --ease:cubic-bezier(0.25,0.46,0.45,0.94);
+  /* taken from the bass: petrol lacquer, mustard, mother-of-pearl inlays */
+  --bg:#0b2724;
+  --card:#0f312d;
+  --card-raised:#143d38;
+  --border:#1f4a44;
+  --border-hover:#347066;
+  --ink:#f2ead6;
+  --text:#e6dfcb;
+  --text-soft:#a8b7ac;
+  --text-dim:#6f8b83;
+  --text-faint:#355650;
+  --accent:#d4a53a;
+  --accent-hover:#e3b954;
+  --indigo:var(--accent);
+  --indigo-hover:var(--accent-hover);
+  --edge:#2f5b54;
+  --edge-hot:var(--accent);
+
+  --musician:#d4a53a;
+  --programmer:#f2ead6;
+  --multimedia:#b9c47c;
+  --technician:#6cc3b0;
+
+  --radius:0;
+  --ease:cubic-bezier(0.4,0,0.2,1);
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
 }
 * { box-sizing:border-box; }
-html { scroll-behavior:auto; }
+/* the lacquer: the grain texture, drawn once and bent into a wave as the page scrolls */
+.grain { position:fixed; inset:0; width:100%; height:100%; z-index:-1; pointer-events:none; }
 body {
   margin:0;
-  background:var(--bg);
-  color:var(--fg);
-  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
-  font-size:clamp(13px,1.5vw,15px);
-  line-height:1.5;
-  overflow-x:hidden;
+  background:
+    radial-gradient(ellipse 80% 40% at 50% 0%, rgba(108,195,176,0.10), transparent 70%),
+    var(--bg);
+  background-attachment:fixed;
+  color:var(--text);
+  font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased;
   min-height:100vh;
 }
-::selection { background:var(--fg); color:var(--bg); }
-.sr { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+body.is-map { overflow:hidden; }
+a { color:inherit; }
+button { font:inherit; color:inherit; }
+:focus-visible { outline:2px solid var(--indigo); outline-offset:3px; }
 
-/* ---------- tty core: flat, no theatre ---------- */
-#screen {
-  position:relative; z-index:2;
-  max-width:900px; margin:0 auto;
-  padding:2.2rem 1.1rem 40vh;
+.wrap { max-width:76rem; margin:0 auto; padding:0 1rem; }
+.intro.wrap { max-width:none; padding-left:clamp(1rem, 3vw, 3rem); padding-right:clamp(1rem, 3vw, 3rem); }
+
+/* identity colouring for the map nodes */
+.id--musician   { --c:var(--musician); }
+.id--programmer { --c:var(--programmer); }
+.id--multimedia { --c:var(--multimedia); }
+.id--technician { --c:var(--technician); }
+
+/* the gallery fades out underneath while its tiles fly into the map */
+.page { transition:opacity .35s var(--ease); }
+body.is-map .page { opacity:0; pointer-events:none; }
+
+/* ── Header ───────────────────────────────────────────── */
+.intro {
+  position:relative;
+  min-height:100svh;
+  display:flex; flex-direction:column; justify-content:space-between; gap:2rem;
+  padding-top:2rem; padding-bottom:2.5rem;
 }
-.line { white-space:pre-wrap; word-break:break-word; min-height:1.5em; }
-.line .dim  { color:var(--dim); }
-.line .warn { color:var(--amber); }
-.line .err  { color:var(--red); }
-.line .art  { color:var(--dim); line-height:1.15; font-size:.88em; display:block; overflow-x:auto; }
-.line a { color:var(--amber); text-decoration:underline; text-underline-offset:3px; }
-.line a:hover { background:var(--amber); color:var(--bg); }
-.line a:focus-visible { outline:2px solid var(--amber); outline-offset:2px; }
-#promptrow { display:none; }
-#promptrow.on { display:block; }
-.ps1 { color:var(--dim); }
-#typed { color:var(--fg); }
-.cur { display:inline-block; width:.62em; height:1.15em; background:var(--fg);
-  vertical-align:text-bottom; animation:blink 1.06s steps(1) infinite; }
-@keyframes blink { 50% { opacity:0; } }
-#kbd { position:fixed; top:0; left:0; width:1px; height:1px; opacity:0.01; border:0; padding:0;
-  background:transparent; color:transparent; }
+.intro__main { flex:1; display:flex; align-items:center; position:relative; z-index:1; }
+.intro__name, .intro__actions { position:relative; z-index:1; }
+/* the portrait stands in the right half of the hero, cut off at the fold */
+.intro__portrait {
+  position:absolute; right:clamp(1rem, 4vw, 4rem); bottom:0; z-index:0;
+  height:88%; width:auto; max-width:44%; object-fit:cover; object-position:50% 0;
+  /* fallback until the script has measured the photo and drawn its mask */
+  -webkit-mask-image:linear-gradient(to bottom, #000 72%, transparent);
+  mask-image:linear-gradient(to bottom, #000 72%, transparent);
+  -webkit-mask-size:100% 100%; mask-size:100% 100%;
+}
+@media (max-width:760px) {
+  .intro__portrait {
+    position:relative; right:auto; bottom:auto;
+    width:100%; max-width:none; height:34svh; object-position:50% 12%;
+  }
+}
+.intro__name { margin:0; font-family:var(--mono); font-size:0.8rem; font-weight:400; letter-spacing:0.16em; text-transform:uppercase; color:var(--text-soft); }
+.intro__headline {
+  margin:0;
+  font-size:clamp(2.1rem, 4.6vw, 5rem); font-weight:600; line-height:1.12; letter-spacing:-0.025em;
+  color:var(--ink);
+}
+.intro__line { display:block; }
+.intro__accent { color:var(--accent); }
+.intro__actions { display:flex; flex-wrap:wrap; gap:0.6rem; }
+.btn {
+  display:inline-flex; align-items:center; gap:0.45rem;
+  min-height:2.75rem; padding:0 1.1rem; border-radius:0;
+  border:1px solid var(--border); background:var(--card);
+  text-decoration:none; font-size:0.88rem; font-weight:600; cursor:pointer;
+  transition:border-color .15s, background .15s;
+}
+.btn:hover { border-color:var(--border-hover); }
+.btn--pill { border-radius:999px; }
+.btn--primary { background:var(--accent); border-color:var(--accent); color:var(--bg); }
+.btn--primary:hover { background:var(--accent-hover); border-color:var(--accent-hover); }
 
-/* ---------- the corporate simulacrum: fancy on purpose ---------- */
-#corpglow { position:fixed; inset:0; z-index:0; pointer-events:none;
-  opacity:0; transition:opacity 2.5s var(--ease); }
-#corpglow.on { opacity:.55; }
-#corpglow::before, #corpglow::after { content:""; position:absolute; width:60vmax; height:60vmax;
-  border-radius:50%; filter:blur(90px); will-change:transform; }
-#corpglow::before { background:radial-gradient(circle, #6366f133, transparent 65%);
-  top:-25vmax; right:-20vmax; transform:translate3d(calc(var(--px,0)*-40px),0,0); }
-#corpglow::after  { background:radial-gradient(circle, #a855f72e, transparent 65%);
-  bottom:-28vmax; left:-18vmax; transform:translate3d(calc(var(--px,0)*40px),0,0); }
+/* ── Gallery: a wall of old glass tiles ─────────────────
+   One square grid is the only structure. A work takes a 2×2 block and is seen
+   through four panes; nothing frames it but the grout, like every other tile.
+   Empty panes fill the rest so the wall stays whole. */
+:root {
+  --foil:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='640'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.018' numOctaves='5' seed='11'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 -2.6 0 0 0 0.62'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+  --g:6px;
+  /* the top edge catches light, the bottom sinks: one pane of pressed glass */
+  --pane:
+    linear-gradient(to bottom, rgba(255,255,255,0.34) 0 1px, transparent 1px),
+    linear-gradient(to right, rgba(255,255,255,0.16) 0 1px, transparent 1px),
+    linear-gradient(135deg, rgba(255,255,255,0.16), rgba(255,255,255,0.03) 32%, transparent 58%, rgba(0,0,0,0.32));
+}
+.wall {
+  --t:clamp(104px, 9.2vw, 150px);
+  display:grid; gap:var(--g);
+  grid-template-columns:repeat(auto-fill, var(--t));
+  grid-auto-rows:var(--t);
+  grid-auto-flow:dense;
+  justify-content:center;
+  padding:0 clamp(1rem, 3vw, 3rem) 5rem;
+}
+.glass {
+  background:var(--pane), var(--foil) var(--fx, 0) var(--fy, 0) / 640px, var(--card-raised);
+  background-blend-mode:normal, normal, normal, soft-light, normal;
+  opacity:.6;
+}
+.tile {
+  position:relative; grid-column:span 2; grid-row:span 2;
+  display:block; overflow:hidden;
+  text-decoration:none; cursor:pointer;
+  background:var(--card-raised);
+}
+.tile .media { position:absolute; inset:0; }
+.tile .media img { width:100%; height:100%; object-fit:cover; display:block; transition:transform .6s var(--ease), filter .4s; filter:saturate(.85) brightness(.9); }
+.tile:hover .media img { transform:scale(1.03); filter:none; }
+.tile .media img.is-letterboxed { transform:scale(1.34); }
+/* nevermi.cz hero: the cast stands in the middle of a wide black frame */
+.tile[data-id="nevermi"] .media img { object-position:50% 45%; transform:scale(1.5); }
+.tile[data-id="nevermi"]:hover .media img { transform:scale(1.54); }
+/* portrait photo: keep the cast torso, not the floor */
+.tile[data-id="hellichovka"] .media img, .mnode[data-id="hellichovka"] img { object-position:50% 30%; }
+.tile:hover .media img.is-letterboxed { transform:scale(1.38); }
+/* foil pressed into the glass over the image */
+.tile::before {
+  content:""; position:absolute; inset:0; z-index:1; pointer-events:none;
+  background:var(--foil) var(--fx, 0) var(--fy, 0) / 640px;
+  mix-blend-mode:soft-light; opacity:.55;
+}
+/* the grout cross and the four panes */
+.tile::after {
+  content:""; position:absolute; inset:0; z-index:2; pointer-events:none;
+  background:
+    linear-gradient(var(--bg), var(--bg)) center / var(--g) 100% no-repeat,
+    linear-gradient(var(--bg), var(--bg)) center / 100% var(--g) no-repeat,
+    var(--pane);
+  background-size:var(--g) 100%, 100% var(--g),
+    calc(50% + var(--g) / 2) calc(50% + var(--g) / 2),
+    calc(50% + var(--g) / 2) calc(50% + var(--g) / 2),
+    calc(50% + var(--g) / 2) calc(50% + var(--g) / 2);
+}
+.tile__label {
+  position:absolute; left:0; right:0; bottom:0; z-index:3;
+  display:flex; flex-direction:column; gap:0.3rem;
+  padding:2.8rem 0.9rem 0.8rem;
+  background:linear-gradient(transparent, rgba(6,26,23,0.86));
+}
+.tile__head { display:flex; align-items:baseline; gap:0.6rem; }
+.tile__title { margin:0; font-size:0.98rem; font-weight:700; line-height:1.25; color:var(--ink); }
+.tile__credit { margin:0; font-family:var(--mono); font-size:0.68rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-soft); }
+.tile__year { margin-left:auto; flex-shrink:0; font-family:var(--mono); font-size:0.7rem; color:var(--text-soft); }
+.tile:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
 
-.corp {
+.media { position:relative; overflow:hidden; background:var(--card-raised); }
+.cover { position:absolute; inset:0; background:var(--foil) 0 0 / 640px, var(--card-raised); background-blend-mode:soft-light, normal; }
+/* a logo sits alone in the top-left pane, clear of the grout */
+.cover--logo { display:block; }
+.cover--logo img,
+.tile .media .cover--logo img,
+.tile:hover .media .cover--logo img {
+  position:absolute; left:25%; top:25%; width:28%; height:auto; transform:translate(-50%, -50%);
+  object-fit:contain; filter:none;
+}
+.badge {
+  position:absolute; top:0.7rem; left:0.7rem; z-index:3;
+  padding:0.2rem 0.5rem; border-radius:0;
+  background:rgba(8,30,27,0.8);
+  font-family:var(--mono); font-size:0.62rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-soft);
+}
+.tags { display:flex; flex-wrap:wrap; gap:0.35rem; }
+@media (max-width:760px) {
+  .wall { --t:calc((100vw - 2rem - var(--g)) / 2); }
+}
+.tag {
+  display:inline-flex; align-items:center;
+  padding:0.18rem 0.5rem; border-radius:0;
+  border:1px solid var(--border);
+  font-family:var(--mono); font-size:0.66rem; letter-spacing:0.04em; text-transform:uppercase; color:var(--text-soft);
+}
+
+/* ── Player ───────────────────────────────────────────── */
+.listen { padding-top:1rem; padding-bottom:5rem; }
+.listen > :not(.listen__title):not(.listen__tabs) { max-width:46rem; }
+.listen__desc { margin:0 0 1.6rem; font-size:0.95rem; line-height:1.6; color:var(--text-soft); }
+.listen__title {
+  position:relative; margin:0 0 1.6rem;
+  font-size:clamp(1.6rem, 3vw, 2.4rem); font-weight:600; line-height:1.1; letter-spacing:-0.02em; color:var(--ink);
+}
+.shelves { display:flex; flex-wrap:wrap; gap:0; border-bottom:1px solid var(--border); margin-bottom:1.4rem; }
+.listen__tabs { display:flex; flex-wrap:wrap; gap:0; border-bottom:1px solid var(--border); margin-bottom:1.4rem; }
+.listen__tab {
+  padding:0.8rem 1.1rem; border:0; border-bottom:2px solid transparent; background:none; cursor:pointer;
+  font-family:var(--mono); font-size:0.72rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--text-dim);
+}
+.listen__tab:hover { color:var(--text); }
+.listen__tab[aria-selected="true"] { color:var(--ink); border-bottom-color:var(--accent); }
+.deck { display:flex; align-items:center; gap:1.2rem; margin-bottom:1.2rem; }
+.deck__play {
+  flex-shrink:0; width:3.6rem; height:3.6rem; border-radius:50%;
+  border:0; background:var(--accent); color:var(--bg); font-size:1.1rem; cursor:pointer;
+}
+.deck__play:hover { background:var(--accent-hover); }
+.deck__now { flex:1; min-width:0; }
+.deck__head { display:flex; align-items:baseline; gap:1rem; margin-bottom:0.5rem; }
+.deck__name { font-weight:700; font-size:1.05rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.deck__time { margin-left:auto; font-family:var(--mono); font-size:0.72rem; color:var(--text-dim); }
+.deck__wave { display:block; width:100%; height:72px; cursor:pointer; }
+.deck__wave:focus-visible { outline:1px solid var(--accent); outline-offset:4px; }
+.tracks { list-style:none; margin:0; padding:0; border-top:1px solid var(--border); }
+.track {
+  display:grid; grid-template-columns:2.4rem 1fr auto auto; align-items:baseline; gap:1rem;
+  padding:0.85rem 0.2rem; border-bottom:1px solid var(--border); cursor:pointer;
+}
+.track:hover { background:rgba(242,234,214,0.04); }
+.track__n { font-family:var(--mono); font-size:0.72rem; color:var(--text-dim); }
+.track__title { font-size:0.95rem; }
+.track__note { display:block; margin-top:0.2rem; font-size:0.78rem; color:var(--text-dim); }
+.track__year, .track__link { font-family:var(--mono); font-size:0.7rem; color:var(--text-dim); }
+.track__link { text-decoration:none; }
+.track__link:hover { color:var(--accent); }
+.track.is-current .track__title, .track.is-current .track__n { color:var(--accent); font-weight:700; }
+@media (max-width:760px) {
+  .track { grid-template-columns:2rem 1fr auto; }
+  .track__year { display:none; }
+}
+
+.footer { padding-top:2rem; padding-bottom:3rem; border-top:1px solid var(--border); display:flex; flex-wrap:wrap; gap:0.5rem 1.4rem; font-size:0.85rem; color:var(--text-dim); }
+.footer a { color:var(--text-soft); text-decoration:none; }
+.footer a:hover { color:var(--text); }
+
+/* ── Stage: the same page, rebuilt as a map ───────────── */
+/* the map keeps ContexNode's language: rounded cards, soft panels */
+.stage .mnode { border-radius:0.875rem; }
+.stage .mnode__badge { border-radius:0.3rem; }
+.stage .info { border-radius:1rem; }
+.stage .step { border-radius:0.6rem; }
+.stage .tag {
+  border-radius:0.35rem; border-color:transparent;
+  background:color-mix(in srgb, var(--c) 12%, transparent); color:var(--c);
+  text-transform:none; letter-spacing:0;
+}
+.stage .btn { border-radius:999px; }
+.stage .mlane-label { border-radius:0.35rem; }
+.stage {
+  position:fixed; inset:0; z-index:20;
+  overflow-y:auto; overflow-x:hidden;
+  visibility:hidden;
+}
+.stage.is-on { visibility:visible; }
+.stage__bar {
+  position:sticky; top:0; z-index:3;
+  display:flex; align-items:center; gap:0.8rem;
+  padding:1rem;
+  background:linear-gradient(var(--bg) 60%, transparent);
+}
+.stage__name { font-family:var(--mono); font-size:0.72rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-dim); }
+.stage__scroll {
+  position:relative; margin-right:24rem;
+  overflow-x:auto; overflow-y:hidden;
+  scrollbar-color:var(--border-hover) transparent;
+}
+.stage__map { position:relative; }
+.stage__lanes { position:sticky; left:0; top:0; z-index:2; width:0; height:0; }
+.mlane-label {
+  position:absolute; left:12px; width:max-content;
+  padding:0.2rem 0.5rem; border-radius:0;
+  background:rgba(8,30,27,0.85);
+  font-family:var(--mono); font-size:0.62rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-dim);
+}
+.mband { position:absolute; left:0; right:0; border-top:1px solid var(--border); }
+.mband--works { background:linear-gradient(180deg, rgba(108,195,176,0.05), transparent); }
+.stage__svg { position:absolute; top:0; left:0; width:100%; height:100%; overflow:visible; pointer-events:none; }
+.stage__legend {
+  display:flex; flex-wrap:wrap; justify-content:center; gap:0.3rem 1.1rem;
+  margin-right:24rem; padding:1rem 1rem 2.5rem;
+  font-family:var(--mono); font-size:0.66rem; color:var(--text-dim);
+}
+.stage__legend svg { vertical-align:middle; margin-right:0.35rem; }
+
+.myear {
+  position:absolute; top:6px;
+  font-family:var(--mono); font-size:0.7rem; letter-spacing:0.08em; color:var(--text-soft);
+}
+.myear::after { content:""; position:absolute; left:0; top:1.3rem; height:var(--h, 0); border-left:1px dashed var(--border); }
+.mnode {
+  position:absolute; top:0; left:0;
+  border:1px solid var(--border); border-radius:0;
+  background:var(--card); overflow:hidden;
+  text-align:left; text-decoration:none; cursor:pointer;
+  transform-origin:0 0;
+  transition:border-color .15s, box-shadow .2s, opacity .3s;
+}
+.mnode:hover { border-color:var(--border-hover); }
+.mnode--root { border-left:3px solid var(--c, var(--indigo)); }
+.mnode--focus {
+  border-color:var(--indigo); cursor:default;
+  box-shadow:0 0 2.2rem rgba(212,165,58,0.28);
+}
+.mnode--other { opacity:.16; }
+.mnode--other:hover { opacity:.7; }
+.mnode__thumb { position:relative; aspect-ratio:2/1; overflow:hidden; background:var(--card-raised); }
+.mnode__thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+.mnode__body { display:flex; flex-direction:column; gap:0.15rem; padding:0.6rem 0.75rem 0.7rem; }
+.mnode__kind { font-family:var(--mono); font-size:0.58rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-dim); }
+.mnode__label { font-size:0.84rem; font-weight:600; line-height:1.3; }
+.mnode__badge {
+  align-self:flex-start; margin:0.1rem 0 0.15rem;
+  padding:0.08rem 0.4rem; border-radius:0;
+  border:1px solid color-mix(in srgb, var(--c, var(--indigo)) 45%, transparent);
+  font-family:var(--mono); font-size:0.56rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--c, var(--indigo));
+}
+.mnode__by { font-size:0.7rem; line-height:1.35; color:var(--text-soft); }
+.mnode__years { font-family:var(--mono); font-size:0.64rem; color:var(--text-dim); }
+.mnode__why { margin-top:0.2rem; font-size:0.72rem; line-height:1.4; color:var(--text-soft); font-style:italic; }
+.mnode__dots { display:flex; gap:0.25rem; margin-top:0.35rem; }
+.mnode__dots span { width:0.4rem; height:0.4rem; border-radius:50%; background:var(--c); }
+
+.info {
   position:fixed; z-index:4;
-  font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-  background:rgba(255,255,255,.92);
-  color:#1e1b2e;
-  border-radius:20px;
-  box-shadow:0 24px 70px rgba(99,102,241,.35), 0 2px 10px rgba(0,0,0,.25);
-  padding:1.1rem 1.3rem;
-  max-width:min(340px, 86vw);
-  will-change:transform,opacity;
-  transform:translate3d(calc(var(--px,0)*var(--depth,14px)), calc(var(--py,0)*var(--depth,14px)), 0);
+  top:1rem; right:1rem; bottom:1rem; width:22rem;
+  display:flex; flex-direction:column; gap:0.8rem;
+  padding:1.4rem;
+  border:1px solid var(--border); border-radius:0;
+  background:var(--card);
+  box-shadow:-0.5rem 0 2.5rem rgba(0,0,0,0.45);
+  overflow-y:auto;
 }
-.corp h3 { margin:0 0 .4rem; font-size:1.02rem; font-weight:700;
-  background:linear-gradient(90deg,#6366f1,#a855f7); -webkit-background-clip:text;
-  background-clip:text; -webkit-text-fill-color:transparent; }
-.corp p { margin:0 0 .8rem; font-size:.86rem; line-height:1.45; color:#44405c; }
-.corp .btn { display:inline-block; border:none; cursor:pointer; font:inherit;
-  font-size:.85rem; font-weight:600; padding:.55rem 1.05rem; border-radius:999px;
-  background:linear-gradient(90deg,#6366f1,#a855f7); color:#fff;
-  box-shadow:0 6px 18px rgba(124,90,240,.45);
-  transition:transform .25s var(--ease); }
-.corp .btn:hover { transform:translateY(-2px) scale(1.03); }
-.corp .btn.ghost { background:#eceafe; color:#5a54c8; box-shadow:none; }
-.corp.spawnC { animation:corpIn .8s var(--ease) both; }
-@keyframes corpIn {
-  from { opacity:0; transform:translateY(60px) scale(.9); }
-  to   { opacity:1; transform:translateY(0) scale(1); }
+.info__title { margin:0; font-size:1.4rem; font-weight:800; line-height:1.2; letter-spacing:-0.02em; }
+.info__meta { margin:0; font-family:var(--mono); font-size:0.72rem; color:var(--text-dim); }
+.info__text { margin:0; font-size:0.9rem; line-height:1.65; color:var(--text-soft); }
+.info__links { display:flex; flex-wrap:wrap; gap:0.45rem; margin-top:0.2rem; }
+.info__links .btn { min-height:2.4rem; font-size:0.82rem; }
+.lineup { display:grid; grid-template-columns:auto 1fr; gap:0.35rem 1rem; margin:0.2rem 0 0; padding:0.8rem 0; border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+.lineup dt { font-family:var(--mono); font-size:0.68rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-dim); padding-top:0.15rem; }
+.lineup dd { margin:0; font-size:0.88rem; color:var(--text); }
+.steps { display:flex; flex-direction:column; gap:0.35rem; }
+.steps__title { margin:0.2rem 0 0; font-family:var(--mono); font-size:0.64rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--text-dim); }
+.step {
+  display:flex; flex-direction:column; gap:0.15rem;
+  padding:0.55rem 0.7rem; border:1px solid var(--border); border-radius:0;
+  text-decoration:none; transition:border-color .15s;
 }
-.corp.dying { animation:corpDie .55s var(--ease) both; }
-@keyframes corpDie {
-  30% { transform:scale(1.04) rotate(.5deg); filter:none; }
-  to  { transform:scale(.1) rotate(8deg); opacity:0; filter:blur(8px) saturate(3); }
-}
-#corp-cookie { left:50%; bottom:1.2rem; transform:translateX(-50%); max-width:min(520px,92vw); }
-#corp-cookie.spawnC { animation-name:corpInUp; }
-@keyframes corpInUp {
-  from { opacity:0; transform:translateX(-50%) translateY(80px); }
-  to   { opacity:1; transform:translateX(-50%) translateY(0); }
-}
-#corp-hero { right:2rem; top:16vh; }
-#corp-toast { right:1rem; top:1rem; padding:.8rem 1rem; border-radius:14px; }
-#corp-toast p { margin:0; font-size:.84rem; }
-@media (max-width:640px){ #corp-hero { right:.8rem; top:10vh; } }
+.step:hover { border-color:var(--edge-hot); }
+.step__name { display:flex; gap:0.6rem; font-size:0.84rem; font-weight:600; }
+.step__year { margin-left:auto; font-family:var(--mono); font-size:0.66rem; font-weight:400; color:var(--text-dim); }
+.step__why { font-family:var(--mono); font-size:0.68rem; color:var(--edge-hot); }
+.info__hint { margin-top:auto; font-family:var(--mono); font-size:0.66rem; line-height:1.5; color:var(--text-faint); }
 
-body.dead { transition:filter 3s var(--ease); filter:grayscale(1) brightness(.8); }
+@media (max-width:760px) {
+  .intro__headline { font-size:12.5vw; }
+  .stage__scroll, .stage__legend { margin-right:0; }
+  .info {
+    position:relative; inset:auto; width:auto;
+    margin:0 1rem 2rem; box-shadow:none;
+  }
+  .info__hint { display:none; }
+}
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration:.01ms !important;
-    animation-iteration-count:1 !important;
-    transition-duration:.01ms !important;
-  }
+  *, *::before, *::after { transition-duration:.01ms !important; }
 }
 </style>
 </head>
 <body>
+<canvas class="grain" id="grain" aria-hidden="true"></canvas>
 
-<h1 class="sr">Pavel Konrad — Ruby on Rails developer, teacher, technical sound designer. Prague, Czech Republic.</h1>
+<div class="page" id="page">
+  <header class="wrap intro">
+    <p class="intro__name">Pavel Konrad</p>
+    <img class="intro__portrait" src="img/portrait.jpg" alt="Pavel Konrad">
+    <div class="intro__main">
+    <h1 class="intro__headline"><span class="intro__line">Rooted in music.</span> <span class="intro__line">Built in software.</span> <span class="intro__line">Settled in <span class="intro__accent">sound</span>.</span></h1>
+    </div>
+    <div class="intro__actions">
+      <a class="btn btn--pill btn--primary" href="https://youtu.be/o9qj8BAmp40" target="_blank" rel="noopener">▶ Sound reel</a>
+      <a class="btn btn--pill" href="mailto:audio@pavelkonrad.cz">audio@pavelkonrad.cz</a>
+    </div>
+  </header>
 
-<div id="corpglow" aria-hidden="true"></div>
+  <main>
+      <nav class="shelves wrap" id="shelves" aria-label="Sections">
+        <button type="button" class="listen__tab" data-shelf="adaptive" aria-selected="true">Adaptive audio</button>
+        <button type="button" class="listen__tab" data-shelf="music" aria-selected="false">Music</button>
+        <button type="button" class="listen__tab" data-shelf="recording" aria-selected="false">Audio recording</button>
+        <button type="button" class="listen__tab" data-shelf="worked-with" aria-selected="false">Worked with</button>
+      </nav>
+      <div class="wall" id="grid"></div>
+  </main>
 
-<main id="screen" role="log" aria-live="polite">
-  <div id="promptrow" class="line"><span class="ps1">visitor@pavelkonrad:~$ </span><span id="typed"></span><span class="cur"></span></div>
-</main>
+  <section class="listen wrap" id="listen" aria-labelledby="listen-title" hidden>
+    <h2 class="listen__title" id="listen-title">My audio work</h2>
+    <nav class="listen__tabs" id="listen-tabs" aria-label="Playlists"></nav>
+    <p class="listen__desc" id="listen-desc" hidden></p>
+    <div class="deck">
+      <button class="deck__play" id="deck-play" type="button" aria-label="Play">▶</button>
+      <div class="deck__now">
+        <div class="deck__head"><span class="deck__name" id="deck-name"></span><span class="deck__time" id="deck-time">0:00</span></div>
+        <canvas class="deck__wave" id="deck-wave" aria-label="Seek" role="slider" tabindex="0"></canvas>
+      </div>
+    </div>
+    <ol class="tracks" id="tracks"></ol>
+    <audio id="deck-audio" preload="metadata"></audio>
+  </section>
 
-<input id="kbd" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="terminal input">
+  <footer class="wrap footer">
+    <a href="mailto:audio@pavelkonrad.cz">audio@pavelkonrad.cz</a>
+    <a href="https://youtu.be/o9qj8BAmp40" target="_blank" rel="noopener">Sound reel</a>
+    <a href="https://www.linkedin.com/in/pavelkonrad/" target="_blank" rel="noopener">LinkedIn</a>
+    <a href="https://github.com/pavel-konrad" target="_blank" rel="noopener">GitHub</a>
+    <a href="https://pavelkonrad.itch.io" target="_blank" rel="noopener">itch.io</a>
+    <span>Prague</span>
+  </footer>
+</div>
+
+<section class="stage" id="stage" aria-label="How this work came to be">
+  <div class="stage__bar">
+    <button class="btn" id="back" type="button">← All works</button>
+    <span class="stage__name">Pavel Konrad</span>
+  </div>
+  <div class="stage__scroll" id="stage-scroll">
+  <div class="stage__lanes" id="stage-lanes" aria-hidden="true"></div>
+  <div class="stage__map" id="stage-map">
+    <svg class="stage__svg" id="stage-svg" aria-hidden="true"></svg>
+  </div>
+  </div>
+  <div class="stage__legend" id="stage-legend"></div>
+  <aside class="info" id="info" aria-live="polite"></aside>
+</section>
 
 <noscript>
-  <div style="position:relative;z-index:5;max-width:820px;margin:2rem auto;padding:1rem;border:1px solid #d6d6d0;">
-    <p>this site is a machine and you switched the machine off. fair. the essentials:</p>
-    <p>Pavel Konrad — Ruby on Rails developer, teacher, technical sound designer.</p>
-    <p><a href="https://github.com/pavel-konrad" style="color:#ffb000">github.com/pavel-konrad</a> ·
-       <a href="https://www.linkedin.com/in/pavelkonrad/" style="color:#ffb000">linkedin</a> ·
-       <a href="mailto:dev@pavelkonrad.cz" style="color:#ffb000">dev@pavelkonrad.cz</a></p>
-  </div>
+  <p class="wrap">Pavel Konrad — <a href="mailto:audio@pavelkonrad.cz">audio@pavelkonrad.cz</a> · <a href="https://youtu.be/o9qj8BAmp40">Sound reel</a></p>
 </noscript>
 
+<script src="data.js"></script>
 <script>
 (function () {
 'use strict';
 
-/* ---------- session ---------- */
-const seed = (Date.now() ^ (Math.random() * 0xffffffff)) >>> 0;
-function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
-const rng = mulberry32(seed);
-const stamp = seed.toString(16).padStart(8,'0');
-let runs = 1;
-try { runs = (parseInt(localStorage.getItem('pk_runs')||'0',10)||0)+1; localStorage.setItem('pk_runs', runs); } catch(e){}
+const { identities, roots, works } = window.PORTFOLIO;
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s)
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const S = { node:null, nodeId:null, fails:0, visited:[], dead:false,
-            corpQueue:[], tabNoteShown:false, idleShown:false,
-            cascade:false, declineDone:false, cancelRequested:false };
-let user = 'visitor';
-let geo = null;
-const pending = [];
+const T = ms => reduced ? 0 : ms;
 
-/* ---------- artifacts ---------- */
-const ART = {
-  github:   { label:'github',   url:'https://github.com/pavel-konrad' },
-  gitlab:   { label:'gitlab',   url:'https://gitlab.com/pavel-konrad' },
-  linkedin: { label:'linkedin', url:'https://www.linkedin.com/in/pavelkonrad/' },
-  mail:     { label:'mail',     url:'mailto:dev@pavelkonrad.cz' },
-  npi1:     { label:'python-in-music/tuning-fork',    url:'https://clanky.rvp.cz/clanek/c/G/24370/python-v-hudbe-ladicka.html' },
-  npi2:     { label:'python-in-music/chromatic-gen',  url:'https://clanky.rvp.cz/clanek/c/G/24373/python-v-hudbe-generator-chromatiky.html' },
-  jingi:    { label:'jingi/case-study', url:'/jingi/' },
-  music:    { label:'robin-mood/hotel', url:'https://www.novinky.cz/clanek/kultura-robin-mood-vydava-pisnicku-hotel-sazi-na-emoce-a-pribeh-40421215' },
-  thesis:   { label:'thesis',   url:'https://theses.cz/id/erk1vi/?lang=en' },
+const KINDS = {
+  foundation: { label:'foundation', dash:'' },
+  experience: { label:'experience', dash:'6 4' },
+  passion:    { label:'passion',    dash:'2 4' },
+  motivation: { label:'motivation', dash:'10 4 2 4' },
 };
-function artLine(k){
-  const a = ART[k];
-  if (a.corrupt) return `-r-------- ./${a.label}   <span class="dim">[corrupted — author owes a url]</span>`;
-  return `-rwxr--r-- ./${a.label}   → <a href="${a.url}" target="_blank" rel="noopener">${a.url.replace('mailto:','')}</a>`;
+
+/* ── Index + validation ────────────────────────────────── */
+const identityById = Object.fromEntries(identities.map(i => [i.id, i]));
+const nodeById = {};
+roots.forEach(r => nodeById[r.id] = { ...r, type:'root', grew_from:r.grew_from || [] });
+works.forEach(w => {
+  if (nodeById[w.id]) console.warn(`[portfolio] duplicate id "${w.id}"`);
+  nodeById[w.id] = { ...w, type:'work', grew_from:w.grew_from || [] };
+});
+const parentsOf = id => nodeById[id].grew_from.filter(e => nodeById[e.ref]);
+/* "led to" is the reverse of grew_from — computed, never stored */
+const childrenOf = {};
+Object.values(nodeById).forEach(n => n.grew_from.forEach(e => {
+  if (!nodeById[e.ref]) console.warn(`[portfolio] ${n.id}: unknown ref "${e.ref}"`);
+  if (!KINDS[e.kind]) console.warn(`[portfolio] ${n.id}: unknown kind "${e.kind}"`);
+  (childrenOf[e.ref] = childrenOf[e.ref] || []).push({ ref:n.id, kind:e.kind, why:e.why });
+}));
+Object.values(nodeById).forEach(n => {
+  if (!n.current && !n.draft && !(childrenOf[n.id] || []).length) console.warn(`[portfolio] ${n.id}: dead end — link it forward or mark it current`);
+});
+Object.values(nodeById).forEach(n => (n.identities || []).forEach(i => {
+  if (!identityById[i]) console.warn(`[portfolio] ${n.id}: unknown identity "${i}"`);
+}));
+const titleOf = n => n.type === 'work' ? n.title : n.label;
+const yearsOf = n => n.type === 'work' ? (n.year || '') : (n.years || '');
+
+/* ── Gallery ───────────────────────────────────────────── */
+function tagsHtml(ids){
+  return `<div class="tags">${(ids || []).filter(i => identityById[i]).map(i =>
+    `<span class="tag id--${i}">${esc(identityById[i].label)}</span>`).join('')}</div>`;
+}
+function coverHtml(n){
+  return n.image
+    ? `<img src="${esc(n.image)}" alt="" loading="lazy"${/ytimg\.com\/.*\/hqdefault/.test(n.image) ? ' class="is-letterboxed"' : ''}>`
+    : n.logo ? `<div class="cover cover--logo"><img src="${esc(n.logo)}" alt="${esc(titleOf(n))} logo"></div>`
+    : `<div class="cover" aria-hidden="true"></div>`;
 }
 
-/* ---------- ascii ---------- */
-const LOGO =
-`    ____  __ __
-   / __ \\/ //_/    pavel konrad
-  / /_/ / ,&lt;       tty of controlled choices
- / ____/ /| |      v5.0.0-punk
-/_/   /_/ |_|`;
-
-const SHROOM =
-`       .-~~~-.
-      /  · ·  \\
-     |  ·   ·  |
-      \\__ ○ __/
-         |||
-      ___|||___
-   ~ ~ ~ ~ ~ ~ ~ ~
-   (the network has no head)`;
-
-const RUBBLE =
-`   ▒▒░░ ▒░ ░▒▒░ ░
-  ░ banner.tar.gz → /dev/null ░
-   ░▒ 214 honest bytes remain ▒░`;
-
-/* ---------- copy ---------- */
-const BOOT = [
-  'PK/OS 5.0.0-punk (ttyS0)',
-  '[    0.000000] bio: multiple identities mounted read-only',
-  '[    0.000041] rails.ko: production systems attached. they run. that is the whole poem.',
-  '[    0.000097] fmod.ko: dice acoustics calibrated <span class="dim">(JINGI)</span>',
-  '[    0.000102] npi_articles: linked <span class="dim">(the author finally paid his debt)</span>',
-  '[    0.000133] <span class="err">free_will.ko: not found.</span> continuing as designed.',
-  '[    0.000134] consent_theatre.js: quarantined. for now.',
-  '[    0.000198] mycelium: online. location withheld.',
-  runs > 1 ? `[    0.000241] walkthrough #${runs} on this machine. persistence noted. it grows in the dark.`
-           : '[    0.000241] first walkthrough on this machine. the next one will not resemble it.',
-  '',
-  `<span class="art">${LOGO}</span>`,
-  '',
-  'last login: never. every session is the first one.',
-];
-
-const TERR = ['code','sound','teaching'];
-
-const N = {
-  gate: {
-    text: () => ['do you want to know something about pavel konrad?  <span class="warn">[yes/no]</span>'],
-    input:'yesno',
-    on: v => v === 'yes' ? 'sure' : 'no1',
-  },
-  sure: {
-    text: () => ['are you sure?  <span class="warn">[yes/no]</span>'],
-    input:'yesno',
-    on: v => v === 'yes' ? 'terms' : 'fold',
-  },
-  fold: {
-    text: () => ['a yes that folds at the first follow-up. noted.','entry granted anyway. this door was never load-bearing.'],
-    next:'menu',
-  },
-  terms: {
-    text: () => ['you agreed. nothing was on the table.','somewhere a cookie banner just felt proud of you.'],
-    next:'menu',
-  },
-  no1: {
-    text: () => ['good choice. you were not that interested in you anyway.','',
-      'still here, though.',
-      '  <span class="warn">[1]</span> leave for real',
-      '  <span class="warn">[2]</span> admit curiosity'],
-    input:'number', range:[1,2],
-    on: v => v === 1 ? 'end_leave' : 'sidedoor',
-  },
-  sidedoor: {
-    text: () => ['service entrance unlocked. it is the same room.'],
-    next:'menu',
-  },
-  menu: {
-    text: () => {
-      const lines = ['choose what you get to see.',
-        '<span class="dim">(the system has already chosen. this menu is a courtesy.)</span>',''];
-      TERR.forEach((t,i) => {
-        const tag = S.visited.includes(t) ? '  <span class="dim">— spent</span>' : '';
-        lines.push(`  <span class="warn">[${i+1}]</span> ${t}${tag}`);
-      });
-      lines.push('  <span class="warn">[4]</span> ????');
-      return lines;
-    },
-    input:'number', range:[1,4],
-    on: v => {
-      if (v === 4) return rng() < 0.5 ? 'tease' : 'scold';
-      const t = TERR[v-1];
-      if (S.visited.includes(t)) return 'spent';
-      S.visited.push(t);
-      return t;
-    },
-  },
-  spent: { text: () => ['that door is spent. repetition is for playlists.'], next:'menu' },
-  tease: {
-    text: () => ['???? is not a category. it is a direction.',
-      'it grows in the dark, has no head, and eats what the rest throws away.',
-      'when you know its name, type it. nobody will tell you when.'],
-    next:'menu',
-  },
-  scold: {
-    text: () => ['the mystery option first. of course.',
-      'mystery is the cheapest thing on any menu. earn it.'],
-    next:'menu',
-  },
-  code: {
-    text: () => ['$ whoami --skill','',
-      'i do rails. what else do you want to hear?',
-      '  <span class="warn">[1]</span> more',
-      '  <span class="warn">[2]</span> serious'],
-    input:'number', range:[1,2],
-    on: v => v === 1 ? 'code_more' : 'code_serious',
-  },
-  code_more:    { text: () => ['ruby on rails framework.'], next:'code_links' },
-  code_serious: { text: () => ['ruby on rails.'],            next:'code_links' },
-  code_links: {
-    text: () => ['','that is the pitch. the rest is commits:',
-      artLine('github'),
-      artLine('gitlab')],
-    next:'after',
-  },
-  sound: {
-    text: () => ['$ whoami --noise','',
-      "you don't know me? what a shame.",
-      'fifteen years on stage before the first deploy. bass guitar, side-man —',
-      'the low end nobody claps for and every song leans on.','',
-      artLine('music'),
-      artLine('linkedin')],
-    next:'after',
-  },
-  teaching: {
-    text: () => ['$ whoami --teach','',
-      'are you a student?  <span class="warn">[yes/no]</span>'],
-    input:'yesno',
-    on: v => v === 'yes' ? 'teach_yes' : 'teach_no',
-  },
-  teach_yes: { text: () => ['get lost.'],            next:'teach_links' },
-  teach_no:  { text: () => ["i don't believe you."], next:'teach_links' },
-  teach_links: {
-    text: () => ['','either way — take the tools and go:',
-      artLine('npi1'),
-      artLine('npi2'),
-      '',
-      'and occasionally one of you catches enough in class to build something.',
-      'i helped a student ship theirs. proof the hours were not wasted:',
-      artLine('jingi'),
-      '',
-      artLine('mail')],
-    next:'after',
-  },
-  myc: {
-    text: () => [`<span class="art">${SHROOM}</span>`,
-      'mycelium.','',
-      'under this tty a network grows without a center, without a boss,',
-      'without a kpi. it feeds on rot and makes forests.',
-      'you found the only door that was never on a menu.',
-      'remember what that felt like.','',
-      '<span class="dim">the deepest node keeps the deepest artifact:</span>',
-      artLine('thesis')],
-    next:'after',
-  },
-  corp_hero_q: {
-    text: () => ['another one. it says pavel is a <span class="dim">"passionate, results-driven professional 🚀"</span>.',
-      'that sentence was written by nobody, for nobody, about nobody.',
-      '  <span class="warn">[1]</span> read more corporate poetry',
-      '  <span class="warn">[2]</span> kill it'],
-    input:'number', range:[1,2],
-    on: v => { if (v === 2){ killCorp('hero'); return 'hero_dead'; } return 'hero_poetry'; },
-  },
-  hero_poetry: {
-    text: () => ['<span class="dim">"pavel leverages synergies across the full stack to deliver',
-      'best-in-class experiences that delight stakeholders …"</span>','',
-      '<span class="err">segmentation fault (meaning not found)</span>',
-      'it killed itself. there was nothing underneath to keep it running.'],
-    next:(function(){ killCorp('hero'); return 'after'; }),
-  },
-  hero_dead: {
-    text: () => ['gone. the glow stays a while — perfume of the deceased.'],
-    next:'after',
-  },
-  final: {
-    text: () => ['all territories walked. nothing left mounted.',
-      'terminate session?  <span class="warn">[y/n]</span>'],
-    input:'yesno',
-    on: v => v === 'yes' ? 'end' : 'end_defiance',
-  },
-  end_defiance: {
-    text: () => ['shutdown does not take no for an answer.'],
-    next:'end',
-  },
-  end_leave: {
-    text: () => ['session terminated by user.','the user believes this.'],
-    next:'end',
-  },
-  end: {
-    text: () => ['',
-      '─────────────────────────────────────',
-      ' session terminated',
-      ` walkthrough original <span class="warn">#${stamp}</span>`,
-      ` runs on this machine: ${runs}`,
-      '',
-      ' be, while you have context.',
-      '─────────────────────────────────────'],
-    end:true,
-  },
-};
-
-function afterNode(){
-  if (S.corpQueue.length) return S.corpQueue.shift();
-  return S.visited.length >= TERR.length ? 'final' : 'menu';
+/* newest first; works without a year and drafts go last */
+const lastYear = w => { const m = String(w.year || '').match(/\d{4}/g); return w.draft ? -2 : m ? +m[m.length - 1] : -1; };
+const pick = () => `--fx:${-Math.floor(Math.random() * 500)}px;--fy:${-Math.floor(Math.random() * 500)}px`;
+let shelf = 'adaptive';
+const onShelf = w => (w.shelf || 'adaptive') === shelf;
+function renderWall(){
+$('grid').innerHTML = works.map(w => nodeById[w.id]).filter(onShelf).sort((a, b) => lastYear(b) - lastYear(a)).map(w => `
+  <a class="tile" href="#${esc(w.id)}" data-id="${esc(w.id)}" style="${pick()}">
+    <div class="media">${coverHtml(w)}${w.draft ? '<span class="badge">draft</span>' : ''}</div>
+    <div class="tile__label">
+      <div class="tile__head"><h2 class="tile__title">${esc(w.title)}</h2><span class="tile__year">${esc(w.year || '')}</span></div>
+      ${w.credit ? `<p class="tile__credit">${esc(w.credit)}</p>` : ''}
+    </div>
+  </a>`).join('');
+fillWall();
 }
 
-/* ---------- commands: work any time ---------- */
-const CMD = {
-  'help':   () => ['no help. the options are always printed. reading is punk too.'],
-  'sudo':   () => ['root belongs to the author. that is not a bug, that is the artwork.'],
-  'sudo su':() => CMD['sudo'](),
-  'ls':     () => ['gate/   menus/   endings/   readme.txt'],
-  'ls -la': () => ['drwx------  gate/','drwx------  menus/','drwx------  endings/',
-                   '-rw-r--r--  readme.txt','-r--------  <span class="dim">.mycelium</span>'],
-  'cat readme.txt': () => ['you are the content of this site. act accordingly.'],
-  'cat .mycelium':  () => ['permission denied. names are spoken, not read.'],
-  'cat manifesto.txt': () => ['1. time is the only currency. this site wastes yours honestly.',
-    '2. the corporate web asks consent it already took. kill on sight.',
-    '3. knowledge hoarded is power. knowledge shared is compost. be compost.',
-    '4. every walkthrough is an original. including you.'],
-  'man pavel': () => [
-    'PAVEL(1)                people manual                PAVEL(1)','',
-    'NAME','       pavel — builds systems, teaches escape routes, makes dice sing','',
-    'SYNOPSIS','       pavel [--rails] [--teach] [--fmod] [--no-linkedin-voice]','',
-    'DESCRIPTION','       prague. fifteen years of music, then production software.',
-    '       currently: rails machinery, NPI articles, JINGI audio.','',
-    'BUGS','       opinions. many. left-leaning. not sorry.','',
-    'SEE ALSO','       mycelium(8), jazz(1), dada(0)'],
-  'pwd':    () => ['/home/visitor/borrowed_time'],
-  'whoami': () => user === 'visitor'
-      ? ['a visitor. short-lived. context-bound.','like everything that runs in a window.']
-      : [`${user}. that is all the introduction the network needed.`,'short-lived. context-bound. like everything that runs in a window.'],
-  'date':   () => ['context remaining: unknown. act accordingly.'],
-  'rm -rf /': () => ['cute.'],
-  'exit':   () => ['exit is the tab. it was always the tab.'],
-  'clear':  () => { clearScreen(); return []; },
-};
+/* empty panes close the wall to full rows */
+function fillWall(){
+  const wall = $('grid');
+  wall.querySelectorAll('.glass').forEach(el => el.remove());
+  const cols = getComputedStyle(wall).gridTemplateColumns.split(' ').length;
+  const per = Math.max(1, Math.floor(cols / 2));
+  const shown = works.filter(onShelf).length;
+  const rows = 2 * Math.ceil(shown / per);
+  const free = rows * cols - shown * 4;
+  wall.insertAdjacentHTML('beforeend', Array.from({ length:free }, () => `<div class="glass" aria-hidden="true" style="${pick()}"></div>`).join(''));
+}
+renderWall();
+$('shelves').addEventListener('click', e => {
+  const tab = e.target.closest('[data-shelf]');
+  if (!tab || tab.dataset.shelf === shelf) return;
+  shelf = tab.dataset.shelf;
+  $('shelves').querySelectorAll('[data-shelf]').forEach(t => t.setAttribute('aria-selected', String(t.dataset.shelf === shelf)));
+  renderWall();
+});
+let wallTimer;
+addEventListener('resize', () => { clearTimeout(wallTimer); wallTimer = setTimeout(fillWall, 120); });
 
-/* ---------- renderer: one buffer, inline prompt ---------- */
-const screen = document.getElementById('screen');
-const promptrow = document.getElementById('promptrow');
-const typedEl = document.getElementById('typed');
-const kbd = document.getElementById('kbd');
-let typing = false, skip = false;
-let history = [], hIdx = -1;
+const DPR = Math.min(2, window.devicePixelRatio || 1);
 
-function newLine(){
-  const el = document.createElement('div');
-  el.className = 'line';
-  screen.insertBefore(el, promptrow);
+/* ── Portrait mask ────────────────────────────────────────
+   Top corners are a superellipse |x/r|^n + |y/r|^n = 1 — Pythagoras is n = 2
+   (a circle); n = 4 gives a squircle whose curvature eases in from the straight
+   edge instead of starting abruptly. The mask is drawn at the photo's real size
+   so the corners stay round at any aspect ratio. Desktop keeps the fade into
+   the grain at the bottom; phones end on a hard edge. */
+(function portraitMask(){
+  const img = document.querySelector('.intro__portrait');
+  if (!img) return;
+  const n = 4;
+  function corner(cx, cy, r, dirX){
+    /* quarter superellipse from the side edge up and over to the top edge */
+    const pts = [];
+    for (let i = 0; i <= 24; i++){
+      const t = (i / 24) * Math.PI / 2;
+      const x = Math.pow(Math.cos(t), 2 / n) * r, y = Math.pow(Math.sin(t), 2 / n) * r;
+      pts.push(`${(cx + dirX * x).toFixed(2)},${(cy - y).toFixed(2)}`);
+    }
+    return pts;
+  }
+  function draw(){
+    const w = img.clientWidth, h = img.clientHeight;
+    if (!w || !h) return;
+    const r = Math.min(w, h) * 0.16;
+    const fade = innerWidth > 760;
+    const left = corner(r, r, r, -1);            /* from (0, r) up to (r, 0) */
+    const right = corner(w - r, r, r, 1).reverse(); /* from (w - r, 0) down to (w, r) */
+    const d = `M0,${h} L${left.join(' L')} L${right.join(' L')} L${w},${h} Z`;
+    const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${h}' viewBox='0 0 ${w} ${h}'>` +
+      `<defs><linearGradient id='f' x1='0' y1='0' x2='0' y2='1'>` +
+      `<stop offset='${fade ? 0.72 : 1}' stop-color='#fff'/><stop offset='1' stop-color='#fff' stop-opacity='${fade ? 0 : 1}'/>` +
+      `</linearGradient></defs><path d='${d}' fill='url(#f)'/></svg>`;
+    const url = `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+    img.style.webkitMaskImage = url; img.style.maskImage = url;
+  }
+  if (img.complete) draw(); else img.addEventListener('load', draw);
+  let t; addEventListener('resize', () => { clearTimeout(t); t = setTimeout(draw, 100); });
+})();
+
+/* ── Grain that moves with the scroll ─────────────────────
+   The texture is rendered once; each frame redraws it in thin vertical strips,
+   each strip shifted up or down along a travelling sine — so the horizontal
+   fibres ripple like strings. It only animates while the page is scrolling. */
+(function grain(){
+  const cv = $('grain'), ctx = cv.getContext('2d');
+  const img = new Image();
+  let tex = null;                                   /* the SVG, rasterised once */
+  const strip = 6, amp = 7, waveLen = 520;
+  let phase = 0, target = 0, raf = null;
+
+  function size(){
+    cv.width = innerWidth; cv.height = innerHeight;   /* 1× is enough: the texture is soft */
+    draw();
+  }
+  function draw(){
+    if (!tex) return;
+    const w = cv.width, h = cv.height, tw = tex.width, th = tex.height;
+    ctx.clearRect(0, 0, w, h);
+    for (let x = 0; x < w; x += strip){
+      const dy = Math.sin((x / waveLen) * Math.PI * 2 + phase) * amp;
+      const sx = x % tw;
+      for (let y = -th + (dy % th); y < h + th; y += th)
+        ctx.drawImage(tex, sx, 0, Math.min(strip, tw - sx), th, x, y - amp, Math.min(strip, tw - sx), th);
+    }
+  }
+  function tick(){
+    phase += (target - phase) * 0.12;
+    draw();
+    raf = Math.abs(target - phase) > 0.002 ? requestAnimationFrame(tick) : null;
+  }
+  img.onload = () => {
+    tex = document.createElement('canvas');
+    tex.width = img.naturalWidth; tex.height = img.naturalHeight;
+    tex.getContext('2d').drawImage(img, 0, 0);
+    size();
+  };
+  img.src = 'img/grain.svg';
+  addEventListener('resize', size);
+  if (!reduced) addEventListener('scroll', () => {
+    target = scrollY / 140;
+    if (!raf) raf = requestAnimationFrame(tick);
+  }, { passive:true });
+})();
+const token = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+/* ── Player ───────────────────────────────────────────────
+   Native <audio>, one deck, playlists from data.js. The waveform is read from
+   the file itself (Web Audio); when the browser cannot read it (file://), the
+   deck draws a plain progress line instead of inventing a shape. */
+const playlists = (window.PORTFOLIO.playlists || []).filter(pl => (pl.tracks || []).length);
+const audio = $('deck-audio');
+const deck = { list:null, index:-1, peaks:null };
+const peakCache = {};
+const fmt = t => isFinite(t) ? `${Math.floor(t / 60)}:${String(Math.floor(t % 60)).padStart(2, '0')}` : '0:00';
+
+async function loadPeaks(src){
+  if (peakCache[src]) return peakCache[src];
+  /* opened as a file, the browser refuses to read the audio: skip the attempt, keep the plain line */
+  if (location.protocol === 'file:') return peakCache[src] = null;
+  try {
+    const buf = await (await fetch(src)).arrayBuffer();
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const data = (await ctx.decodeAudioData(buf)).getChannelData(0);
+    ctx.close();
+    const n = 240, size = Math.floor(data.length / n), peaks = [];
+    for (let i = 0; i < n; i++){
+      let m = 0;
+      for (let j = i * size; j < (i + 1) * size; j += 16) m = Math.max(m, Math.abs(data[j]));
+      peaks.push(m);
+    }
+    const top = Math.max(...peaks) || 1;
+    return peakCache[src] = peaks.map(v => v / top);
+  } catch (e) { return peakCache[src] = null; }
+}
+
+function drawWave(){
+  const cv = $('deck-wave');
+  const w = cv.clientWidth, h = cv.clientHeight;
+  cv.width = w * DPR; cv.height = h * DPR;
+  const ctx = cv.getContext('2d');
+  ctx.scale(DPR, DPR);
+  const played = audio.duration ? audio.currentTime / audio.duration : 0;
+  if (!deck.peaks){
+    ctx.fillStyle = 'rgba(242,234,214,0.18)'; ctx.fillRect(0, h / 2 - 1, w, 2);
+    ctx.fillStyle = token('--accent'); ctx.fillRect(0, h / 2 - 1, w * played, 2);
+    return;
+  }
+  const step = 5, bar = 3, n = Math.floor(w / step);
+  for (let i = 0; i < n; i++){
+    const v = deck.peaks[Math.floor(i / n * deck.peaks.length)];
+    const bh = Math.max(2, v * h);
+    ctx.fillStyle = i / n < played ? token('--accent') : 'rgba(242,234,214,0.22)';
+    ctx.fillRect(i * step, (h - bh) / 2, bar, bh);
+  }
+}
+
+function renderTracks(){
+  const list = playlists.find(pl => pl.id === deck.list);
+  $('listen-tabs').querySelectorAll('.listen__tab').forEach(t => t.setAttribute('aria-selected', String(t.dataset.id === deck.list)));
+  $('listen-desc').textContent = list.description || '';
+  $('listen-desc').hidden = !list.description;
+  $('tracks').innerHTML = list.tracks.map((t, k) => `
+    <li class="track${k === deck.index ? ' is-current' : ''}" data-k="${k}">
+      <span class="track__n">${String(k + 1).padStart(2, '0')}</span>
+      <span class="track__title">${esc(t.title)}${t.note ? `<span class="track__note">${esc(t.note)}</span>` : ''}</span>
+      <span class="track__year">${esc(t.year || '')}</span>
+      ${t.link ? `<a class="track__link" href="${esc(t.link)}" target="_blank" rel="noopener">full ↗</a>` : '<span></span>'}
+    </li>`).join('');
+}
+
+async function load(listId, k, play){
+  deck.list = listId; deck.index = k;
+  const t = playlists.find(pl => pl.id === listId).tracks[k];
+  audio.src = t.src;
+  $('deck-name').textContent = t.title;
+  renderTracks();
+  deck.peaks = null; drawWave();
+  if (play) audio.play().catch(() => {});
+  deck.peaks = await loadPeaks(t.src);
+  if (deck.list === listId && deck.index === k) drawWave();
+}
+
+if (playlists.length){
+  $('listen').hidden = false;
+  $('listen-tabs').innerHTML = playlists.map(pl =>
+    `<button type="button" class="listen__tab" role="tab" data-id="${esc(pl.id)}">${esc(pl.title)}</button>`).join('');
+  $('listen-tabs').addEventListener('click', e => {
+    const tab = e.target.closest('.listen__tab');
+    if (tab && tab.dataset.id !== deck.list) load(tab.dataset.id, 0, false);
+  });
+  $('tracks').addEventListener('click', e => {
+    if (e.target.closest('a')) return;
+    const row = e.target.closest('.track');
+    if (!row) return;
+    const k = +row.dataset.k;
+    if (k === deck.index) audio.paused ? audio.play() : audio.pause();
+    else load(deck.list, k, true);
+  });
+  $('deck-play').addEventListener('click', () => audio.paused ? audio.play().catch(() => {}) : audio.pause());
+  const seek = x => { if (audio.duration) audio.currentTime = x * audio.duration; };
+  $('deck-wave').addEventListener('click', e => { const r = e.currentTarget.getBoundingClientRect(); seek((e.clientX - r.left) / r.width); });
+  $('deck-wave').addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight') audio.currentTime += 5;
+    if (e.key === 'ArrowLeft') audio.currentTime -= 5;
+  });
+  audio.addEventListener('play', () => { $('deck-play').textContent = '❚❚'; $('deck-play').setAttribute('aria-label', 'Pause'); });
+  audio.addEventListener('pause', () => { $('deck-play').textContent = '▶'; $('deck-play').setAttribute('aria-label', 'Play'); });
+  audio.addEventListener('timeupdate', () => { $('deck-time').textContent = `${fmt(audio.currentTime)} / ${fmt(audio.duration)}`; drawWave(); });
+  audio.addEventListener('loadedmetadata', () => { $('deck-time').textContent = `0:00 / ${fmt(audio.duration)}`; });
+  audio.addEventListener('ended', () => {
+    const list = playlists.find(pl => pl.id === deck.list).tracks;
+    if (deck.index + 1 < list.length) load(deck.list, deck.index + 1, true);
+  });
+  addEventListener('resize', drawWave);
+  load(playlists[0].id, 0, false);
+}
+
+$('stage-legend').innerHTML = Object.entries(KINDS).map(([, v]) =>
+  `<span><svg width="26" height="6"><line x1="0" y1="3" x2="26" y2="3" stroke="#6f8b83" stroke-width="2" stroke-dasharray="${v.dash}"/></svg>${v.label}</span>`).join('');
+
+/* ── Graph around a focus ──────────────────────────────── */
+const startYear = id => { const m = String(yearsOf(nodeById[id])).match(/\d{4}/); return m ? +m[0] : 9999; };
+
+/* The whole story is one fixed map. A focus does not move anything:
+   it lights up its lineage — everything it grew from and everything it led to. */
+const ALL_IDS = Object.keys(nodeById);
+const ALL_EDGES = [];
+ALL_IDS.forEach(child => parentsOf(child).forEach(e => ALL_EDGES.push({ from:e.ref, to:child, kind:e.kind, why:e.why })));
+
+function lineage(focusId){
+  const seen = new Set([focusId]);
+  const walk = (id, next) => next(id).forEach(n => { if (!seen.has(n)){ seen.add(n); walk(n, next); } });
+  walk(focusId, id => parentsOf(id).map(e => e.ref));
+  walk(focusId, id => (childrenOf[id] || []).map(c => c.ref));
+  return seen;
+}
+
+function graph(focusId){
+  const on = lineage(focusId);
+  const role = Object.fromEntries(ALL_IDS.map(id => [id, id === focusId ? 'focus' : on.has(id) ? 'path' : 'other']));
+  return { ids:ALL_IDS, edges:ALL_EDGES, layer:yearRows(ALL_IDS, ALL_EDGES), role, on };
+}
+
+/* rows are years, older on top. A node without a year sits just above what it
+   led to; a node from the same year as its source drops half a row below it,
+   so every line points down in time. */
+function yearRows(ids, edges){
+  const row = {};
+  ids.forEach(id => { const y = startYear(id); if (y !== 9999) row[id] = y; });
+  for (let pass = 0; pass < ids.length; pass++){
+    ids.forEach(id => {
+      if (row[id] !== undefined) return;
+      const down = edges.filter(e => e.from === id && row[e.to] !== undefined).map(e => row[e.to]);
+      const up = edges.filter(e => e.to === id && row[e.from] !== undefined).map(e => row[e.from]);
+      if (down.length) row[id] = Math.min(...down) - 0.5;
+      else if (up.length) row[id] = Math.max(...up) + 0.5;
+    });
+  }
+  ids.forEach(id => { if (row[id] === undefined) row[id] = 0; });
+  for (let pass = 0; pass < ids.length; pass++){
+    let moved = false;
+    edges.forEach(e => { if (row[e.to] <= row[e.from]){ row[e.to] = row[e.from] + 0.5; moved = true; } });
+    if (!moved) break;
+  }
+  return row;
+}
+
+/* ── Map layout ────────────────────────────────────────── */
+const mapEl = $('stage-map'), svg = $('stage-svg');
+const nodes = {};           /* id → element currently on stage */
+let focusId = null;
+let mode = 'gallery';
+
+function mnodeHtml(n){
+  const thumb = n.type === 'work' ? `<div class="mnode__thumb">${coverHtml(n)}</div>` : '';
+  const dots = (n.identities || []).map(i => `<span class="id--${i}"></span>`).join('');
+  return `${thumb}<div class="mnode__body">
+    ${n.category === 'course' ? '<span class="mnode__badge">course</span>' : ''}
+    <span class="mnode__label">${esc(titleOf(n))}</span>
+    ${n.by ? `<span class="mnode__by">${esc(n.by)}</span>` : ''}
+    ${yearsOf(n) ? `<span class="mnode__years">${esc(yearsOf(n))}</span>` : ''}
+    ${dots ? `<span class="mnode__dots">${dots}</span>` : ''}
+  </div>`;
+}
+
+function ensureNode(id){
+  if (nodes[id]) return nodes[id];
+  const el = document.createElement('a');
+  el.dataset.id = id;
+  el.href = '#' + id;
+  mapEl.appendChild(el);
+  nodes[id] = el;
   return el;
 }
-function down(){ window.scrollTo(0, document.body.scrollHeight); }
-function showPrompt(on){
-  if (on && pending.length && !typing){
-    const p = pending.splice(0);
-    return print(p, () => showPrompt(true));
-  }
-  promptrow.classList.toggle('on', on);
-  if (on){ down(); kbd.focus({preventScroll:true}); }
-}
-function clearScreen(){ screen.querySelectorAll('.line:not(#promptrow)').forEach(l => l.remove()); }
 
-function print(lines, done){
-  typing = true; skip = false; showPrompt(false);
-  let li = 0;
-  (function nextLine(){
-    if (li >= lines.length){ typing = false; done && done(); return; }
-    const line = lines[li++];
-    const el = newLine();
-    if (skip || /<span|<a /.test(line) || line.length > 160){
-      el.innerHTML = line || ' '; down(); setTimeout(nextLine, skip ? 0 : 60);
-      return;
-    }
-    let i = 0;
-    (function tick(){
-      if (skip){ el.textContent = line; down(); setTimeout(nextLine, 0); return; }
-      el.textContent = line.slice(0, ++i);
-      down();
-      if (i < line.length) setTimeout(tick, 7 + rng()*14);
-      else setTimeout(nextLine, 70);
-    })();
-  })();
-}
 
-/* ---------- engine ---------- */
-function go(id){
-  if (id === 'after') id = afterNode();
-  const node = N[id];
-  if (!node) return;
-  S.node = node; S.nodeId = id;
-  print(node.text(), () => {
-    if (node.end) return endReboot();
-    if (!node.input){
-      const nx = typeof node.next === 'function' ? node.next() : node.next;
-      setTimeout(() => go(nx), 420);
-    } else showPrompt(true);
-  });
-}
-
-function fail(){
-  S.fails++;
-  const msgs = [
-    'input not recognized. the options were printed. reading is punk too.',
-    'numbers. or yes. or no. the machine is not judging you. the author is.',
-    'three failures. nothing unlocked. failure only unlocks things in TED talks.',
-  ];
-  print([msgs[Math.min(S.fails,3)-1]], () => showPrompt(true));
-}
-
-function echo(raw){
-  const el = newLine();
-  el.innerHTML = `<span class="dim">${user}@pavelkonrad:~$ </span>${raw.replace(/&/g,'&amp;').replace(/</g,'&lt;')}`;
-}
-
-function handle(raw){
-  const v = raw.trim().toLowerCase();
-  echo(raw);
-  if (!v){ showPrompt(true); return; }
-  history.push(raw); hIdx = history.length;
-  if ((v === 'mycelium' || v === 'huba' || v === 'houba') && S.nodeId !== 'myc') return go('myc');
-  if (CMD[v]){
-    const out = CMD[v]();
-    return print(out, () => showPrompt(true));
-  }
-  const node = S.node;
-  if (!node || !node.input){ showPrompt(true); return; }
-  if (node.input === 'yesno'){
-    const yn = v === 'y' ? 'yes' : v === 'n' ? 'no' : v;
-    if (yn !== 'yes' && yn !== 'no') return fail();
-    return go(node.on(yn));
-  }
-  if (node.input === 'number'){
-    const n = parseInt(v,10);
-    if (isNaN(n) || n < node.range[0] || n > node.range[1]) return fail();
-    return go(node.on(n));
-  }
-}
-
-/* ---------- keyboard: real tty feel ---------- */
-let buf = '';
-function renderBuf(){ typedEl.textContent = buf; down(); }
-document.addEventListener('keydown', e => {
-  if (S.dead || S.cascade) return;
-  if (e.ctrlKey && e.key.toLowerCase() === 'c'){
-    e.preventDefault();
-    if (typing){ skip = true; return; }
-    buf = ''; renderBuf();
-    const el = newLine(); el.innerHTML = '<span class="dim">^C</span>';
-    print(['interrupt received. ignored. you agreed to this by being here.'], () => showPrompt(true));
-    return;
-  }
-  if (e.ctrlKey && e.key.toLowerCase() === 'l'){ e.preventDefault(); clearScreen(); down(); return; }
-  if (typing){ if (e.key === 'Enter') skip = true; return; }
-  if (e.metaKey || e.ctrlKey || e.altKey) return;
-  if (e.key === 'Enter'){
-    e.preventDefault();
-    const v = buf; buf = ''; renderBuf(); kbd.value = '';
-    showPrompt(false); handle(v);
-  } else if (e.key === 'Backspace'){
-    e.preventDefault(); buf = buf.slice(0,-1); renderBuf(); kbd.value = buf;
-  } else if (e.key === 'ArrowUp'){
-    e.preventDefault();
-    if (history.length){ hIdx = Math.max(0, hIdx-1); buf = history[hIdx]||''; renderBuf(); kbd.value = buf; }
-  } else if (e.key === 'ArrowDown'){
-    e.preventDefault();
-    if (history.length){ hIdx = Math.min(history.length, hIdx+1); buf = history[hIdx]||''; renderBuf(); kbd.value = buf; }
-  } else if (e.key === 'Tab'){
-    e.preventDefault();
-    tabComplete();
-  } else if (e.key.length === 1){
-    buf += e.key; renderBuf(); kbd.value = buf;
-  }
-});
-/* mobile: hidden input feeds the buffer */
-kbd.addEventListener('input', () => {
-  if (typing || S.dead){ kbd.value = buf; return; }
-  buf = kbd.value; renderBuf();
-});
-kbd.addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); } });
-document.addEventListener('click', e => { if (!e.target.closest('a') && !e.target.closest('.corp') && !S.dead) kbd.focus({preventScroll:true}); });
-
-function tabComplete(){
-  const cmds = Object.keys(CMD).concat(['mycelium']);
-  if (S.node && S.node.input === 'yesno'){
-    buf = 'yes'; renderBuf(); kbd.value = buf;
-    if (!S.tabNoteShown){
-      S.tabNoteShown = true;
-      const el = newLine();
-      el.innerHTML = '<span class="dim">(tab autocompletes toward consent. convenience is never neutral.)</span>';
-      down();
-    }
-    return;
-  }
-  if (!buf) return;
-  const hit = cmds.find(c => c.startsWith(buf));
-  if (hit){ buf = hit; renderBuf(); kbd.value = buf; }
-}
-
-/* ---------- corporate intrusions ---------- */
-const CORP = {};
-function spawnCorp(kind){
-  if (CORP[kind] || S.dead) return;
-  const d = document.createElement('div');
-  d.className = 'corp spawnC';
-  d.id = 'corp-' + kind;
-  d.style.setProperty('--depth', (10 + rng()*18).toFixed(0) + 'px');
-  if (kind === 'cookie'){
-    d.innerHTML = `<h3>🍪 We value your privacy</h3>
-      <p>We use cookies to personalize your experience and to build a psychological profile we will describe as "essential".</p>
-      <button class="btn">Accept all</button> <button class="btn ghost decline">Decline</button>`;
-  } else if (kind === 'hero'){
-    d.innerHTML = `<h3>Pavel Konrad 🚀</h3>
-      <p>Passionate, results-driven professional delivering delightful, best-in-class digital experiences.</p>
-      <button class="btn">Book a call</button>`;
-  } else if (kind === 'toast'){
-    d.innerHTML = `<p>🔥 <b>47 recruiters</b> viewed this profile today</p>`;
-  }
-  d.querySelectorAll('.btn').forEach(b => b.addEventListener('click', () => {
-    if (b.classList.contains('decline')) return declineCascade();
-    if (kind === 'cookie'){
-      if (typing) return;
-      print(['accepted. notice the banner did not leave. acceptance never removes it.'], () => showPrompt(true));
-      return;
-    }
-    print(['that button is decorative. like most buttons.'], () => showPrompt(!typing));
-  }));
-  document.body.appendChild(d);
-  document.getElementById('corpglow').classList.add('on');
-  CORP[kind] = d;
-}
-function killCorp(kind){
-  const d = CORP[kind];
-  if (!d) return;
-  d.classList.remove('spawnC'); d.classList.add('dying');
-  setTimeout(() => d.remove(), 600);
-  delete CORP[kind];
-  if (!Object.keys(CORP).length && S.visited.length >= 2)
-    document.getElementById('corpglow').classList.remove('on');
-}
-function killAllCorp(){ Object.keys(CORP).forEach(killCorp); document.getElementById('corpglow').classList.remove('on'); }
-
-/* ---------- consent hell: what "Decline" really costs ---------- */
-/* timing is narrative, not motion — it ignores prefers-reduced-motion on purpose */
-const sleep = ms => new Promise(r => setTimeout(r, ms));
-function addLine(html){ const el = newLine(); el.innerHTML = (html === '' ? ' ' : html); down(); return el; }
-const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-
-/* what the browser hands out for free — read live, shown only to you */
-function gpuName(){
-  try {
-    const c = document.createElement('canvas');
-    const gl = c.getContext('webgl') || c.getContext('experimental-webgl');
-    const dbg = gl.getExtension('WEBGL_debug_renderer_info');
-    return gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL);
-  } catch(e){ return 'masked (nice try)'; }
-}
-function guessDevice(){
-  const n = navigator, ua = n.userAgent, w = screen.width, h = screen.height;
-  if (/iPhone/.test(ua)) return 'an iPhone, held a little too close';
-  if (/iPad/.test(ua) || (n.maxTouchPoints > 1 && /Mac/.test(n.platform||''))) return 'an iPad';
-  if (/Mac/.test(n.platform||'') || /Mac OS X/.test(ua)){
-    const m = { '1512x982':'a 14" MacBook Pro', '1728x1117':'a 16" MacBook Pro',
-                '1470x956':'a 13" MacBook Air', '1440x900':'a MacBook Air', '1280x800':'a MacBook' };
-    return m[w+'x'+h] || "a Mac — a MacBook, let's be honest";
-  }
-  if (/Windows/.test(ua)) return 'a Windows machine, my condolences';
-  if (/Android/.test(ua)) return 'an Android phone';
-  if (/Linux/.test(ua)) return 'a Linux rig (of course you use arch)';
-  return 'a device you think of as yours';
-}
-function detectFonts(list){
-  try {
-    const base = ['monospace','sans-serif','serif'], probe = 'mmmmmmmmmmlli';
-    const span = document.createElement('span');
-    span.style.cssText = 'position:absolute;left:-9999px;top:-9999px;font-size:72px;visibility:hidden';
-    span.textContent = probe;
-    document.body.appendChild(span);
-    const bw = {};
-    base.forEach(b => { span.style.fontFamily = b; bw[b] = span.offsetWidth; });
-    const found = [];
-    list.forEach(f => {
-      for (const b of base){
-        span.style.fontFamily = "'" + f + "'," + b;
-        if (span.offsetWidth !== bw[b]){ found.push(f); break; }
-      }
-    });
-    span.remove();
-    return found;
-  } catch(e){ return []; }
-}
-function harvest(){
-  const n = navigator, s = screen, g = geo || {};
-  const row = (k, v, note) => `  <span class="dim">${(k + ' ').padEnd(15,'.')}</span> ${esc(v)}` +
-        (note ? `  <span class="dim">${note}</span>` : '');
-  const fonts = detectFonts(['Helvetica Neue','Menlo','Zapfino','Papyrus','Comic Sans MS',
-    'Chalkduster','Marker Felt','Herculanum','Optima','Futura','Gill Sans','Trattatello',
-    'Impact','Georgia','Andale Mono','Bradley Hand']).slice(0,6);
-  const loc = [g.city, g.region, g.country].filter(Boolean).join(', ');
-  return [
-    row('ip', user, '(the "anonymous" one)'),
-    row('location', loc || 'resolving…', loc ? '(hi, neighbour)' : null),
-    row('coordinates', g.latitude != null ? `${g.latitude}, ${g.longitude}` : '—',
-        g.latitude != null ? '(± a few front doors)' : null),
-    row('isp', (g.connection && g.connection.isp) || g.isp || '—', '(they sell this too)'),
-    row('device', guessDevice()),
-    row('screen', `${s.width}×${s.height} @${window.devicePixelRatio || 1}x`),
-    row('user-agent', n.userAgent),
-    row('timezone', Intl.DateTimeFormat().resolvedOptions().timeZone),
-    row('languages', (n.languages || [n.language]).join(', '), '(ads targeted accordingly)'),
-    row('cpu / mem', `${n.hardwareConcurrency || '?'} cores / ${n.deviceMemory ? n.deviceMemory + ' GB' : '?'}`),
-    row('gpu', gpuName(), '(1 machine in 4 billion — found you)'),
-    row('fonts', fonts.length ? fonts.join(', ') : 'the boring defaults',
-        '(yes, that says something about you)'),
-    row('return visits', String(runs), runs > 1 ? '(welcome back. i kept notes.)' : '(first time. i opened a file.)'),
-  ];
-}
-
-screen.addEventListener('click', e => {
-  const c = e.target.closest('.cancel-up');
-  if (c){
-    e.preventDefault();
-    S.cancelRequested = true;
-    c.classList.remove('cancel-up');
-    c.outerHTML = '<span class="dim">[ cancel ] — request queued (it will not arrive)</span>';
-  }
-});
-
-async function declineCascade(){
-  if (S.declineDone || S.dead || S.cascade || typing) return;
-  S.declineDone = true; S.cascade = true; S.cancelRequested = false;
-  showPrompt(false);
-  addLine(`<span class="dim">${user}@pavelkonrad:~$ </span>decline`);
-  await sleep(350);
-  addLine('<span class="err">consent declined.</span>');
-  await sleep(600);
-  addLine('no law stops me from reading what your browser screams at every server it meets.');
-  await sleep(1000);
-  addLine('only google needs the checkbox. i just take it. don\'t worry — it\'s anonymous. observe:');
-  await sleep(1100);
-  addLine('');
-  for (const line of harvest()){
-    addLine(line);
-    await sleep(240);
-  }
-  await sleep(900);
-  addLine('');
-  const city = (geo && geo.city) || 'somewhere very specific';
-  const lang = ((navigator.languages || [navigator.language])[0]) || 'a language i noted';
-  const coords = geo && geo.latitude != null ? `${geo.latitude}, ${geo.longitude}` : 'right where you are';
-  addLine(`so: a <span class="warn">completely anonymous</span> user from ${esc(city)}, on ${guessDevice()},`);
-  addLine(`reading in ${esc(lang)}, with fonts you personally installed, sitting around ${esc(coords)}`);
-  addLine('— give or take a few front doors. <span class="warn">completely anonymous.</span>  =)');
-  await sleep(1200);
-  addLine('');
-  addLine('shipping the above to:  <a href="#" class="cancel-up">[ cancel ]</a>  <span class="dim">(already in flight)</span>');
-  await sleep(500);
-  const servers = [
-    'ad-exchange.us-east-1.doubleclick.net',
-    'broker.acxiom-data.net',
-    'pixel.meta-graph.io',
-    'ingest.palantir-lite.io',
-    'backup.pavel.lan',
-  ];
-  for (const host of servers){ await uploadLine(host); }
-  await sleep(400);
-  addLine(S.cancelRequested
-    ? 'cancel received. the upload finished during the animation. cancels are decorative.'
-    : 'you did not even reach for cancel. the machine noted your compliance.');
-  await sleep(700);
-  await consentLoop();
-  await sleep(1600);
-  await confirmGauntlet();
-  addLine(`<span class="art">${RUBBLE}</span>`);
-  addLine('that was the modern web. you clicked through the whole thing. everyone does.');
-  await sleep(300);
-  killCorp('cookie');
-  S.cascade = false;
-  showPrompt(true);
-}
-
-async function uploadLine(host){
-  const bar = addLine(`  → ${esc(host)}  [                    ]   0%`);
-  for (let p = 0; p <= 100; p += 6 + Math.floor(rng()*16)){
-    const filled = Math.round(Math.min(p,100)/5);
-    bar.textContent = `  → ${host}  [${'#'.repeat(filled)}${' '.repeat(20-filled)}] ${String(Math.min(p,100)).padStart(3)}%`;
-    down();
-    await sleep(55);
-  }
-  bar.innerHTML = `  → ${esc(host)}  [####################] 100%  <span class="err">sent</span>`;
-  await sleep(120);
-}
-
-async function consentLoop(){
-  window.confirm('Withdraw consent? All collected data will be permanently deleted.');
-  await sleep(700);
-  /* the barrel-organ: steady beat, then the rhythm bends, then it shouts */
-  const beats = [
-    ['are you sure?',                                    1100],
-    ['are you sure?',                                    1100],
-    ['are you sure?',                                    1700],
-    ['  are you sure?',                                  2300],
-    ['     are you sure??',                              3000],
-    ['<span class="err">ARE YOU SURE?</span>',           3600],
-    ['<span class="dim">. . .</span>',                   2400],
-    ['<span class="err">ARE YOU ABSOLUTELY SURE??</span>', 3800],
-  ];
-  for (const [txt, pause] of beats){ addLine(txt); await sleep(pause); }
-}
-
-async function confirmGauntlet(){
-  addLine('nothing was deleted.');
-  await sleep(800);
-  addLine('all data collected. all data saved. <span class="err">forever.</span>');
-  await sleep(900);
-  addLine('there was never a delete button. only the one that says so.');
-  await sleep(1000);
-}
-
-/* schedule: 1st territory → cookie; 2nd → hero; idle → toast */
-const _push = S.visited.push.bind(S.visited);
-S.visited.push = function(t){
-  const r = _push(t);
-  if (S.visited.length === 1){ spawnCorp('cookie'); }   /* interaction lives on the banner */
-  if (S.visited.length === 2){ spawnCorp('hero'); S.corpQueue.push('corp_hero_q'); }
-  return r;
+/* Horizontal timeline. Each year that has something in it is a column (empty
+   years are skipped); each lane is a band: study and courses above the works,
+   roles below. Cards of one lane and one column stack inside the band. */
+const LANES = [
+  { id:'education', label:'Study' },
+  { id:'course',    label:'Courses' },
+  { id:'works',     label:'Works' },
+];
+const laneOf = id => {
+  const n = nodeById[id];
+  if (n.type === 'work') return 'works';
+  if (n.category === 'education') return 'education';
+  return 'course';
 };
-setTimeout(() => {
-  if (S.dead) return;
-  spawnCorp('toast');
-  setTimeout(() => {
-    if (!CORP.toast) return;
-    killCorp('toast');
-    if (!typing) print(['autoimmune response: 1 notification neutralized.'], () => showPrompt(!typing));
-  }, 2600);
-}, 45000);
 
-/* idle nudge */
-let lastKey = Date.now();
-document.addEventListener('keydown', () => lastKey = Date.now());
-setInterval(() => {
-  if (S.dead || S.idleShown || typing) return;
-  if (Date.now() - lastKey > 60000){
-    S.idleShown = true;
-    print(['still there? the cursor blinks either way.'], () => showPrompt(true));
-  }
-}, 5000);
+function layout(g){
+  const narrow = innerWidth < 760;
+  const cardW = narrow ? 160 : 190, colGap = narrow ? 48 : 72, stackGap = 14, bandPad = 18;
+  const left = narrow ? 24 : 110, top = 34;
+  const cols = [...new Set(Object.values(g.layer))].sort((a, b) => a - b);
+  const colIndex = Object.fromEntries(cols.map((c, k) => [c, k]));
 
-/* ---------- pointer parallax (corporate layer only) ---------- */
-const root = document.documentElement;
-let raf = null, px = 0, py = 0;
-addEventListener('pointermove', e => {
-  px = (e.clientX / innerWidth - .5) * 2;
-  py = (e.clientY / innerHeight - .5) * 2;
-  if (!raf && !reduced) raf = requestAnimationFrame(() => {
-    root.style.setProperty('--px', px.toFixed(3));
-    root.style.setProperty('--py', py.toFixed(3));
-    raf = null;
+  g.ids.forEach(id => {
+    const n = nodeById[id], role = g.role[id], el = ensureNode(id);
+    const first = (n.identities || [])[0];
+    el.className = `mnode mnode--${n.type === 'work' ? 'work' : 'root'} mnode--${role}${first ? ' id--' + first : ''}`;
+    if (role === 'focus'){ el.removeAttribute('href'); el.tabIndex = -1; }
+    else { el.href = '#' + id; el.removeAttribute('tabindex'); }
+    if (!el.innerHTML) el.innerHTML = mnodeHtml(n);
+    el.style.width = cardW + 'px';
   });
-}, { passive:true });
 
-/* ---------- death ---------- */
-function die(){
-  S.dead = true;
-  killAllCorp();
-  document.body.classList.add('dead');
-  showPrompt(false);
+  mapEl.querySelectorAll('.myear, .mband').forEach(el => el.remove());
+  const lanesEl = $('stage-lanes');
+  lanesEl.innerHTML = '';
+
+  /* a column is as wide as its busiest lane: cards of one year sit side by side,
+     so every lane stays a single row and the whole timeline fits the screen height */
+  const inCell = (lane, c) => g.ids.filter(id => laneOf(id) === lane && g.layer[id] === c)
+    .sort((a, b) => startYear(a) - startYear(b) || a.localeCompare(b));
+  const colX = {};
+  let x = left;
+  cols.forEach(c => {
+    colX[c] = x;
+    const slots = Math.max(1, ...LANES.map(l => inCell(l.id, c).length));
+    x += slots * cardW + (slots - 1) * stackGap + colGap;
+  });
+
+  const pos = {};
+  let y = top;
+  LANES.forEach(lane => {
+    if (!g.ids.some(id => laneOf(id) === lane.id)) return;
+    const bandTop = y;
+    y += bandPad;
+    let h = 0;
+    cols.forEach(c => {
+      inCell(lane.id, c).forEach((id, k) => {
+        const el = nodes[id], nx = colX[c] + k * (cardW + stackGap);
+        pos[id] = { x:nx, y, w:el.offsetWidth, h:el.offsetHeight };
+        el.style.left = nx + 'px'; el.style.top = y + 'px';
+        h = Math.max(h, el.offsetHeight);
+      });
+    });
+    y += h + bandPad;
+
+    const band = document.createElement('div');
+    band.className = `mband mband--${lane.id}`;
+    band.style.top = bandTop + 'px'; band.style.height = (y - bandTop) + 'px';
+    mapEl.prepend(band);
+    const label = document.createElement('div');
+    label.className = 'mlane-label';
+    label.textContent = lane.label;
+    label.style.top = (bandTop + 4) + 'px';
+    lanesEl.appendChild(label);
+  });
+
+  /* year labels on top: the year its cards start in, shown once */
+  const shown = new Set();
+  cols.forEach(c => {
+    const year = Math.min(...g.ids.filter(id => g.layer[id] === c).map(startYear));
+    if (year === 9999 || shown.has(year)) return;
+    shown.add(year);
+    const label = document.createElement('div');
+    label.className = 'myear';
+    label.textContent = year;
+    label.style.left = colX[c] + 'px';
+    label.style.setProperty('--h', (y - 20) + 'px');
+    mapEl.prepend(label);
+  });
+
+  mapEl.style.width = (x + 40) + 'px';
+  mapEl.style.height = (y + 12) + 'px';
+  return { pos, layers: cols };
 }
-function endReboot(){
-  die();
-  setTimeout(async () => {
-    addLine('');
-    addLine('<span class="dim"> [ OK ] stopped user session.</span>');
-    await sleep(700);
-    addLine('<span class="dim"> [ OK ] reached target reboot.</span>');
-    await sleep(1000);
-    addLine('<span class="dim"> rebooting …</span>');
-    await sleep(1600);
-    try { location.reload(); } catch(e){}
-  }, 3200);
+
+/* ── Edges, drawn as a path through time ───────────────── */
+let edgeSeq = 0;
+function drawEdges(g, pos, timeOf){
+  const ns = 'http://www.w3.org/2000/svg';
+  svg.innerHTML = '';
+  const defs = document.createElementNS(ns, 'defs');
+  svg.appendChild(defs);
+
+  /* several lines leaving (or entering) one card fan out along its side, ordered by direction */
+  const cyOf = id => pos[id] ? pos[id].y + pos[id].h / 2 : 0;
+  const port = (id, others, other) => {
+    const list = others.filter(o => pos[o]).sort((p, q) => cyOf(p) - cyOf(q));
+    if (list.length < 2) return cyOf(id);
+    const k = list.indexOf(other), span = Math.min(pos[id].h - 24, list.length * 16);
+    return cyOf(id) - span / 2 + span * k / (list.length - 1);
+  };
+  const outs = id => g.edges.filter(e => e.from === id).map(e => e.to);
+  const ins  = id => g.edges.filter(e => e.to === id).map(e => e.from);
+
+  g.edges.forEach(e => {
+    const a = pos[e.from], b = pos[e.to];
+    if (!a || !b) return;
+    let d;
+    if (b.x > a.x + a.w){
+      const x1 = a.x + a.w, y1 = port(e.from, outs(e.from), e.to);
+      const x2 = b.x, y2 = port(e.to, ins(e.to), e.from);
+      const mx = (x1 + x2) / 2;
+      d = `M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`;
+    } else {
+      /* same column: a short vertical link */
+      const down = b.y > a.y;
+      const x = a.x + a.w - 14, y1 = down ? a.y + a.h : a.y, y2 = down ? b.y : b.y + b.h;
+      d = `M${x},${y1} L${x},${y2}`;
+    }
+    const hot = g.on.has(e.from) && g.on.has(e.to);
+
+    /* the visible path keeps its dash pattern; a solid path in a mask does the drawing */
+    const id = 'reveal' + (++edgeSeq);
+    const mask = document.createElementNS(ns, 'mask');
+    mask.setAttribute('id', id);
+    mask.setAttribute('maskUnits', 'userSpaceOnUse');
+    mask.setAttribute('x', '-5000'); mask.setAttribute('y', '-5000');
+    mask.setAttribute('width', '10000'); mask.setAttribute('height', '10000');
+    const reveal = document.createElementNS(ns, 'path');
+    reveal.setAttribute('d', d);
+    reveal.setAttribute('fill', 'none');
+    reveal.setAttribute('stroke', '#fff');
+    reveal.setAttribute('stroke-width', '8');
+    reveal.setAttribute('pathLength', '1');
+    reveal.style.strokeDasharray = '1 1';
+    reveal.style.strokeDashoffset = '1';
+    mask.appendChild(reveal);
+    defs.appendChild(mask);
+
+    const path = document.createElementNS(ns, 'path');
+    path.setAttribute('d', d);
+    path.setAttribute('fill', 'none');
+    path.setAttribute('mask', `url(#${id})`);
+    path.style.stroke = hot ? 'var(--edge-hot)' : 'var(--edge)';
+    path.style.strokeWidth = hot ? '2' : '1.4';
+    if (!hot) path.style.opacity = '0.22';
+    path.style.strokeDasharray = (KINDS[e.kind] || KINDS.foundation).dash || 'none';
+    svg.appendChild(path);
+
+    if (!hot){ reveal.style.strokeDashoffset = '0'; return; }
+    reveal.animate([{ strokeDashoffset:1 }, { strokeDashoffset:0 }],
+      { duration:T(420), delay:T(timeOf(e.from) + 120), easing:'cubic-bezier(0.4,0,0.2,1)', fill:'forwards' });
+  });
 }
 
-/* ---------- identification: you never introduced yourself ---------- */
-fetch('https://ipwho.is/', { signal: AbortSignal.timeout ? AbortSignal.timeout(4500) : undefined })
-  .then(r => r.json())
-  .then(d => {
-    if (!d || d.success === false || !d.ip || S.dead) return;
-    geo = d; user = d.ip;
-    promptrow.querySelector('.ps1').textContent = `${user}@pavelkonrad:~$ `;
-    const where = d.city ? `${esc(d.city)}, ${esc(d.country || '')}` : 'wherever you think you are';
-    pending.push(`<span class="dim">[net] arrived from ${where}. you never introduced yourself. you didn't have to.</span>`);
-    if (!typing) showPrompt(promptrow.classList.contains('on'));
-  })
-  .catch(() => {});
+/* ── Transitions ───────────────────────────────────────── */
+const flyEase = 'cubic-bezier(0.22,1,0.36,1)';
 
-/* ---------- boot ---------- */
-print(BOOT, () => setTimeout(() => go('gate'), 500));
+function flip(el, from, to, delay){
+  const s = from.width / to.width;
+  el.animate([
+    { transform:`translate(${from.left - to.left}px, ${from.top - to.top}px) scale(${s})` },
+    { transform:'none' },
+  ], { duration:T(700), delay:T(delay || 0), easing:flyEase, fill:'backwards' });
+}
+function appear(el, delay){
+  /* no end opacity: dimmed cards settle at their own dim level */
+  el.animate([
+    { opacity:0, transform:'translateY(-10px) scale(0.94)' },
+    { transform:'none' },
+  ], { duration:T(380), delay:T(delay), easing:flyEase, fill:'backwards' });
+}
+function vanish(el){
+  const a = el.animate([{ opacity:1 }, { opacity:0, transform:'scale(0.94)' }], { duration:T(220), fill:'forwards' });
+  a.onfinish = () => el.remove();
+}
 
+function visibleTileRects(){
+  const out = {};
+  $('grid').querySelectorAll('.tile:not([hidden])').forEach(t => out[t.dataset.id] = t.getBoundingClientRect());
+  return out;
+}
+function nodeRects(){
+  const out = {};
+  Object.entries(nodes).forEach(([id, el]) => out[id] = el.getBoundingClientRect());
+  return out;
+}
+
+function show(id){
+  const fromGallery = mode === 'gallery';
+  const before = fromGallery ? visibleTileRects() : {};
+  focusId = id;
+  const g = graph(id);
+  const stage = $('stage');
+
+  if (fromGallery){
+    mode = 'map';
+    document.body.classList.add('is-map');
+    stage.classList.add('is-on');
+  }
+
+  const { pos, layers } = layout(g);
+
+  /* bring the focus into view before measuring where the tiles land */
+  const scroller = $('stage-scroll');
+  const target = Math.max(0, pos[id].x - scroller.clientWidth / 3);
+  if (fromGallery){ scroller.scrollLeft = target; stage.scrollTop = 0; }
+  else scroller.scrollTo({ left:target, behavior: reduced ? 'auto' : 'smooth' });
+
+  /* the lineage is drawn from the oldest row down */
+  const pathRows = [...new Set([...g.on].map(n => g.layer[n]))].sort((a, b) => a - b);
+  const rank = Object.fromEntries(pathRows.map((l, k) => [l, k]));
+  const base = fromGallery ? 420 : 0;
+  const timeOf = n => base + (rank[g.layer[n]] ?? 0) * 110;
+
+  if (fromGallery){
+    const rowRank = Object.fromEntries(layers.map((l, k) => [l, k]));
+    g.ids.forEach(n => {
+      const el = nodes[n];
+      el.getAnimations().forEach(a => a.cancel());
+      if (before[n]) flip(el, before[n], el.getBoundingClientRect());
+      else appear(el, 120 + rowRank[g.layer[n]] * 40);
+    });
+  }
+  drawEdges(g, pos, timeOf);
+  renderInfo(nodeById[id]);
+}
+
+function hide(){
+  if (mode !== 'map') return;
+  mode = 'gallery';
+  document.body.classList.remove('is-map');
+  const targets = visibleTileRects();
+  let longest = T(260);
+
+  svg.animate([{ opacity:1 }, { opacity:0 }], { duration:T(200), fill:'forwards' });
+  $('info').animate([{ opacity:1 }, { opacity:0 }], { duration:T(200), fill:'forwards' });
+  $('stage-legend').animate([{ opacity:1 }, { opacity:0 }], { duration:T(200), fill:'forwards' });
+
+  Object.entries(nodes).forEach(([id, el]) => {
+    const to = targets[id];
+    if (!to){ vanish(el); return; }
+    const from = el.getBoundingClientRect();
+    const s = to.width / from.width;
+    el.animate([
+      { transform:'none' },
+      { transform:`translate(${to.left - from.left}px, ${to.top - from.top}px) scale(${s})`, opacity:0.6, offset:0.8 },
+      { transform:`translate(${to.left - from.left}px, ${to.top - from.top}px) scale(${s})`, opacity:0 },
+    ], { duration:T(650), easing:flyEase, fill:'forwards' });
+    longest = T(650);
+  });
+
+  setTimeout(() => {
+    if (mode !== 'gallery') return;
+    Object.values(nodes).forEach(el => el.remove());
+    Object.keys(nodes).forEach(k => delete nodes[k]);
+    svg.innerHTML = '';
+    [svg, $('info'), $('stage-legend')].forEach(el => el.getAnimations().forEach(a => a.cancel()));
+    $('stage').classList.remove('is-on');
+    focusId = null;
+  }, longest);
+}
+
+/* ── Info panel ────────────────────────────────────────── */
+function stepsHtml(title, steps){
+  if (!steps.length) return '';
+  return `<div class="steps"><h3 class="steps__title">${title}</h3>${steps.map(st => {
+    const o = nodeById[st.ref];
+    return `<a class="step" href="#${esc(o.id)}">
+      <span class="step__name">${esc(titleOf(o))}<span class="step__year">${esc(yearsOf(o))}</span></span>
+      <span class="step__why">${esc((KINDS[st.kind] || {}).label || st.kind)}${st.why ? ' · ' + esc(st.why) : ''}</span>
+    </a>`;
+  }).join('')}</div>`;
+}
+function renderInfo(n){
+  const links = (n.links || []).map(l => {
+    const external = /^https?:/.test(l.url);
+    return `<a class="btn" href="${esc(l.url)}"${external ? ' target="_blank" rel="noopener"' : ''}>${esc(l.label)} ↗</a>`;
+  }).join('');
+  const meta = n.type === 'work' ? [n.year, n.role] : [n.category === 'course' ? 'Course' : '', n.by, n.years];
+  $('info').innerHTML = `
+    ${tagsHtml(n.identities)}
+    <h2 class="info__title">${esc(titleOf(n))}</h2>
+    <p class="info__meta">${meta.filter(Boolean).map(esc).join(' · ')}</p>
+    <p class="info__text">${esc(n.type === 'work' ? n.summary : n.note)}</p>
+    ${links ? `<div class="info__links">${links}</div>` : ''}
+    ${(n.lineup || []).length ? `<dl class="lineup">${n.lineup.map(([k, v]) =>
+      `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>` : ''}
+    ${stepsHtml('Grew from', parentsOf(n.id).map(e => ({ ref:e.ref, kind:e.kind, why:e.why })))}
+    ${stepsHtml('Led to', childrenOf[n.id] || [])}
+    <p class="info__hint">Time runs left to right. The lit path is everything this grew from and everything it led to — click any card to follow it.</p>`;
+  $('info').animate([{ opacity:0, transform:'translateX(12px)' }, { opacity:1, transform:'none' }],
+    { duration:T(300), easing:flyEase });
+}
+
+/* ── Routing: the hash is the state, so every path is a link ── */
+function route(){
+  const id = decodeURIComponent(location.hash.slice(1));
+  if (id && nodeById[id]){ if (id !== focusId) show(id); }
+  else hide();
+}
+addEventListener('hashchange', route);
+
+function back(){
+  history.pushState('', document.title, location.pathname + location.search);
+  hide();
+}
+$('back').addEventListener('click', back);
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && mode === 'map') back(); });
+
+$('stage-scroll').addEventListener('wheel', e => {
+  if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+  const el = e.currentTarget;
+  if (el.scrollWidth <= el.clientWidth) return;
+  e.preventDefault();
+  el.scrollLeft += e.deltaY;
+}, { passive:false });
+
+let resizeTimer;
+addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    if (mode !== 'map') return;
+    const g = graph(focusId);
+    const { pos } = layout(g);
+    drawEdges(g, pos, () => -1000);
+  }, 150);
+});
+
+route();
 })();
 </script>
 </body>
