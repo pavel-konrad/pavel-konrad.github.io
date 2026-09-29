@@ -65,8 +65,8 @@ a { color:inherit; }
 button { font:inherit; color:inherit; }
 :focus-visible { outline:2px solid var(--indigo); outline-offset:3px; }
 
-.wrap { max-width:76rem; margin:0 auto; padding:0 1rem; }
-.intro.wrap { max-width:none; padding-left:clamp(1rem, 3vw, 3rem); padding-right:clamp(1rem, 3vw, 3rem); }
+:root { --gutter:clamp(1rem, 3vw, 3rem); }
+.wrap { padding-left:var(--gutter); padding-right:var(--gutter); }
 
 /* identity colouring for the map nodes */
 .id--musician   { --c:var(--musician); }
@@ -142,8 +142,8 @@ body.is-map .page { opacity:0; pointer-events:none; }
   grid-template-columns:repeat(auto-fill, var(--t));
   grid-auto-rows:var(--t);
   grid-auto-flow:dense;
-  justify-content:center;
-  padding:0 clamp(1rem, 3vw, 3rem) 5rem;
+  justify-content:start;
+  padding:0 var(--gutter) 5rem;
 }
 .glass {
   background:var(--pane), var(--foil) var(--fx, 0) var(--fy, 0) / 640px, var(--card-raised);
@@ -184,16 +184,24 @@ body.is-map .page { opacity:0; pointer-events:none; }
     calc(50% + var(--g) / 2) calc(50% + var(--g) / 2),
     calc(50% + var(--g) / 2) calc(50% + var(--g) / 2);
 }
+/* every label has the same three rows at the same height: year, title, role */
 .tile__label {
   position:absolute; left:0; right:0; bottom:0; z-index:3;
-  display:flex; flex-direction:column; gap:0.3rem;
-  padding:2.8rem 0.9rem 0.8rem;
-  background:linear-gradient(transparent, rgba(6,26,23,0.86));
+  display:grid; grid-template-rows:auto auto auto; row-gap:0.25rem;
+  padding:3rem 0.9rem 0.85rem;
+  background:linear-gradient(transparent, rgba(6,26,23,0.9) 55%);
 }
-.tile__head { display:flex; align-items:baseline; gap:0.6rem; }
-.tile__title { margin:0; font-size:0.98rem; font-weight:700; line-height:1.25; color:var(--ink); }
-.tile__credit { margin:0; font-family:var(--mono); font-size:0.68rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-soft); }
-.tile__year { margin-left:auto; flex-shrink:0; font-family:var(--mono); font-size:0.7rem; color:var(--text-soft); }
+.tile__head { display:contents; }
+.tile__year { grid-row:1; font-family:var(--mono); font-size:0.66rem; letter-spacing:0.08em; color:var(--text-soft); }
+.tile__title {
+  grid-row:2; margin:0; font-size:0.98rem; font-weight:700; line-height:1.25; color:var(--ink);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.tile__credit {
+  grid-row:3; margin:0; min-height:1.1em;
+  font-family:var(--mono); font-size:0.66rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-soft);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
 .tile:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
 
 .media { position:relative; overflow:hidden; background:var(--card-raised); }
@@ -238,6 +246,8 @@ body.is-map .page { opacity:0; pointer-events:none; }
   font-family:var(--mono); font-size:0.72rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--text-dim);
 }
 .listen__tab:hover { color:var(--text); }
+/* the first tab's text sits on the page gutter like everything else */
+.listen__tab:first-child { padding-left:0; }
 .listen__tab[aria-selected="true"] { color:var(--ink); border-bottom-color:var(--accent); }
 .deck { display:flex; align-items:center; gap:1.2rem; margin-bottom:1.2rem; }
 .deck__play {
@@ -541,9 +551,9 @@ function renderWall(){
 $('grid').innerHTML = works.map(w => nodeById[w.id]).filter(onShelf).sort((a, b) => lastYear(b) - lastYear(a)).map(w => `
   <a class="tile" href="#${esc(w.id)}" data-id="${esc(w.id)}" style="${pick()}">
     <div class="media">${coverHtml(w)}${w.draft ? '<span class="badge">draft</span>' : ''}</div>
-    <div class="tile__label">
+    <div class="tile__label" title="${esc(w.title)}${w.credit ? ' · ' + esc(w.credit) : ''}">
       <div class="tile__head"><h2 class="tile__title">${esc(w.title)}</h2><span class="tile__year">${esc(w.year || '')}</span></div>
-      ${w.credit ? `<p class="tile__credit">${esc(w.credit)}</p>` : ''}
+      <p class="tile__credit">${esc(w.credit || '')}</p>
     </div>
   </a>`).join('');
 fillWall();
