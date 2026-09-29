@@ -633,9 +633,12 @@ const DPR = Math.min(2, window.devicePixelRatio || 1);
     ctx.clearRect(0, 0, w, h);
     for (let x = 0; x < w; x += strip){
       const dy = Math.sin((x / waveLen) * Math.PI * 2 + phase) * amp;
-      const sx = x % tw;
-      for (let y = -th + (dy % th); y < h + th; y += th)
-        ctx.drawImage(tex, sx, 0, Math.min(strip, tw - sx), th, x, y - amp, Math.min(strip, tw - sx), th);
+      const sx = x % tw, first = Math.min(strip, tw - sx);
+      for (let y = -th + (dy % th); y < h + th; y += th){
+        ctx.drawImage(tex, sx, 0, first, th, x, y - amp, first, th);
+        /* a strip that crosses the tile's right edge continues from its left edge */
+        if (first < strip) ctx.drawImage(tex, 0, 0, strip - first, th, x + first, y - amp, strip - first, th);
+      }
     }
   }
   function tick(){
@@ -643,12 +646,53 @@ const DPR = Math.min(2, window.devicePixelRatio || 1);
     draw();
     raf = Math.abs(target - phase) > 0.002 ? requestAnimationFrame(tick) : null;
   }
-  img.onload = () => {
-    tex = document.createElement('canvas');
-    tex.width = img.naturalWidth; tex.height = img.naturalHeight;
-    tex.getContext('2d').drawImage(img, 0, 0);
-    size();
-  };
+  /* grain.svg is rendered TILE + OVERLAP in both directions; the overlap is
+     cross-faded over the start of the tile, so its last pixel runs straight
+     into its first and the texture repeats without a seam on wide screens */
+  const TILE_W = 1600, TILE_H = 1200, OVERLAP = 400;
+  /* Composited, not read back pixel by pixel, so it also works from file://.
+     Each half of the cross-fade is masked with a cosine ramp; 'lighter' adds the
+     premultiplied halves, and since the two weights sum to 1 the result is an
+     exact blend. */
+  function ramp(ctx, horizontal, len, rising){
+    const g = horizontal ? ctx.createLinearGradient(0, 0, len, 0) : ctx.createLinearGradient(0, 0, 0, len);
+    for (let k = 0; k <= 16; k++){
+      const t = k / 16, w = 0.5 - 0.5 * Math.cos(Math.PI * t);
+      g.addColorStop(t, `rgba(0,0,0,${rising ? w : 1 - w})`);
+    }
+    return g;
+  }
+  function fold(source, w, h, horizontal){
+    const tw = horizontal ? w - OVERLAP : w, th = horizontal ? h : h - OVERLAP;
+    const layer = (dx, dy, rising, cw, ch) => {
+      const c = document.createElement('canvas'); c.width = cw; c.height = ch;
+      const x = c.getContext('2d');
+      x.drawImage(source, dx, dy);
+      /* the whole mask is built first: destination-in clears everything a single draw does not cover */
+      const m = document.createElement('canvas'); m.width = cw; m.height = ch;
+      const mx = m.getContext('2d');
+      mx.fillStyle = ramp(mx, horizontal, OVERLAP, rising);
+      if (horizontal) mx.fillRect(0, 0, OVERLAP, ch); else mx.fillRect(0, 0, cw, OVERLAP);
+      mx.fillStyle = '#000';
+      if (rising){ if (horizontal) mx.fillRect(OVERLAP, 0, cw - OVERLAP, ch); else mx.fillRect(0, OVERLAP, cw, ch - OVERLAP); }
+      x.globalCompositeOperation = 'destination-in';
+      x.drawImage(m, 0, 0);
+      return c;
+    };
+    const out = document.createElement('canvas'); out.width = tw; out.height = th;
+    const o = out.getContext('2d');
+    o.globalCompositeOperation = 'lighter';
+    o.drawImage(layer(0, 0, true, tw, th), 0, 0);                              /* the tile, fading in */
+    o.drawImage(horizontal ? layer(-tw, 0, false, OVERLAP, th) : layer(0, -th, false, tw, OVERLAP), 0, 0); /* its overhang, fading out over the start */
+    return out;
+  }
+  function seamless(){
+    const src = document.createElement('canvas');
+    src.width = TILE_W + OVERLAP; src.height = TILE_H + OVERLAP;
+    src.getContext('2d').drawImage(img, 0, 0, src.width, src.height);
+    tex = fold(fold(src, src.width, src.height, true), TILE_W, src.height, false);
+  }
+  img.onload = () => { seamless(); size(); };
   img.src = 'img/grain.svg';
   addEventListener('resize', size);
   if (!reduced) addEventListener('scroll', () => {
