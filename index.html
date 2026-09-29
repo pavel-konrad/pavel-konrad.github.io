@@ -233,7 +233,9 @@ body.is-map .page { opacity:0; pointer-events:none; }
 
 /* ── Player ───────────────────────────────────────────── */
 .listen { padding-top:1rem; padding-bottom:5rem; }
-.listen > :not(.listen__title):not(.listen__tabs) { max-width:46rem; }
+.listen > :not(.listen__head):not(.listen__tabs) { max-width:46rem; }
+.listen__head { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1.6rem; }
+.listen__head .listen__title { margin:0; }
 .listen__desc { margin:0 0 1.6rem; font-size:0.95rem; line-height:1.6; color:var(--text-soft); }
 .listen__title {
   position:relative; margin:0 0 1.6rem;
@@ -428,6 +430,7 @@ body.is-map .page { opacity:0; pointer-events:none; }
     </div>
     <div class="intro__actions">
       <a class="btn btn--pill btn--primary" href="https://youtu.be/o9qj8BAmp40" target="_blank" rel="noopener">▶ Sound reel</a>
+      <a class="btn btn--pill" href="https://soundcloud.com/pavelkonrad" target="_blank" rel="noopener">SoundCloud ↗</a>
       <a class="btn btn--pill" href="mailto:audio@pavelkonrad.cz">audio@pavelkonrad.cz</a>
     </div>
   </header>
@@ -443,7 +446,9 @@ body.is-map .page { opacity:0; pointer-events:none; }
   </main>
 
   <section class="listen wrap" id="listen" aria-labelledby="listen-title" hidden>
-    <h2 class="listen__title" id="listen-title">My audio work</h2>
+    <div class="listen__head">
+      <h2 class="listen__title" id="listen-title">My audio work</h2>
+    </div>
     <nav class="listen__tabs" id="listen-tabs" aria-label="Playlists"></nav>
     <p class="listen__desc" id="listen-desc" hidden></p>
     <div class="deck">
@@ -462,6 +467,7 @@ body.is-map .page { opacity:0; pointer-events:none; }
     <a href="https://youtu.be/o9qj8BAmp40" target="_blank" rel="noopener">Sound reel</a>
     <a href="https://www.linkedin.com/in/pavelkonrad/" target="_blank" rel="noopener">LinkedIn</a>
     <a href="https://github.com/pavel-konrad" target="_blank" rel="noopener">GitHub</a>
+    <a href="https://soundcloud.com/pavelkonrad" target="_blank" rel="noopener">SoundCloud</a>
     <a href="https://pavelkonrad.itch.io" target="_blank" rel="noopener">itch.io</a>
     <span>Prague</span>
   </footer>
@@ -781,6 +787,7 @@ async function load(listId, k, play){
   deck.list = listId; deck.index = k;
   const t = playlists.find(pl => pl.id === listId).tracks[k];
   audio.src = t.src;
+  audio.loop = !!t.loop;   /* loops play on until stopped; everything else moves to the next track */
   $('deck-name').textContent = t.title;
   renderTracks();
   deck.peaks = null; drawWave();

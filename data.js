@@ -78,7 +78,7 @@ window.PORTFOLIO = {
 
   /* The player under the wall. Put audio files into portfolio/audio/ and list them here.
      description  one or two sentences shown under the tab
-     tracks[]  { title, src, year?, note?, link? }
+     tracks[]  { title, src, year?, note?, link?, loop? }   loop: true repeats the track seamlessly
        src   path to the file, e.g. 'audio/in-the-loop/01.mp3'
        link  where the full piece lives (SoundCloud, YouTube…), shown next to the track
      A playlist without tracks is not shown. */
@@ -107,7 +107,7 @@ window.PORTFOLIO = {
       { title: 'Arena loop', src: 'audio/jingi/arena_loop.mp3', year: 2026, note: 'FMOD event arena_loop — Metal room tone of the arena' },
     ] },
     { id: 'jazz', title: 'Jazz',
-      description: 'Recordings of K4, the jazz band I played bass in, with the wonderful singer Eliška Macháčová, Jiří Chvojka on piano and Jan Konrad on drums. I ran the sound at every show and recorded the sessions on my own gear.',
+      description: 'Recordings of K4, the jazz band I played bass in, with the wonderful singer Eliška Macháčová, Jiří Chvojka on piano and Jan Konrad on drums. I ran the sound at every show and recorded the sessions on my own gear. Last on the list: a Konrys Brothers jam I recorded, mixed and mastered.',
       tracks: [
       { title: 'Alice keys', src: 'audio/jazz/alice-keys.mp3', year: 2011, note: 'Demo' },
       { title: 'One', src: 'audio/jazz/one.mp3', year: 2011, note: 'Demo' },
@@ -115,10 +115,20 @@ window.PORTFOLIO = {
       { title: 'Georgia', src: 'audio/jazz/georgia.mp3', year: 2014, note: 'K4 — Eliška Macháčová (vocals), Jiří Chvojka (piano), Jan Konrad (drums), Pavel Konrad (bass)' },
       { title: 'Don’t Know Why', src: 'audio/jazz/dont-know-why.mp3', year: 2014, note: 'K4 — Eliška Macháčová (vocals), Jiří Chvojka (piano), Jan Konrad (drums), Pavel Konrad (bass)' },
       { title: 'Klobouk ve křoví', src: 'audio/jazz/klobouk-ve-krovi.mp3', year: 2014, note: 'K4 — Eliška Macháčová (vocals), Jiří Chvojka (piano), Jan Konrad (drums), Pavel Konrad (bass)' },
+      { title: 'Chameleon', src: 'audio/music/chameleon.mp3', year: 2020, note: 'Konrys Brothers — a jam. Recorded, mixed and mastered by me' },
     ] },
-    { id: 'music',        title: 'Music',        tracks: [] },
-    { id: 'recording',    title: 'Recording',    tracks: [] },
-    { id: 'drawer',       title: 'From the drawer', tracks: [] },
+    { id: 'acoustic', title: 'Acoustic',
+      tracks: [
+      { title: 'Little Trouble', src: 'audio/music/little-trouble.mp3', year: 2024, note: 'Acoustic' },
+      { title: 'Souvenir', src: 'audio/music/drda.mp3', year: 2021, note: 'František Drda — live concert in the ZUŠ Milovice hall. Recorded by me' },
+    ] },
+    { id: 'loops', title: 'Loops & jingles',
+      description: 'Short pieces built to repeat or to open something. A loop plays on until you stop it.',
+      tracks: [
+      { title: 'Farm Circuit', src: 'audio/jingles/farm-circuit.mp3', year: 2026, note: 'Loop — plays seamlessly on repeat', loop: true },
+      { title: 'Context Less', src: 'audio/jingles/context-less.mp3', year: 2026, note: 'Loop — plays seamlessly on repeat', loop: true, link: 'https://soundcloud.com/pavelkonrad/context-less' },
+      { title: 'JamUJam', src: 'audio/jingles/jamujam.mp3', year: 2022, note: 'Jingle' },
+    ] },
   ],
 
   works: [
