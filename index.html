@@ -11,6 +11,7 @@
 <meta property="og:description" content="Rooted in music. Built in software. Settled in sound.">
 <meta property="og:url" content="https://pavelkonrad.cz/">
 <meta property="og:type" content="website">
+<meta property="og:image" content="https://pavelkonrad.cz/img/portrait.jpg">
 <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
 <link rel="manifest" href="assets/site.webmanifest">
@@ -84,7 +85,23 @@ body.is-map .page { opacity:0; pointer-events:none; }
   display:flex; flex-direction:column; justify-content:space-between; gap:2rem;
   padding-top:2rem; padding-bottom:2.5rem;
 }
-.intro__main { flex:1; display:flex; align-items:center; }
+.intro__main { flex:1; display:flex; align-items:center; position:relative; z-index:1; }
+.intro__name, .intro__actions { position:relative; z-index:1; }
+/* the portrait stands in the right half of the hero, cut off at the fold */
+.intro__portrait {
+  position:absolute; right:clamp(1rem, 4vw, 4rem); bottom:0; z-index:0;
+  height:88%; width:auto; max-width:44%; object-fit:cover; object-position:50% 0;
+  /* fallback until the script has measured the photo and drawn its mask */
+  -webkit-mask-image:linear-gradient(to bottom, #000 72%, transparent);
+  mask-image:linear-gradient(to bottom, #000 72%, transparent);
+  -webkit-mask-size:100% 100%; mask-size:100% 100%;
+}
+@media (max-width:760px) {
+  .intro__portrait {
+    position:relative; right:auto; bottom:auto;
+    width:100%; max-width:none; height:34svh; object-position:50% 12%;
+  }
+}
 .intro__name { margin:0; font-family:var(--mono); font-size:0.8rem; font-weight:400; letter-spacing:0.16em; text-transform:uppercase; color:var(--text-soft); }
 .intro__headline {
   margin:0;
@@ -405,6 +422,7 @@ body.is-map .page { opacity:0; pointer-events:none; }
 <div class="page" id="page">
   <header class="wrap intro">
     <p class="intro__name">Pavel Konrad</p>
+    <img class="intro__portrait" src="img/portrait.jpg" alt="Pavel Konrad">
     <div class="intro__main">
     <h1 class="intro__headline"><span class="intro__line">Rooted in music.</span> <span class="intro__line">Built in software.</span> <span class="intro__line">Settled in <span class="intro__accent">sound</span>.</span></h1>
     </div>
@@ -565,6 +583,44 @@ addEventListener('resize', () => { clearTimeout(wallTimer); wallTimer = setTimeo
 
 const DPR = Math.min(2, window.devicePixelRatio || 1);
 
+/* ── Portrait mask ────────────────────────────────────────
+   Top corners are a superellipse |x/r|^n + |y/r|^n = 1 — Pythagoras is n = 2
+   (a circle); n = 4 gives a squircle whose curvature eases in from the straight
+   edge instead of starting abruptly. The mask is drawn at the photo's real size
+   so the corners stay round at any aspect ratio. Desktop keeps the fade into
+   the grain at the bottom; phones end on a hard edge. */
+(function portraitMask(){
+  const img = document.querySelector('.intro__portrait');
+  if (!img) return;
+  const n = 4;
+  function corner(cx, cy, r, dirX){
+    /* quarter superellipse from the side edge up and over to the top edge */
+    const pts = [];
+    for (let i = 0; i <= 24; i++){
+      const t = (i / 24) * Math.PI / 2;
+      const x = Math.pow(Math.cos(t), 2 / n) * r, y = Math.pow(Math.sin(t), 2 / n) * r;
+      pts.push(`${(cx + dirX * x).toFixed(2)},${(cy - y).toFixed(2)}`);
+    }
+    return pts;
+  }
+  function draw(){
+    const w = img.clientWidth, h = img.clientHeight;
+    if (!w || !h) return;
+    const r = Math.min(w, h) * 0.16;
+    const fade = innerWidth > 760;
+    const left = corner(r, r, r, -1);            /* from (0, r) up to (r, 0) */
+    const right = corner(w - r, r, r, 1).reverse(); /* from (w - r, 0) down to (w, r) */
+    const d = `M0,${h} L${left.join(' L')} L${right.join(' L')} L${w},${h} Z`;
+    const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${h}' viewBox='0 0 ${w} ${h}'>` +
+      `<defs><linearGradient id='f' x1='0' y1='0' x2='0' y2='1'>` +
+      `<stop offset='${fade ? 0.72 : 1}' stop-color='#fff'/><stop offset='1' stop-color='#fff' stop-opacity='${fade ? 0 : 1}'/>` +
+      `</linearGradient></defs><path d='${d}' fill='url(#f)'/></svg>`;
+    const url = `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+    img.style.webkitMaskImage = url; img.style.maskImage = url;
+  }
+  if (img.complete) draw(); else img.addEventListener('load', draw);
+  let t; addEventListener('resize', () => { clearTimeout(t); t = setTimeout(draw, 100); });
+})();
 
 /* ── Grain that moves with the scroll ─────────────────────
    The texture is rendered once; each frame redraws it in thin vertical strips,
