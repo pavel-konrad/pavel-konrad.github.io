@@ -120,7 +120,6 @@ window.PORTFOLIO = {
     { id: 'acoustic', title: 'Acoustic',
       tracks: [
       { title: 'Little Trouble', src: 'audio/music/little-trouble.mp3', year: 2024, note: 'Acoustic' },
-      { title: 'Souvenir', src: 'audio/music/drda.mp3', year: 2021, note: 'František Drda — live concert in the ZUŠ Milovice hall. Recorded by me' },
     ] },
     { id: 'loops', title: 'Loops & jingles',
       description: 'Short pieces built to repeat or to open something. A loop plays on until you stop it.',
