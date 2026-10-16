@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Pavel Konrad — sound design</title>
+<title>Pavel Konrad — audiovisual artist</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Pavel Konrad — rooted in music, built in software, settled in sound.">
+<meta name="description" content="Pavel Konrad, audiovisual artist — rooted in music, built in software, settled in sound and image.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://pavelkonrad.cz/">
-<meta property="og:title" content="Pavel Konrad — sound design">
-<meta property="og:description" content="Rooted in music. Built in software. Settled in sound.">
+<meta property="og:title" content="Pavel Konrad — audiovisual artist">
+<meta property="og:description" content="Rooted in music. Built in software. Settled in sound and image.">
 <meta property="og:url" content="https://pavelkonrad.cz/">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://pavelkonrad.cz/img/portrait.jpg">
@@ -423,10 +423,10 @@ body.is-map .page { opacity:0; pointer-events:none; }
 
 <div class="page" id="page">
   <header class="wrap intro">
-    <p class="intro__name">Pavel Konrad</p>
+    <p class="intro__name">Pavel Konrad — audiovisual artist</p>
     <img class="intro__portrait" src="img/portrait.jpg" alt="Pavel Konrad">
     <div class="intro__main">
-    <h1 class="intro__headline"><span class="intro__line">Rooted in music.</span> <span class="intro__line">Built in software.</span> <span class="intro__line">Settled in <span class="intro__accent">sound</span>.</span></h1>
+    <h1 class="intro__headline"><span class="intro__line">Rooted in music.</span> <span class="intro__line">Built in software.</span> <span class="intro__line">Settled in <span class="intro__accent">sound and image</span>.</span></h1>
     </div>
     <div class="intro__actions">
       <a class="btn btn--pill btn--primary" href="https://youtu.be/o9qj8BAmp40" target="_blank" rel="noopener">▶ Sound reel</a>
@@ -437,9 +437,8 @@ body.is-map .page { opacity:0; pointer-events:none; }
 
   <main>
       <nav class="shelves wrap" id="shelves" aria-label="Sections">
-        <button type="button" class="listen__tab" data-shelf="adaptive" aria-selected="true">Adaptive audio</button>
+        <button type="button" class="listen__tab" data-shelf="audiovisual" aria-selected="true">Audiovisual</button>
         <button type="button" class="listen__tab" data-shelf="music" aria-selected="false">Music</button>
-        <button type="button" class="listen__tab" data-shelf="recording" aria-selected="false">Audio recording</button>
         <button type="button" class="listen__tab" data-shelf="worked-with" aria-selected="false">Worked with</button>
       </nav>
       <div class="wall" id="grid"></div>
@@ -551,8 +550,8 @@ function coverHtml(n){
 /* newest first; works without a year and drafts go last */
 const lastYear = w => { const m = String(w.year || '').match(/\d{4}/g); return w.draft ? -2 : m ? +m[m.length - 1] : -1; };
 const pick = () => `--fx:${-Math.floor(Math.random() * 500)}px;--fy:${-Math.floor(Math.random() * 500)}px`;
-let shelf = 'adaptive';
-const onShelf = w => (w.shelf || 'adaptive') === shelf;
+let shelf = 'audiovisual';
+const onShelf = w => (w.shelf || 'audiovisual') === shelf;
 function renderWall(){
 $('grid').innerHTML = works.map(w => nodeById[w.id]).filter(onShelf).sort((a, b) => lastYear(b) - lastYear(a)).map(w => `
   <a class="tile" href="#${esc(w.id)}" data-id="${esc(w.id)}" style="${pick()}">

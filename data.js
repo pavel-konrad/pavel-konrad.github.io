@@ -26,7 +26,7 @@
   logo   an institution's logo, shown centred on the tile instead of a photo.
   lineup [[instrument, name], …] — who played what, shown in the detail.
   credit what I did, in a few words — shown on the tile under the title.
-  shelf  which tab the tile sits under: adaptive | music | recording | worked-with
+  shelf  which tab the tile sits under: audiovisual | music | worked-with
 */
 window.PORTFOLIO = {
   identities: [
@@ -134,7 +134,7 @@ window.PORTFOLIO = {
   works: [
     {
       id: 'jingi',
-      shelf: 'adaptive',
+      shelf: 'audiovisual',
       title: 'JINGI',
       year: 2026,
       identities: ['musician', 'programmer', 'multimedia'],
@@ -173,7 +173,7 @@ window.PORTFOLIO = {
     },
     {
       id: 'boreal',
-      shelf: 'adaptive',
+      shelf: 'audiovisual',
       title: 'Boreal Flow',
       year: 2025,
       identities: ['multimedia', 'programmer', 'musician'],
@@ -266,7 +266,7 @@ window.PORTFOLIO = {
     },
     {
       id: 'drums',
-      shelf: 'recording',
+      shelf: 'worked-with',
       title: 'Drums — live session',
       year: 2021,
       identities: ['technician', 'musician'],
@@ -284,7 +284,7 @@ window.PORTFOLIO = {
     },
     {
       id: 'zus',
-      shelf: 'recording',
+      shelf: 'worked-with',
       title: 'Violin & piano — concert recording',
       year: 2021,
       identities: ['technician'],
