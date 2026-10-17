@@ -132,6 +132,25 @@ window.PORTFOLIO = {
 
   works: [
     {
+      id: 'live-session-1',
+      shelf: 'audiovisual',
+      current: true,
+      title: 'Live Session №1 — Opening',
+      year: 2026,
+      identities: ['musician', 'programmer', 'multimedia'],
+      image: 'img/live-session-1.jpg',
+      credit: 'Music & the Ableton–Unity link',
+      role: 'Music, live in Ableton; with Jakub Roček on the visuals',
+      summary: 'A live audiovisual composition for two players. I play the music in Ableton, Jakub Roček steers the Unity scene with a controller, and a plugin we wrote links the two, so the music moves parts of his picture while he leads the rest. Nothing is pre-rendered: every frame and every sound is played live.',
+      lineup: [['Music', 'Pavel Norbert Konrád'], ['Visuals', 'Jakub Roček']],
+      links: [
+        { label: 'Watch the full set', url: 'https://youtu.be/yZSJiTSO9nE' },
+      ],
+      grew_from: [
+        { ref: 'jingi', kind: 'experience', why: 'Unity again, now played live' },
+      ],
+    },
+    {
       id: 'jingi',
       shelf: 'audiovisual',
       title: 'JINGI',
