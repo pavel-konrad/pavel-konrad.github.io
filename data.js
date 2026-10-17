@@ -156,7 +156,7 @@ window.PORTFOLIO = {
       title: 'JINGI',
       year: 2026,
       identities: ['musician', 'programmer', 'multimedia'],
-      image: 'https://i.ytimg.com/vi/seyel3vAcRI/hqdefault.jpg',
+      image: 'img/jingi.jpg',
       credit: 'Sound & Code',
       role: 'Co-author — code architecture and the complete sound',
       summary: 'A playable Unity prototype of a Knucklebones-style dice game, made with the artist Nx-LabRat. The architecture let the artist work in the editor while code and audio moved in parallel; FMOD events are driven by a C# state machine and every sound is made from scratch.',
